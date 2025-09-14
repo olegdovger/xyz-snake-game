@@ -6,24 +6,24 @@ namespace utils {
 // Font name mapping
 namespace {
 const std::string FONT_NAMES[] = {
-    "debug_font", // FontType::DebugFont
-    "ui_font" // FontType::UIFont
+    "debug_font",  // FontType::DebugFont
+    "ui_font"      // FontType::UIFont
 };
 const std::string TEXTURE_NAMES[] = {
-    "snake", // TextureType::Snake
-    "green_apple", // TextureType::GreenApple
-    "red_apple", // TextureType::RedApple
-    "fantom_apple", // TextureType::FantomApple
-    "board_border", // TextureType::BoardBorder
-    "board_grid", // TextureType::BoardGrid
-    "portal", // TextureType::Portal
-    "water_bubble", // TextureType::WaterBubble
-    "wall_1", // TextureType::Wall_1
-    "wall_2", // TextureType::Wall_2
-    "wall_3", // TextureType::Wall_3
-    "wall_4" // TextureType::Wall_4
+    "snake",         // TextureType::Snake
+    "green_apple",   // TextureType::GreenApple
+    "red_apple",     // TextureType::RedApple
+    "fantom_apple",  // TextureType::FantomApple
+    "board_border",  // TextureType::BoardBorder
+    "board_grid",    // TextureType::BoardGrid
+    "portal",        // TextureType::Portal
+    "water_bubble",  // TextureType::WaterBubble
+    "wall_1",        // TextureType::Wall_1
+    "wall_2",        // TextureType::Wall_2
+    "wall_3",        // TextureType::Wall_3
+    "wall_4"         // TextureType::Wall_4
 };
-} // namespace
+}  // namespace
 
 bool ResourceLoader::initializeAllResources() {
   std::cout << "Loading all game resources..." << std::endl;
@@ -94,7 +94,7 @@ bool ResourceLoader::loadSounds() {
   // success &= loadSound("eat_apple", "resources/sounds/eat_apple.wav");
   // success &= loadSound("game_over", "resources/sounds/game_over.wav");
 
-  return true; // No sounds yet
+  return true;  // No sounds yet
 }
 
 bool ResourceLoader::loadTexture(const std::string& name,
@@ -139,4 +139,4 @@ const sf::Font& ResourceLoader::getFont(FontType fontType) {
 const sf::Texture& ResourceLoader::getTexture(TextureType textureType) {
   return getTextureManager().getResource(textureTypeToString(textureType));
 }
-} // namespace utils
+}  // namespace utils

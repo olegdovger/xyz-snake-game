@@ -7,6 +7,9 @@
 #include "utils/ResourceLoader.hpp"
 
 Game::Game(sf::RenderWindow& win) : window(win), isRunning(true) {
+  //initializeAllResources
+  utils::ResourceLoader::initializeAllResources();
+
   setCurrentScreen(new MainMenu(window, *this));
 
   // Initialize debug UI
@@ -15,9 +18,6 @@ Game::Game(sf::RenderWindow& win) : window(win), isRunning(true) {
 }
 
 void Game::start() const {
-  //initializeAllResources
-  utils::ResourceLoader::initializeAllResources();
-
   while (window.isOpen()) {
     sf::sleep(sf::milliseconds(16));
 
@@ -46,6 +46,7 @@ void Game::processEvents(const sf::Event& event) const {
 
   // Handle specific events
   if (event.is<sf::Event::Closed>()) {
+    std::cout << "Window closed" << std::endl;
     window.close();
   }
 
@@ -54,9 +55,8 @@ void Game::processEvents(const sf::Event& event) const {
 
     const auto resizedEvent = event.getIf<sf::Event::Resized>();
     // Update the view to match the new window size
-    sf::View view = sf::View(
-        sf::Vector2f(resizedEvent->size.x / 2.0f, resizedEvent->size.y / 2.0f),
-        sf::Vector2f(resizedEvent->size.x, resizedEvent->size.y));
+    sf::View view = sf::View(sf::Vector2f(resizedEvent->size.x / 2.0f, resizedEvent->size.y / 2.0f),
+                             sf::Vector2f(resizedEvent->size.x, resizedEvent->size.y));
     window.setView(view);
   }
 }
