@@ -1,14 +1,13 @@
-#include "MainMenu.hpp"
+#include "PauseScreen.hpp"
 #include "../utils/ResourceLoader.hpp"
-#include "Difficulty.hpp"
 #include "Exit.hpp"
 #include "GameScreen.hpp"
-#include "HighScores.hpp"
-#include "Settings.hpp"
+#include "MainMenu.hpp"
 
-MainMenu::MainMenu(sf::RenderWindow& win, Game& gameRef) : Screen(win, gameRef), titleText(font) {}
 
-void MainMenu::drawMenuBackground(sf::RenderWindow& window, const sf::Text& text) const {
+PauseScreen::PauseScreen(sf::RenderWindow& win, Game& gameRef) : Screen(win, gameRef), titleText(font) {}
+
+void PauseScreen::drawMenuBackground(sf::RenderWindow& window, const sf::Text& text) {
   sf::RectangleShape background;
   background.setSize(sf::Vector2f(text.getLocalBounds().size.x + 20, text.getLocalBounds().size.y + 10));
   background.setPosition(sf::Vector2f(text.getPosition().x - 10, text.getPosition().y - 5));
@@ -16,7 +15,7 @@ void MainMenu::drawMenuBackground(sf::RenderWindow& window, const sf::Text& text
   window.draw(background);
 }
 
-void MainMenu::processEvents(const sf::Event& event) {
+void PauseScreen::processEvents(const sf::Event& event) {
   if (event.is<sf::Event::KeyPressed>()) {
     switch (event.getIf<sf::Event::KeyPressed>()->code) {
       case sf::Keyboard::Key::W:
@@ -31,22 +30,21 @@ void MainMenu::processEvents(const sf::Event& event) {
         break;
       case sf::Keyboard::Key::Enter:
         switch (selectedIndex) {
-          case 0:  // Начать игру
+          case 0:  // Продолжить игру
+            // Return to game screen
             game.setCurrentScreen(new GameScreen(window, game));
             break;
-          case 1:  // Уровень сложности
-            game.setCurrentScreen(new Difficulty(window, game));
+          case 1:  // Главное меню
+            game.setCurrentScreen(new MainMenu(window, game));
             break;
-          case 2:  // Таблица рекордов
-            game.setCurrentScreen(new HighScores(window, game));
-            break;
-          case 3:  // Настройки
-            game.setCurrentScreen(new Settings(window, game));
-            break;
-          case 4:  // Выход
+          case 2:  // Выход
             game.setCurrentScreen(new Exit(window, game));
             break;
         }
+        break;
+      case sf::Keyboard::Key::Escape:
+        // Return to game screen
+        game.setCurrentScreen(new GameScreen(window, game));
         break;
       default:
         break;
@@ -54,11 +52,11 @@ void MainMenu::processEvents(const sf::Event& event) {
   }
 }
 
-void MainMenu::update() {
-  // No update logic needed for menu
+void PauseScreen::update() {
+  // No update logic needed for pause menu
 }
 
-void MainMenu::renderMenuRect() {
+void PauseScreen::renderMenuRect() {
   menuRect.setSize(menuRectSize);
 
   sf::Vector2u windowSize = window.getSize();
@@ -73,14 +71,14 @@ void MainMenu::renderMenuRect() {
   window.draw(menuRect);
 }
 
-void MainMenu::renderTitle() {
+void PauseScreen::renderTitle() {
   // Load font using ResourceLoader
   font = utils::ResourceLoader::getFont(utils::FontType::DebugFont);
 
   // Initialize title
   titleText.setFont(font);
-  titleText.setString(L"Змейка");
-  titleText.setCharacterSize(60);
+  titleText.setString(L"Пауза");
+  titleText.setCharacterSize(50);
   titleText.setLineSpacing(0.0f);
   titleText.setFillColor(textColor);
   titleText.setStyle(sf::Text::Bold);
@@ -88,10 +86,10 @@ void MainMenu::renderTitle() {
   titleText.setOutlineThickness(2.0f);
 
   // Center title horizontally
-  const sf::Vector2u windowSize = window.getSize();
-  const sf::FloatRect titleBounds = titleText.getLocalBounds();
+  sf::Vector2u windowSize = window.getSize();
+  sf::FloatRect titleBounds = titleText.getLocalBounds();
 
-  const sf::Vector2f centerPosition =
+  sf::Vector2f centerPosition =
       sf::Vector2f(menuRect.getPosition().x + menuRect.getSize().x / 2.0f - titleBounds.size.x / 2.0f,
                    menuRect.getPosition().y + 20);
 
@@ -100,25 +98,25 @@ void MainMenu::renderTitle() {
   window.draw(titleText);
 }
 
-void MainMenu::renderMenuItems() {
+void PauseScreen::renderMenuItems() {
   // Initialize menu items
-  menuLabels = {L"Начать игру", L"Уровень сложности", L"Таблица рекордов", L"Настройки", L"Выход"};
+  menuLabels = {L"Продолжить игру", L"Главное меню", L"Выход"};
 
   menuItems.clear();
 
   // Center title horizontally
-  const sf::Vector2u windowSize = window.getSize();
+  sf::Vector2u windowSize = window.getSize();
 
   for (size_t i = 0; i < menuLabels.size(); ++i) {
     sf::Text menuItem(font);
 
-    menuItem.setCharacterSize(28);
+    menuItem.setCharacterSize(24);
     menuItem.setFillColor(sf::Color::White);
     menuItem.setString(menuLabels[i]);
     menuItem.setStyle(sf::Text::Bold);
 
-    const sf::Vector2f position =
-        sf::Vector2f(menuRect.getPosition().x + 180.0f, menuRect.getPosition().y + 120.0f + i * 40.0f);
+    sf::Vector2f position =
+        sf::Vector2f(menuRect.getPosition().x + 120.0f, menuRect.getPosition().y + 100.0f + i * 40.0f);
 
     menuItem.setPosition(position);
 
@@ -131,7 +129,7 @@ void MainMenu::renderMenuItems() {
   }
 }
 
-void MainMenu::render() {
+void PauseScreen::render() {
   window.clear(backgroundColor);
 
   renderMenuRect();

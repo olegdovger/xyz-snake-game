@@ -41,9 +41,9 @@ public:
   static SoundBufferManager& getSoundManager();
 
   // Get font by type (type-safe)
-  static const sf::Font& getFont(FontType fontType);
+  static const sf::Font& getFont(const FontType fontType);
 
-  static const sf::Texture& getTexture(TextureType textureType);
+  static const sf::Texture& getTexture(const TextureType textureType);
 
 private:
   static bool loadTexture(const std::string& name, const std::string& path);
@@ -53,9 +53,9 @@ private:
   static bool loadSound(const std::string& name, const std::string& path);
 
   // Convert enum to string
-  static std::string fontTypeToString(FontType fontType);
+  static std::string fontTypeToString(const FontType fontType);
 
-  static std::string textureTypeToString(TextureType textureType);
+  static std::string textureTypeToString(const TextureType textureType);
 };
 
-} // namespace utils
+}  // namespace utils

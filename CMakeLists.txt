@@ -22,6 +22,7 @@ add_executable(${PROJECT_NAME}
         "src/ScreenState.cpp"
         "src/screens/MainMenu.cpp"
         "src/screens/GameScreen.cpp"
+        "src/screens/PauseScreen.cpp"
         "src/screens/Difficulty.cpp"
         "src/screens/HighScores.cpp"
         "src/screens/Settings.cpp"

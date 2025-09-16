@@ -1,21 +1,16 @@
+#include "Difficulty.hpp"
 #include <iostream>
-#include "../Screen.hpp"
 
-class Difficulty : public Screen {
- public:
-  explicit Difficulty(sf::RenderWindow& win, Game& gameRef)
-      : Screen(win, gameRef) {}
+Difficulty::Difficulty(sf::RenderWindow& win, Game& gameRef) : Screen(win, gameRef) {}
 
-  void processEvents(const sf::Event& event) override {
-    std::cout << "Difficulty screen - Handling difficulty input" << std::endl;
-  }
+void Difficulty::processEvents(const sf::Event& event) {
+  std::cout << "Difficulty screen - Handling difficulty input" << std::endl;
+}
 
-  void update() override {
-    std::cout << "Difficulty screen - Updating difficulty selection"
-              << std::endl;
-  }
+void Difficulty::update() {
+  std::cout << "Difficulty screen - Updating difficulty selection" << std::endl;
+}
 
-  void render() override {
-    std::cout << "Difficulty screen - Select difficulty level" << std::endl;
-  }
-};
+void Difficulty::render() {
+  std::cout << "Difficulty screen - Select difficulty level" << std::endl;
+}

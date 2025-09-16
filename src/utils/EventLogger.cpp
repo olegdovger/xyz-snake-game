@@ -4,7 +4,7 @@
 namespace utils {
 bool EventLogger::debugMode = false;
 namespace {
-std::string getKeyName(sf::Keyboard::Key key) {
+std::string getKeyName(const sf::Keyboard::Key key) {
   switch (key) {
     case sf::Keyboard::Key::A:
       return "A";
@@ -120,12 +120,10 @@ std::string getModifiers() {
       sf::Keyboard::isKeyPressed(sf::Keyboard::Key::RControl)) {
     result += "Ctrl+";
   }
-  if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LAlt) ||
-      sf::Keyboard::isKeyPressed(sf::Keyboard::Key::RAlt)) {
+  if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LAlt) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::RAlt)) {
     result += "Alt+";
   }
-  if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) ||
-      sf::Keyboard::isKeyPressed(sf::Keyboard::Key::RShift)) {
+  if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::RShift)) {
     result += "Shift+";
   }
   if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LSystem) ||
@@ -136,16 +134,14 @@ std::string getModifiers() {
   return result;
 }
 
-bool isModifierKey(sf::Keyboard::Key key) {
-  return key == sf::Keyboard::Key::LControl ||
-         key == sf::Keyboard::Key::RControl || key == sf::Keyboard::Key::LAlt ||
-         key == sf::Keyboard::Key::RAlt || key == sf::Keyboard::Key::LShift ||
-         key == sf::Keyboard::Key::RShift ||
+bool isModifierKey(const sf::Keyboard::Key key) {
+  return key == sf::Keyboard::Key::LControl || key == sf::Keyboard::Key::RControl || key == sf::Keyboard::Key::LAlt ||
+         key == sf::Keyboard::Key::RAlt || key == sf::Keyboard::Key::LShift || key == sf::Keyboard::Key::RShift ||
          key == sf::Keyboard::Key::LSystem || key == sf::Keyboard::Key::RSystem;
 }
 }  // namespace
 
-void EventLogger::setDebugMode(bool enabled) {
+void EventLogger::setDebugMode(const bool enabled) {
   debugMode = enabled;
 }
 
@@ -185,8 +181,7 @@ void EventLogger::logEvent(const sf::Event& event) {
         buttonName = "Other";
         break;
     }
-    eventText = "MousePressed: " + buttonName + " at (" +
-                std::to_string(mouseEvent->position.x) + ", " +
+    eventText = "MousePressed: " + buttonName + " at (" + std::to_string(mouseEvent->position.x) + ", " +
                 std::to_string(mouseEvent->position.y) + ")";
   } else if (event.is<sf::Event::MouseButtonReleased>()) {
     const auto mouseEvent = event.getIf<sf::Event::MouseButtonReleased>();
@@ -205,23 +200,20 @@ void EventLogger::logEvent(const sf::Event& event) {
         buttonName = "Other";
         break;
     }
-    eventText = "MouseReleased: " + buttonName + " at (" +
-                std::to_string(mouseEvent->position.x) + ", " +
+    eventText = "MouseReleased: " + buttonName + " at (" + std::to_string(mouseEvent->position.x) + ", " +
                 std::to_string(mouseEvent->position.y) + ")";
   } else if (event.is<sf::Event::MouseMoved>()) {
     const auto mouseEvent = event.getIf<sf::Event::MouseMoved>();
-    eventText = "MouseMoved: (" + std::to_string(mouseEvent->position.x) +
-                ", " + std::to_string(mouseEvent->position.y) + ")";
+    eventText =
+        "MouseMoved: (" + std::to_string(mouseEvent->position.x) + ", " + std::to_string(mouseEvent->position.y) + ")";
   } else if (event.is<sf::Event::Closed>()) {
     eventText = "WindowClosed";
   } else if (event.is<sf::Event::Resized>()) {
     const auto resizeEvent = event.getIf<sf::Event::Resized>();
-    eventText = "WindowResized: " + std::to_string(resizeEvent->size.x) + "x" +
-                std::to_string(resizeEvent->size.y);
+    eventText = "WindowResized: " + std::to_string(resizeEvent->size.x) + "x" + std::to_string(resizeEvent->size.y);
   } else if (event.is<sf::Event::TextEntered>()) {
     const auto textEvent = event.getIf<sf::Event::TextEntered>();
-    eventText =
-        "TextEntered: " + std::string(1, static_cast<char>(textEvent->unicode));
+    eventText = "TextEntered: " + std::string(1, static_cast<char>(textEvent->unicode));
   } else {
     eventText = "Other Event";
   }

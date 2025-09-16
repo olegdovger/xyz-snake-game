@@ -1,7 +1,6 @@
 #include "Game.hpp"
 #include <SFML/Graphics.hpp>
-// #include "screens/GameScreen.cpp"
-#include "screens/MainMenu.cpp"
+#include "screens/MainMenu.hpp"
 #include "utils/DebugUI.hpp"
 #include "utils/EventLogger.hpp"
 #include "utils/ResourceLoader.hpp"

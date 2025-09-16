@@ -6,7 +6,7 @@ namespace utils {
 class EventLogger {
 public:
   static void logEvent(const sf::Event& event);
-  static void setDebugMode(bool enabled);
+  static void setDebugMode(const bool enabled);
 
 private:
   static bool debugMode;
