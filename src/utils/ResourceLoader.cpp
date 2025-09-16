@@ -46,18 +46,18 @@ bool ResourceLoader::loadTextures() {
   std::cout << "Loading textures..." << std::endl;
 
   bool success = true;
-  success &= loadTexture(textureTypeToString(TextureType::Snake), "resources/Snake.png");
-  success &= loadTexture(textureTypeToString(TextureType::GreenApple), "resources/GreenApple.png");
-  success &= loadTexture(textureTypeToString(TextureType::RedApple), "resources/RedApple.png");
-  success &= loadTexture(textureTypeToString(TextureType::FantomApple), "resources/FantomApple.png");
-  success &= loadTexture(textureTypeToString(TextureType::BoardBorder), "resources/BoardBorder.png");
-  success &= loadTexture(textureTypeToString(TextureType::BoardGrid), "resources/BoardGrid.png");
-  success &= loadTexture(textureTypeToString(TextureType::Portal), "resources/Portal.png");
-  success &= loadTexture(textureTypeToString(TextureType::WaterBubble), "resources/WaterBubble.png");
-  success &= loadTexture(textureTypeToString(TextureType::Wall_1), "resources/Wall_1.png");
-  success &= loadTexture(textureTypeToString(TextureType::Wall_2), "resources/Wall_2.png");
-  success &= loadTexture(textureTypeToString(TextureType::Wall_3), "resources/Wall_3.png");
-  success &= loadTexture(textureTypeToString(TextureType::Wall_4), "resources/Wall_4.png");
+  success &= loadTexture(textureTypeToString(TextureType::Snake), "../../resources/Snake.png");
+  success &= loadTexture(textureTypeToString(TextureType::GreenApple), "../../resources/GreenApple.png");
+  success &= loadTexture(textureTypeToString(TextureType::RedApple), "../../resources/RedApple.png");
+  success &= loadTexture(textureTypeToString(TextureType::FantomApple), "../../resources/FantomApple.png");
+  success &= loadTexture(textureTypeToString(TextureType::BoardBorder), "../../resources/BoardBorder.png");
+  success &= loadTexture(textureTypeToString(TextureType::BoardGrid), "../../resources/BoardGrid.png");
+  success &= loadTexture(textureTypeToString(TextureType::Portal), "../../resources/Portal.png");
+  success &= loadTexture(textureTypeToString(TextureType::WaterBubble), "../../resources/WaterBubble.png");
+  success &= loadTexture(textureTypeToString(TextureType::Wall_1), "../../resources/Wall_1.png");
+  success &= loadTexture(textureTypeToString(TextureType::Wall_2), "../../resources/Wall_2.png");
+  success &= loadTexture(textureTypeToString(TextureType::Wall_3), "../../resources/Wall_3.png");
+  success &= loadTexture(textureTypeToString(TextureType::Wall_4), "../../resources/Wall_4.png");
 
   return success;
 }
@@ -67,9 +67,9 @@ bool ResourceLoader::loadFonts() {
 
   bool success = true;
   success &= loadFont(fontTypeToString(FontType::DebugFont),
-                      "resources/fonts/JetBrainsMono"
+                      "../../resources/fonts/JetBrainsMono"
                       "/fonts/ttf/JetBrainsMono-Regular.ttf");
-  success &= loadFont(fontTypeToString(FontType::UIFont), "resources/fonts/Jersey_10/Jersey10-Regular.ttf");
+  success &= loadFont(fontTypeToString(FontType::UIFont), "../../resources/fonts/Jersey_10/Jersey10-Regular.ttf");
 
   return success;
 }
@@ -78,8 +78,8 @@ bool ResourceLoader::loadSounds() {
   std::cout << "Loading sounds..." << std::endl;
 
   // Add sound files here when available
-  // success &= loadSound("eat_apple", "resources/sounds/eat_apple.wav");
-  // success &= loadSound("game_over", "resources/sounds/game_over.wav");
+  // success &= loadSound("eat_apple", "../../resources/sounds/eat_apple.wav");
+  // success &= loadSound("game_over", "../../resources/sounds/game_over.wav");
 
   return true;  // No sounds yet
 }
