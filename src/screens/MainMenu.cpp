@@ -118,7 +118,7 @@ void MainMenu::renderMenuItems() {
     menuItem.setStyle(sf::Text::Bold);
 
     const sf::Vector2f position =
-        sf::Vector2f(menuRect.getPosition().x + 180.0f, menuRect.getPosition().y + 120.0f + i * 40.0f);
+        sf::Vector2f(menuRect.getPosition().x + 180.0f, menuRect.getPosition().y + 140.0f + i * 40.0f);
 
     menuItem.setPosition(position);
 

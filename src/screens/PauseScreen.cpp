@@ -4,7 +4,6 @@
 #include "GameScreen.hpp"
 #include "MainMenu.hpp"
 
-
 PauseScreen::PauseScreen(sf::RenderWindow& win, Game& gameRef) : Screen(win, gameRef), titleText(font) {}
 
 void PauseScreen::drawMenuBackground(sf::RenderWindow& window, const sf::Text& text) {
@@ -116,7 +115,7 @@ void PauseScreen::renderMenuItems() {
     menuItem.setStyle(sf::Text::Bold);
 
     sf::Vector2f position =
-        sf::Vector2f(menuRect.getPosition().x + 120.0f, menuRect.getPosition().y + 100.0f + i * 40.0f);
+        sf::Vector2f(menuRect.getPosition().x + 120.0f, menuRect.getPosition().y + 140.0f + i * 40.0f);
 
     menuItem.setPosition(position);
 

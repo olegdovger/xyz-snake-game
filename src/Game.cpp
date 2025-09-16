@@ -1,6 +1,6 @@
 #include "Game.hpp"
 #include <SFML/Graphics.hpp>
-#include "screens/MainMenu.hpp"
+#include "screens/PauseScreen.hpp"
 #include "utils/DebugUI.hpp"
 #include "utils/EventLogger.hpp"
 #include "utils/ResourceLoader.hpp"
@@ -9,7 +9,7 @@ Game::Game(sf::RenderWindow& win) : window(win), isRunning(true) {
   //initializeAllResources
   utils::ResourceLoader::initializeAllResources();
 
-  setCurrentScreen(new MainMenu(window, *this));
+  setCurrentScreen(new PauseScreen(window, *this));
 
   // Initialize debug UI
   utils::DebugUI::initialize(window);

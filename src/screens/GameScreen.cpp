@@ -8,6 +8,7 @@ void GameScreen::processEvents(const sf::Event& event) {
   if (event.is<sf::Event::KeyPressed>()) {
     switch (event.getIf<sf::Event::KeyPressed>()->code) {
       case sf::Keyboard::Key::Escape:
+      case sf::Keyboard::Key::P:
         game.setCurrentScreen(new PauseScreen(window, game));
         break;
       default:

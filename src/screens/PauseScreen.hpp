@@ -45,7 +45,7 @@ private:
   sf::RectangleShape menuRect;
   float scaleRelativeFactor = 0.6f;
 
-  sf::Vector2f menuRectSize = sf::Vector2f(600.0f * scaleRelativeFactor, 400.0f * scaleRelativeFactor);
+  sf::Vector2f menuRectSize = sf::Vector2f(800.0f * scaleRelativeFactor, 600.0f * scaleRelativeFactor);
 
   void drawMenuBackground(sf::RenderWindow& window, const sf::Text& text);
 
