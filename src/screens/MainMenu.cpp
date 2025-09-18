@@ -1,10 +1,12 @@
 #include "MainMenu.hpp"
+#include <iostream>
 #include "../utils/ResourceLoader.hpp"
 #include "Difficulty.hpp"
 #include "Exit.hpp"
 #include "GameScreen.hpp"
 #include "HighScores.hpp"
 #include "Settings.hpp"
+
 
 MainMenu::MainMenu(sf::RenderWindow& win, Game& gameRef) : Screen(win, gameRef), titleText(font) {}
 

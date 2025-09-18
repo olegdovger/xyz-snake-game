@@ -1,10 +1,15 @@
 #include "GameScreen.hpp"
+#include <iostream>
+#include "../utils/ResourceLoader.hpp"
 #include "PauseScreen.hpp"
 
-GameScreen::GameScreen(sf::RenderWindow& win, Game& gameRef) : Screen(win, gameRef) {}
+GameScreen::GameScreen(sf::RenderWindow& win, Game& gameRef)
+    : Screen(win, gameRef), gameGrid(32, 32, 824.0f, sf::Vector2f(0, 0), 1.0f, 912.0f) {
+  initializeGrid();
+}
 
 void GameScreen::processEvents(const sf::Event& event) {
-  std::cout << "GameScreen screen - Handling game events" << std::endl;
+
   if (event.is<sf::Event::KeyPressed>()) {
     switch (event.getIf<sf::Event::KeyPressed>()->code) {
       case sf::Keyboard::Key::Escape:
@@ -15,71 +20,104 @@ void GameScreen::processEvents(const sf::Event& event) {
         break;
     }
   }
+
+  if (event.is<sf::Event::Resized>()) {
+    initializeGrid();
+  }
 }
 
 void GameScreen::update() {
-  std::cout << "GameScreen screen - Updating game logic" << std::endl;
+  // std::cout << "GameScreen screen - Updating game logic" << std::endl;
 }
 
-float GameScreen::rescaleSprite(sf::Sprite& sprite, const float scaleRelativeFactor) const {
+sf::Vector2f GameScreen::getPosition(const sf::Vector2f size, const float scale) const {
   const sf::Vector2u windowSize = window.getSize();
-  const sf::Vector2u textureSize = sprite.getTexture().getSize();
-  const float scaleX = (float)(windowSize.x * 0.9f) / (float)(textureSize.x);
-  const float scaleY = (float)(windowSize.y * 0.9f) / (float)(textureSize.y);
-  const float scale = std::min(scaleX, scaleY);  // 80% of window size
-  sprite.setScale(sf::Vector2f(scale * scaleRelativeFactor, scale * scaleRelativeFactor));
 
-  return scale;
+  const float positionX = (windowSize.x - size.x * scale) / 2.0f;
+  const float positionY = (windowSize.y - size.y * scale) / 2.0f;
+
+  const auto position = sf::Vector2f(positionX, positionY);
+
+  return position;
 }
 
-void GameScreen::setSpritePositionToCenter(sf::Sprite& sprite, float scale) const {
-  const sf::Vector2u windowSize = window.getSize();
-  const sf::Vector2u textureSize = sprite.getTexture().getSize();
+void GameScreen::renderBoard() {}
 
-  // Recalculate texture size after scaling
-  const sf::Vector2f scaledSize(static_cast<float>(textureSize.x) * scale, static_cast<float>(textureSize.y) * scale);
-
-  // Center the scaled sprite
-  sprite.setPosition(sf::Vector2f((windowSize.x - scaledSize.x) / 2.0f, (windowSize.y - scaledSize.y) / 2.0f));
-}
-
-void GameScreen::renderBoard() {
-  // Then render border on top
-  renderBoardBorder();
-  // Render grid first (background)
-  renderBoardGrid();
-}
-
-void GameScreen::renderBoardBorder() {
-  sf::Texture texture = utils::ResourceLoader::getTexture(utils::TextureType::BoardBorder);
+void GameScreen::renderBoardBorder() const {
+  const auto texture = utils::ResourceLoader::getTexture(utils::TextureType::BoardBorder);
   sf::Sprite sprite(texture);
 
-  const float scale = rescaleSprite(sprite);
-  setSpritePositionToCenter(sprite, scale);
+  const float scale = getScale(sf::Vector2f(sprite.getTexture().getSize()));
+
+  sprite.setScale(sf::Vector2f(scale, scale));
+
+  const auto position = getPosition(sf::Vector2f(sprite.getTexture().getSize()), scale);
+
+  sprite.setPosition(position);
 
   // sprite.setColor(sf::Color(255, 255, 255, 48));
 
   window.draw(sprite);
 }
 
-void GameScreen::renderBoardGrid() {
-  sf::Texture texture = utils::ResourceLoader::getTexture(utils::TextureType::BoardGrid);
+void GameScreen::renderBoardGrid() const {
+  const auto texture = utils::ResourceLoader::getTexture(utils::TextureType::BoardGrid);
   sf::Sprite sprite(texture);
 
   const float scaleRelativeFactor = 912.0f / 992.0f;
-  const float scale = rescaleSprite(sprite, scaleRelativeFactor);
-  setSpritePositionToCenter(sprite, scale * scaleRelativeFactor);
+  const float scale = getScale(sf::Vector2f(sprite.getTexture().getSize())) * scaleRelativeFactor;
 
-  std::cout << "Drawing BoardGrid at scale: " << scale << ", texture size: " << texture.getSize().x << "x"
-            << texture.getSize().y << std::endl;
+  sprite.setScale(sf::Vector2f(scale, scale));
+  const auto position = getPosition(sf::Vector2f(sprite.getTexture().getSize()), scale);
+
+  sprite.setPosition(position);
 
   // sprite.setColor(sf::Color(255, 255, 255, 128));
 
   window.draw(sprite);
 }
 
-void GameScreen::render() {
-  std::cout << "GameScreen screen - Game is running!" << std::endl;
+void GameScreen::renderDebugGrid() const {
+  // Draw border using GameGrid data
+  sf::RectangleShape border(sf::Vector2f(gameGrid.getGridBounds().size.x, gameGrid.getGridBounds().size.y));
+  border.setFillColor(sf::Color::Transparent);
+  border.setOutlineColor(sf::Color(255, 255, 255, 128));
+  border.setOutlineThickness(8.0f * gameGrid.getScale());
 
-  renderBoard();
+  border.setPosition(gameGrid.getTopLeft());
+
+  window.draw(border);
+
+  // Draw cells using GameGrid data
+  sf::RectangleShape cell(sf::Vector2f(gameGrid.getCellSize(), gameGrid.getCellSize()));
+  cell.setScale(sf::Vector2f(gameGrid.getScale(), gameGrid.getScale()));
+  cell.setFillColor(sf::Color::Transparent);
+  cell.setOutlineColor(sf::Color(0, 255, 0, 128));
+  cell.setOutlineThickness(1.0f * gameGrid.getScale());
+
+  // Render all cells using GameGrid
+  for (int row = 0; row < gameGrid.getRows(); ++row) {
+    for (int col = 0; col < gameGrid.getCols(); ++col) {
+      cell.setPosition(gameGrid.getCellPosition(row, col));
+      window.draw(cell);
+    }
+  }
+}
+
+void GameScreen::render() {
+  renderBoardBorder();
+  renderBoardGrid();
+
+  renderDebugGrid();
+}
+
+void GameScreen::initializeGrid() {
+  const float gridSize = 824.0f;
+  const float scaleRelativeFactor = gameGrid.getScaleFactor();
+  const float scale = getScale(sf::Vector2f(gridSize, gridSize)) * scaleRelativeFactor;
+
+  const auto position = getPosition(sf::Vector2f(gridSize, gridSize), scale);
+
+  // Update the game grid with new position and scale
+  gameGrid.updateGrid(position, scale);
 }

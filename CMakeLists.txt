@@ -31,6 +31,7 @@ add_executable(${PROJECT_NAME}
         "src/utils/DebugUI.cpp"
         "src/utils/ResourceLoader.cpp"
         "src/utils/ResourceManager.cpp"
+        "src/utils/GameGrid.cpp"
 )
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics SFML::Audio)

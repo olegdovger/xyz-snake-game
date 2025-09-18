@@ -22,6 +22,7 @@ void Game::start() const {
     sf::sleep(sf::milliseconds(16));
 
     window.clear(sf::Color(164, 144, 164));
+    // window.clear(sf::Color::Black);
 
     while (const auto event = window.pollEvent()) {
       processEvents(*event);
