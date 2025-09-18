@@ -1,7 +1,9 @@
 #include "GameScreen.hpp"
-#include <iostream>
 #include "../utils/ResourceLoader.hpp"
+#include "../utils/ScalingUtils.hpp"
 #include "PauseScreen.hpp"
+
+using namespace utils::shape;
 
 GameScreen::GameScreen(sf::RenderWindow& win, Game& gameRef)
     : Screen(win, gameRef), gameGrid(32, 32, 824.0f, sf::Vector2f(0, 0), 1.0f, 912.0f) {
@@ -30,28 +32,15 @@ void GameScreen::update() {
   // std::cout << "GameScreen screen - Updating game logic" << std::endl;
 }
 
-sf::Vector2f GameScreen::getPosition(const sf::Vector2f size, const float scale) const {
-  const sf::Vector2u windowSize = window.getSize();
-
-  const float positionX = (windowSize.x - size.x * scale) / 2.0f;
-  const float positionY = (windowSize.y - size.y * scale) / 2.0f;
-
-  const auto position = sf::Vector2f(positionX, positionY);
-
-  return position;
-}
-
-void GameScreen::renderBoard() {}
-
 void GameScreen::renderBoardBorder() const {
   const auto texture = utils::ResourceLoader::getTexture(utils::TextureType::BoardBorder);
   sf::Sprite sprite(texture);
 
-  const float scale = getScale(sf::Vector2f(sprite.getTexture().getSize()));
+  const float scale = getScale(sf::Vector2f(sprite.getTexture().getSize()), window.getSize());
 
   sprite.setScale(sf::Vector2f(scale, scale));
 
-  const auto position = getPosition(sf::Vector2f(sprite.getTexture().getSize()), scale);
+  const auto position = getPosition(sf::Vector2f(sprite.getTexture().getSize()), window.getSize(), scale);
 
   sprite.setPosition(position);
 
@@ -65,10 +54,10 @@ void GameScreen::renderBoardGrid() const {
   sf::Sprite sprite(texture);
 
   const float scaleRelativeFactor = 912.0f / 992.0f;
-  const float scale = getScale(sf::Vector2f(sprite.getTexture().getSize())) * scaleRelativeFactor;
+  const float scale = getScale(sf::Vector2f(sprite.getTexture().getSize()), window.getSize()) * scaleRelativeFactor;
 
   sprite.setScale(sf::Vector2f(scale, scale));
-  const auto position = getPosition(sf::Vector2f(sprite.getTexture().getSize()), scale);
+  const auto position = getPosition(sf::Vector2f(sprite.getTexture().getSize()), window.getSize(), scale);
 
   sprite.setPosition(position);
 
@@ -114,9 +103,9 @@ void GameScreen::render() {
 void GameScreen::initializeGrid() {
   const float gridSize = 824.0f;
   const float scaleRelativeFactor = gameGrid.getScaleFactor();
-  const float scale = getScale(sf::Vector2f(gridSize, gridSize)) * scaleRelativeFactor;
+  const float scale = getScale(sf::Vector2f(gridSize, gridSize), window.getSize()) * scaleRelativeFactor;
 
-  const auto position = getPosition(sf::Vector2f(gridSize, gridSize), scale);
+  const auto position = getPosition(sf::Vector2f(gridSize, gridSize), window.getSize(), scale);
 
   // Update the game grid with new position and scale
   gameGrid.updateGrid(position, scale);
