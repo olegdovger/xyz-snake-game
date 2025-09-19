@@ -8,7 +8,7 @@ using namespace utils::shape;
 GameScreen::GameScreen(sf::RenderWindow& win, Game& gameRef)
     : Screen(win, gameRef), gameGrid(32, 32, 824.0f, sf::Vector2f(0, 0), 1.0f, 912.0f), snake(sf::Vector2i(16, 16), 5) {
   initializeGrid();
-  snake.setSnakeType(utils::SnakeSprite::SnakeType::Green);
+  snake.setSnakeType(utils::SnakeSprite::SnakeType::Purple);
 }
 
 void GameScreen::processEvents(const sf::Event& event) {
@@ -43,7 +43,7 @@ void GameScreen::processEvents(const sf::Event& event) {
 
 void GameScreen::update() {
   // Move snake every second
-  if (moveTimer.getElapsedTime().asSeconds() >= MOVE_INTERVAL) {
+  if (moveTimer.getElapsedTime().asSeconds() >= SNAKE_MOVE_INTERVAL) {
     snake.move();
     moveTimer.restart();
 
@@ -122,7 +122,7 @@ void GameScreen::render() {
   // Render snake
   snake.render(window, gameGrid);
 
-  renderDebugGrid();
+  // renderDebugGrid();
 }
 
 void GameScreen::initializeGrid() {

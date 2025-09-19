@@ -23,7 +23,7 @@ private:
 
   // Timing
   sf::Clock moveTimer;
-  static constexpr float MOVE_INTERVAL = 1.0f;  // 1 second
+  static constexpr float SNAKE_MOVE_INTERVAL = 0.1f;  // seconds
 
   void renderBoardBorder() const;
 

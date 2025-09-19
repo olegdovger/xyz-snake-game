@@ -58,6 +58,8 @@ private:
   sf::Vector2i getNextHeadPosition() const;
   float getDirectionRotation() const;
   float getBodySegmentRotation(int segmentIndex) const;
+  float getBodyCornerRotation(int segmentIndex) const;
   float getTailRotation() const;
   utils::SnakeSprite::SegmentType getSegmentType(int segmentIndex) const;
+  bool isBodyCorner(int segmentIndex) const;
 };

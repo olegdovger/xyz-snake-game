@@ -124,6 +124,8 @@ void Snake::render(sf::RenderWindow& window, const utils::GameGrid& grid) const 
           return snakeSprite.getHeadSprite(getDirectionRotation());
         case utils::SnakeSprite::SegmentType::Body:
           return snakeSprite.getBodySprite(getBodySegmentRotation(static_cast<int>(i)));
+        case utils::SnakeSprite::SegmentType::BodyCorner:
+          return snakeSprite.getBodyCornerSprite(getBodyCornerRotation(static_cast<int>(i)));
         case utils::SnakeSprite::SegmentType::Tail:
           return snakeSprite.getTailSprite(getTailRotation());
         default:
@@ -205,6 +207,52 @@ float Snake::getBodySegmentRotation(int segmentIndex) const {
   return 0.0f;  // Default
 }
 
+float Snake::getBodyCornerRotation(int segmentIndex) const {
+  if (segmentIndex <= 0 || segmentIndex >= static_cast<int>(body.size()) - 1) {
+    return 0.0f;
+  }
+
+  // Get the three consecutive segments
+  sf::Vector2i prev = body[segmentIndex - 1];
+  sf::Vector2i current = body[segmentIndex];
+  sf::Vector2i next = body[segmentIndex + 1];
+
+  // Calculate direction vectors
+  sf::Vector2i dirFromPrev = current - prev;
+  sf::Vector2i dirToNext = next - current;
+
+  // Determine rotation based on the specific turn combination
+  // Clockwise turns
+  // Up -> Right (0° -> 90°)
+  if (dirFromPrev.y < 0 && dirToNext.x > 0)
+    return 0.0f;
+  // Right -> Down (90° -> 180°)
+  if (dirFromPrev.x > 0 && dirToNext.y > 0)
+    return 90.0f;
+  // Down -> Left (180° -> 270°)
+  if (dirFromPrev.y > 0 && dirToNext.x < 0)
+    return 180.0f;
+  // Left -> Up (270° -> 0°)
+  if (dirFromPrev.x < 0 && dirToNext.y < 0)
+    return 270.0f;
+
+  // Counter-clockwise turns
+  // Up -> Left (0° -> 270°)
+  if (dirFromPrev.y < 0 && dirToNext.x < 0)
+    return 90.0f;
+  // Left -> Down (270° -> 180°)
+  if (dirFromPrev.x < 0 && dirToNext.y > 0)
+    return 0.0f;
+  // Down -> Right (180° -> 90°)
+  if (dirFromPrev.y > 0 && dirToNext.x > 0)
+    return 270.0f;
+  // Right -> Up (90° -> 0°)
+  if (dirFromPrev.x > 0 && dirToNext.y < 0)
+    return 180.0f;
+
+  return 0.0f;  // Default
+}
+
 float Snake::getTailRotation() const {
   if (body.size() < 2) {
     return 0.0f;
@@ -235,7 +283,28 @@ utils::SnakeSprite::SegmentType Snake::getSegmentType(int segmentIndex) const {
     return utils::SnakeSprite::SegmentType::Head;
   } else if (segmentIndex == static_cast<int>(body.size()) - 1) {
     return utils::SnakeSprite::SegmentType::Tail;
+  } else if (isBodyCorner(segmentIndex)) {
+    return utils::SnakeSprite::SegmentType::BodyCorner;
   } else {
     return utils::SnakeSprite::SegmentType::Body;
   }
+}
+
+bool Snake::isBodyCorner(int segmentIndex) const {
+  if (segmentIndex <= 0 || segmentIndex >= static_cast<int>(body.size()) - 1) {
+    return false;  // Head and tail are never corners
+  }
+
+  // Get the three consecutive segments
+  sf::Vector2i prev = body[segmentIndex - 1];
+  sf::Vector2i current = body[segmentIndex];
+  sf::Vector2i next = body[segmentIndex + 1];
+
+  // Calculate direction vectors
+  sf::Vector2i dirFromPrev = current - prev;
+  sf::Vector2i dirToNext = next - current;
+
+  // Check if directions are perpendicular (corner)
+  // If both directions are not the same, it's a corner
+  return (dirFromPrev.x != dirToNext.x) || (dirFromPrev.y != dirToNext.y);
 }

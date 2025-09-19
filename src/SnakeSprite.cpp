@@ -19,6 +19,12 @@ sf::Sprite SnakeSprite::getBodySprite() const {
   return sprite;
 }
 
+sf::Sprite SnakeSprite::getBodyCornerSprite() const {
+  sf::Sprite sprite(texture);
+  sprite.setTextureRect(getSpriteRect(SegmentType::BodyCorner));
+  return sprite;
+}
+
 sf::Sprite SnakeSprite::getTailSprite() const {
   sf::Sprite sprite(texture);
   sprite.setTextureRect(getSpriteRect(SegmentType::Tail));
@@ -34,6 +40,13 @@ sf::Sprite SnakeSprite::getHeadSprite(float rotation) const {
 
 sf::Sprite SnakeSprite::getBodySprite(float rotation) const {
   sf::Sprite sprite = getBodySprite();
+  sprite.setRotation(sf::degrees(rotation));
+  sprite.setOrigin(sf::Vector2f(SPRITE_WIDTH / 2.0f, SPRITE_HEIGHT / 2.0f));
+  return sprite;
+}
+
+sf::Sprite SnakeSprite::getBodyCornerSprite(float rotation) const {
+  sf::Sprite sprite = getBodyCornerSprite();
   sprite.setRotation(sf::degrees(rotation));
   sprite.setOrigin(sf::Vector2f(SPRITE_WIDTH / 2.0f, SPRITE_HEIGHT / 2.0f));
   return sprite;
@@ -60,6 +73,9 @@ sf::IntRect SnakeSprite::getSpriteRect(SegmentType segment) const {
       break;
     case SegmentType::Body:
       y = BODY_Y;
+      break;
+    case SegmentType::BodyCorner:
+      y = BODY_CORNER_Y;
       break;
     case SegmentType::Tail:
       y = TAIL_Y;
