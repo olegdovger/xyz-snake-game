@@ -1,3 +1,11 @@
+.cache
+.cursor
+.vscode
+.idea
+
+build
+clion-build
+
 # Prerequisites
 *.d
 
