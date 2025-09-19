@@ -1,5 +1,7 @@
 #pragma once
+#include <SFML/System/Clock.hpp>
 #include "../Screen.hpp"
+#include "../Snake.hpp"
 #include "../utils/GameGrid.hpp"
 
 class GameScreen final : public Screen {
@@ -15,6 +17,13 @@ public:
 private:
   // Grid data
   utils::GameGrid gameGrid;
+
+  // Snake
+  Snake snake;
+
+  // Timing
+  sf::Clock moveTimer;
+  static constexpr float MOVE_INTERVAL = 1.0f;  // 1 second
 
   void renderBoardBorder() const;
 

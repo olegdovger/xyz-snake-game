@@ -6,8 +6,9 @@
 using namespace utils::shape;
 
 GameScreen::GameScreen(sf::RenderWindow& win, Game& gameRef)
-    : Screen(win, gameRef), gameGrid(32, 32, 824.0f, sf::Vector2f(0, 0), 1.0f, 912.0f) {
+    : Screen(win, gameRef), gameGrid(32, 32, 824.0f, sf::Vector2f(0, 0), 1.0f, 912.0f), snake(sf::Vector2i(16, 16), 5) {
   initializeGrid();
+  snake.setSnakeType(utils::SnakeSprite::SnakeType::Green);
 }
 
 void GameScreen::processEvents(const sf::Event& event) {
@@ -17,6 +18,18 @@ void GameScreen::processEvents(const sf::Event& event) {
       case sf::Keyboard::Key::Escape:
       case sf::Keyboard::Key::P:
         game.setCurrentScreen(new PauseScreen(window, game));
+        break;
+      case sf::Keyboard::Key::Up:
+        snake.setDirection(Snake::Direction::Up);
+        break;
+      case sf::Keyboard::Key::Down:
+        snake.setDirection(Snake::Direction::Down);
+        break;
+      case sf::Keyboard::Key::Left:
+        snake.setDirection(Snake::Direction::Left);
+        break;
+      case sf::Keyboard::Key::Right:
+        snake.setDirection(Snake::Direction::Right);
         break;
       default:
         break;
@@ -29,7 +42,16 @@ void GameScreen::processEvents(const sf::Event& event) {
 }
 
 void GameScreen::update() {
-  // std::cout << "GameScreen screen - Updating game logic" << std::endl;
+  // Move snake every second
+  if (moveTimer.getElapsedTime().asSeconds() >= MOVE_INTERVAL) {
+    snake.move();
+    moveTimer.restart();
+
+    // Check collisions
+    if (snake.checkSelfCollision() || snake.checkWallCollision(gameGrid.getCols(), gameGrid.getRows())) {
+      snake.kill();
+    }
+  }
 }
 
 void GameScreen::renderBoardBorder() const {
@@ -96,6 +118,9 @@ void GameScreen::renderDebugGrid() const {
 void GameScreen::render() {
   renderBoardBorder();
   renderBoardGrid();
+
+  // Render snake
+  snake.render(window, gameGrid);
 
   renderDebugGrid();
 }
