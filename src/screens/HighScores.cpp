@@ -1,16 +1,123 @@
 #include "HighScores.hpp"
-#include <iostream>
+#include "../utils/ResourceLoader.hpp"
+#include "MainMenu.hpp"
 
-HighScores::HighScores(sf::RenderWindow& win, Game& gameRef) : Screen(win, gameRef) {}
+HighScores::HighScores(sf::RenderWindow& win, Game& gameRef) : Screen(win, gameRef), titleText(font), backText(font) {
+  // Load font
+  font = utils::ResourceLoader::getFont(utils::FontType::DebugFont);
+
+  // Initialize title
+  titleText.setFont(font);
+  titleText.setString(L"Таблица рекордов");
+  titleText.setCharacterSize(40);
+  titleText.setFillColor(textColor);
+  titleText.setStyle(sf::Text::Bold);
+  titleText.setOutlineColor(sf::Color::Black);
+  titleText.setOutlineThickness(2.0f);
+
+  // Initialize back button
+  backText.setFont(font);
+  backText.setString(L"Назад (ESC)");
+  backText.setCharacterSize(24);
+  backText.setFillColor(sf::Color::White);
+  backText.setStyle(sf::Text::Bold);
+}
 
 void HighScores::processEvents(const sf::Event& event) {
-  std::cout << "HighScores screen - Handling score navigation" << std::endl;
+  if (event.is<sf::Event::KeyPressed>()) {
+    switch (event.getIf<sf::Event::KeyPressed>()->code) {
+      case sf::Keyboard::Key::Escape:
+        game.setCurrentScreen(new MainMenu(window, game));
+        break;
+      default:
+        break;
+    }
+  }
 }
 
 void HighScores::update() {
-  std::cout << "HighScores screen - Updating score display" << std::endl;
+  // No update logic needed
 }
 
 void HighScores::render() {
-  std::cout << "HighScores screen - Displaying top scores" << std::endl;
+  window.clear(backgroundColor);
+
+  renderMenuRect();
+  renderTitle();
+  renderScores();
+  renderBackButton();
+}
+
+void HighScores::renderMenuRect() {
+  menuRect.setSize(menuRectSize);
+
+  sf::Vector2u windowSize = window.getSize();
+  menuRect.setPosition(
+      sf::Vector2f(windowSize.x / 2.0f - menuRectSize.x / 2.0f, windowSize.y / 2.0f - menuRectSize.y / 2.0f));
+
+  menuRect.setFillColor(menuBackgroundColor);
+  menuRect.setOutlineColor(borderColor);
+  menuRect.setOutlineThickness(8.0f);
+
+  window.draw(menuRect);
+}
+
+void HighScores::renderTitle() {
+  sf::Vector2u windowSize = window.getSize();
+  sf::FloatRect titleBounds = titleText.getLocalBounds();
+
+  sf::Vector2f centerPosition =
+      sf::Vector2f(windowSize.x / 2.0f - titleBounds.size.x / 2.0f, menuRect.getSize().y + 30.0f);
+
+  titleText.setPosition(centerPosition);
+  window.draw(titleText);
+}
+
+void HighScores::renderScores() {
+  const auto& recordTable = game.getSettingsReader().getGameRecordTable();
+
+  scoreTexts.clear();
+
+  for (size_t i = 0; i < recordTable.size() && i < 5; ++i) {
+    sf::Text scoreText(font);
+    scoreText.setCharacterSize(28);
+    scoreText.setFillColor(sf::Color::White);
+    scoreText.setStyle(sf::Text::Bold);
+
+    // Format: "1. 100"
+    std::string scoreString = std::to_string(i + 1) + ". " + std::to_string(recordTable[i]);
+    scoreText.setString(scoreString);
+
+    // Position scores vertically
+    sf::Vector2f position =
+        sf::Vector2f(menuRect.getPosition().x + 50.0f, menuRect.getPosition().y + 100.0f + i * 50.0f);
+
+    scoreText.setPosition(position);
+    scoreTexts.push_back(scoreText);
+    window.draw(scoreText);
+  }
+
+  // If no scores, show message
+  if (recordTable.empty()) {
+    sf::Text noScoresText(font);
+    noScoresText.setString(L"Пока нет рекордов!");
+    noScoresText.setCharacterSize(24);
+    noScoresText.setFillColor(sf::Color::White);
+    noScoresText.setStyle(sf::Text::Bold);
+
+    sf::FloatRect textBounds = noScoresText.getLocalBounds();
+    sf::Vector2f position = sf::Vector2f(menuRect.getPosition().x + menuRectSize.x / 2.0f - textBounds.size.x / 2.0f,
+                                         menuRect.getPosition().y + menuRectSize.y / 2.0f);
+
+    noScoresText.setPosition(position);
+    window.draw(noScoresText);
+  }
+}
+
+void HighScores::renderBackButton() {
+  sf::Vector2f position = sf::Vector2f(menuRect.getPosition().x + menuRectSize.x - 150.0f,
+                                       menuRect.getPosition().y + menuRectSize.y - 40.0f);
+
+  backText.setPosition(position);
+  window.draw(backText);
 }

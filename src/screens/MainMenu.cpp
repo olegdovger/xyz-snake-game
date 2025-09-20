@@ -7,7 +7,6 @@
 #include "HighScores.hpp"
 #include "Settings.hpp"
 
-
 MainMenu::MainMenu(sf::RenderWindow& win, Game& gameRef) : Screen(win, gameRef), titleText(font) {}
 
 void MainMenu::drawMenuBackground(sf::RenderWindow& window, const sf::Text& text) const {
@@ -84,10 +83,8 @@ void MainMenu::renderTitle() {
   titleText.setString(L"Змейка");
   titleText.setCharacterSize(60);
   titleText.setLineSpacing(0.0f);
-  titleText.setFillColor(textColor);
+  titleText.setFillColor(sf::Color::White);
   titleText.setStyle(sf::Text::Bold);
-  titleText.setOutlineColor(textColor - sf::Color(10, 10, 10));
-  titleText.setOutlineThickness(2.0f);
 
   // Center title horizontally
   const sf::Vector2u windowSize = window.getSize();

@@ -7,6 +7,8 @@ set(SFML_AUDIO_DISABLE_FLAC TRUE)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 include(FetchContent)
+
+# Fetch SFML
 FetchContent_Declare(SFML
         GIT_REPOSITORY https://github.com/SFML/SFML.git
         GIT_TAG 3.0.1
@@ -19,7 +21,6 @@ add_executable(${PROJECT_NAME}
         "src/main.cpp"
         "src/Game.cpp"
         "src/Screen.cpp"
-        "src/ScreenState.cpp"
         "src/screens/MainMenu.cpp"
         "src/screens/GameScreen.cpp"
         "src/screens/PauseScreen.cpp"
@@ -33,6 +34,8 @@ add_executable(${PROJECT_NAME}
         "src/utils/ResourceManager.cpp"
         "src/utils/GameGrid.cpp"
         "src/utils/ScalingUtils.cpp"
+        "src/utils/SettingReader.cpp"
+        "src/utils/CountdownTimer.cpp"
         "src/SnakeSprite.cpp"
         "src/Snake.cpp"
 )

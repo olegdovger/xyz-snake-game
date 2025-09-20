@@ -22,9 +22,9 @@ private:
   sf::Color backgroundColor = sf::Color(164, 144, 164);
 
   // Colors
-  static constexpr uint8_t BACKGROUND_R = 99;
-  static constexpr uint8_t BACKGROUND_G = 155;
-  static constexpr uint8_t BACKGROUND_B = 255;
+  static constexpr uint8_t BACKGROUND_R = 130;
+  static constexpr uint8_t BACKGROUND_G = 73;
+  static constexpr uint8_t BACKGROUND_B = 113;
 
   sf::Color menuBackgroundColor = sf::Color(BACKGROUND_R, BACKGROUND_G, BACKGROUND_B);
 
@@ -34,9 +34,9 @@ private:
 
   sf::Color textColor = sf::Color(TEXT_R, TEXT_G, TEXT_B);
 
-  static constexpr uint8_t BORDER_R = 95;
-  static constexpr uint8_t BORDER_G = 205;
-  static constexpr uint8_t BORDER_B = 228;
+  static constexpr uint8_t BORDER_R = 171;
+  static constexpr uint8_t BORDER_G = 99;
+  static constexpr uint8_t BORDER_B = 148;
 
   sf::Color borderColor = sf::Color(BORDER_R, BORDER_G, BORDER_B);
 

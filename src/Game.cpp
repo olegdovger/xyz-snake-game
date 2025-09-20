@@ -6,7 +6,12 @@
 #include "utils/EventLogger.hpp"
 #include "utils/ResourceLoader.hpp"
 
-Game::Game(sf::RenderWindow& win) : window(win), isRunning(true) {
+Game::Game(sf::RenderWindow& win) : window(win), isRunning(true), previousScreen(nullptr) {
+  // Initialize settings first
+  if (!settingsReader.initialize()) {
+    std::cerr << "Warning: Failed to initialize settings, using defaults" << std::endl;
+  }
+
   //initializeAllResources
   utils::ResourceLoader::initializeAllResources();
 
@@ -64,4 +69,36 @@ void Game::processEvents(const sf::Event& event) const {
 
 void Game::setCurrentScreen(Screen* screen) {
   currentScreen = screen;
+}
+
+void Game::setCurrentScreenWithPrevious(Screen* screen, Screen* previous) {
+  previousScreen = previous;
+  currentScreen = screen;
+}
+
+void Game::returnToPreviousScreen() {
+  if (previousScreen != nullptr) {
+    currentScreen = previousScreen;
+    previousScreen = nullptr;
+  }
+}
+
+void Game::returnToGameScreen() {
+  if (previousScreen != nullptr) {
+    // Cast to GameScreen to call restartCountdown
+    if (auto* gameScreen = dynamic_cast<GameScreen*>(previousScreen)) {
+      gameScreen->resume();
+    }
+    currentScreen = previousScreen;
+    previousScreen = nullptr;
+  }
+}
+
+void Game::saveScoreToRecordTable() {
+  settingsReader.addScoreToRecordTable(score);
+}
+
+bool Game::isNewHighScore() const {
+  const auto& recordTable = settingsReader.getGameRecordTable();
+  return recordTable.empty() || score > recordTable.back();
 }

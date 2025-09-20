@@ -1,17 +1,20 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "Screen.hpp"
+#include "utils/SettingReader.hpp"
 
 class Game {
 private:
   sf::RenderWindow& window;
   bool isRunning;
   Screen* currentScreen;
+  Screen* previousScreen;  // Store previous screen for pause functionality
+  utils::SettingReader settingsReader;
 
   // Game state variables (moved from GameState)
   int score = 0;
   int highScore = 0;
-  int difficulty = 1;
+  utils::GameLevel gameLevel = utils::GameLevel::Easy;
   bool isPaused = false;
 
   // Debug settings
@@ -26,19 +29,24 @@ public:
   void start() const;
 
   void setCurrentScreen(Screen* screen);
+  void setCurrentScreenWithPrevious(Screen* screen, Screen* previous);
 
   // Game state getters (moved from GameState)
   [[nodiscard]] int getScore() const { return score; }
   [[nodiscard]] int getHighScore() const { return highScore; }
-  [[nodiscard]] int getDifficulty() const { return difficulty; }
+  [[nodiscard]] utils::GameLevel getGameLevel() const { return gameLevel; }
   [[nodiscard]] bool getIsPaused() const { return isPaused; }
   [[nodiscard]] sf::RenderWindow& getWindow() const { return window; }
 
   // Game state setters (moved from GameState)
   void setScore(int newScore) { score = newScore; }
   void setHighScore(int newHighScore) { highScore = newHighScore; }
-  void setDifficulty(int newDifficulty) { difficulty = newDifficulty; }
+  void setGameLevel(utils::GameLevel newGameLevel) { gameLevel = newGameLevel; }
   void setIsPaused(bool paused) { isPaused = paused; }
+
+  // Settings accessors
+  [[nodiscard]] const utils::SettingReader& getSettingsReader() const { return settingsReader; }
+  [[nodiscard]] const utils::GameSettings& getGameSettings() const { return settingsReader.getSettings(); }
 
   // Game logic methods (moved from GameState)
   void addScore(int points) { score += points; }
@@ -47,4 +55,12 @@ public:
     if (score > highScore)
       highScore = score;
   }
+
+  // Record table management
+  void saveScoreToRecordTable();
+  bool isNewHighScore() const;
+
+  // Screen management
+  void returnToPreviousScreen();
+  void returnToGameScreen();
 };

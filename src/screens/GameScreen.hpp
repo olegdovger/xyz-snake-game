@@ -2,6 +2,7 @@
 #include <SFML/System/Clock.hpp>
 #include "../Screen.hpp"
 #include "../Snake.hpp"
+#include "../utils/CountdownTimer.hpp"
 #include "../utils/GameGrid.hpp"
 
 class GameScreen final : public Screen {
@@ -14,22 +15,38 @@ public:
 
   void render() override;
 
+  // Method to restart countdown (called when returning from pause)
+  void restartCountdown();
+
+  void resume();
+
 private:
+  float gridSize = 824.0f;
+  float scaleRelativeFactor = 912.0f / 992.0f;
   // Grid data
   utils::GameGrid gameGrid;
 
   // Snake
   Snake snake;
 
+  // Countdown timer
+  utils::CountdownTimer countdownTimer;
+
   // Timing
   sf::Clock moveTimer;
-  static constexpr float SNAKE_MOVE_INTERVAL = 0.1f;  // seconds
+  static constexpr float SNAKE_MOVE_INTERVAL = 1.0f;  // seconds
+
+  // Game state
+  bool gameOver = false;
+  bool scoreSaved = false;
 
   void renderBoardBorder() const;
 
   void renderBoardGrid() const;
 
   void renderDebugGrid() const;
+  void handleGameOver();
 
   void initializeGrid();
+  void updateGrid();
 };
