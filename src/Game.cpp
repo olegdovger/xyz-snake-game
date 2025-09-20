@@ -2,6 +2,7 @@
 
 #include "Game.hpp"
 #include "screens/GameScreen.hpp"
+#include "screens/MainMenu.hpp"
 #include "utils/DebugUI.hpp"
 #include "utils/EventLogger.hpp"
 #include "utils/ResourceLoader.hpp"
@@ -15,7 +16,7 @@ Game::Game(sf::RenderWindow& win) : window(win), isRunning(true), previousScreen
   //initializeAllResources
   utils::ResourceLoader::initializeAllResources();
 
-  setCurrentScreen(new GameScreen(window, *this));
+  setCurrentScreen(new MainMenu(window, *this));
 
   // Initialize debug UI
   utils::DebugUI::initialize(window);

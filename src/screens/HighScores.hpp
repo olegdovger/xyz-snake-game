@@ -13,9 +13,9 @@ private:
 
   // Colors
   sf::Color backgroundColor = sf::Color(164, 144, 164);
-  sf::Color menuBackgroundColor = sf::Color(99, 155, 255);
+  sf::Color menuBackgroundColor = sf::Color(130, 73, 113);
   sf::Color textColor = sf::Color(251, 242, 54);
-  sf::Color borderColor = sf::Color(95, 205, 228);
+  sf::Color borderColor = sf::Color(171, 99, 148);
 
   // Menu rectangle
   sf::RectangleShape menuRect;

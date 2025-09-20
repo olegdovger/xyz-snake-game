@@ -82,8 +82,6 @@ void PauseScreen::renderTitle() {
   titleText.setFillColor(sf::Color::White);
   titleText.setStyle(sf::Text::Bold);
 
-  // Center title horizontally
-  sf::Vector2u windowSize = window.getSize();
   sf::FloatRect titleBounds = titleText.getLocalBounds();
 
   sf::Vector2f centerPosition =
@@ -100,9 +98,6 @@ void PauseScreen::renderMenuItems() {
   menuLabels = {L"Продолжить игру", L"Главное меню", L"Выход"};
 
   menuItems.clear();
-
-  // Center title horizontally
-  sf::Vector2u windowSize = window.getSize();
 
   for (size_t i = 0; i < menuLabels.size(); ++i) {
     sf::Text menuItem(font);
