@@ -10,10 +10,8 @@ HighScores::HighScores(sf::RenderWindow& win, Game& gameRef) : Screen(win, gameR
   titleText.setFont(font);
   titleText.setString(L"Таблица рекордов");
   titleText.setCharacterSize(40);
-  titleText.setFillColor(textColor);
+  titleText.setFillColor(sf::Color::White);
   titleText.setStyle(sf::Text::Bold);
-  titleText.setOutlineColor(sf::Color::Black);
-  titleText.setOutlineThickness(2.0f);
 
   // Initialize back button
   backText.setFont(font);
@@ -67,8 +65,8 @@ void HighScores::renderTitle() {
   sf::FloatRect titleBounds = titleText.getLocalBounds();
 
   sf::Vector2f centerPosition =
-      sf::Vector2f(windowSize.x / 2.0f - titleBounds.size.x / 2.0f, menuRect.getSize().y + 30.0f);
-
+      sf::Vector2f(menuRect.getPosition().x + menuRect.getSize().x / 2.0f - titleBounds.size.x / 2.0f,
+                   menuRect.getPosition().y + 20);
   titleText.setPosition(centerPosition);
   window.draw(titleText);
 }
@@ -90,7 +88,7 @@ void HighScores::renderScores() {
 
     // Position scores vertically
     sf::Vector2f position =
-        sf::Vector2f(menuRect.getPosition().x + 50.0f, menuRect.getPosition().y + 100.0f + i * 50.0f);
+        sf::Vector2f(menuRect.getPosition().x + 50.0f, menuRect.getPosition().y + 120.0f + i * 50.0f);
 
     scoreText.setPosition(position);
     scoreTexts.push_back(scoreText);
@@ -115,9 +113,12 @@ void HighScores::renderScores() {
 }
 
 void HighScores::renderBackButton() {
-  sf::Vector2f position = sf::Vector2f(menuRect.getPosition().x + menuRectSize.x - 150.0f,
-                                       menuRect.getPosition().y + menuRectSize.y - 40.0f);
+  sf::FloatRect textBounds = backText.getLocalBounds();
 
-  backText.setPosition(position);
+  sf::Vector2f centerPosition =
+      sf::Vector2f(menuRect.getPosition().x + menuRect.getSize().x / 2.0f - textBounds.size.x / 2.0f,
+                   menuRect.getPosition().y + menuRect.getSize().y - 40);
+
+  backText.setPosition(centerPosition);
   window.draw(backText);
 }
