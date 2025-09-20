@@ -1,0 +1,18 @@
+{
+  "snakeSpeed": 0.3,
+  "snakeType": "purple",
+  "snakeSize": "3",
+  "gameLevel": "easy",
+  "gameMusic": 0,
+  "gameSound": 0,
+  "gameCountdownEnabled": 1,
+  "gameCountdownInSeconds": 3,
+  "gameCountdownSound": 0,
+  "gameRecordTable": [
+    100,
+    50,
+    33,
+    12,
+    8
+  ]
+}

@@ -30,8 +30,8 @@ void PauseScreen::processEvents(const sf::Event& event) {
       case sf::Keyboard::Key::Enter:
         switch (selectedIndex) {
           case 0:  // Продолжить игру
-            // Return to game screen
-            game.setCurrentScreen(new GameScreen(window, game));
+            // Return to previous screen with countdown restart
+            game.returnToGameScreen();
             break;
           case 1:  // Главное меню
             game.setCurrentScreen(new MainMenu(window, game));
@@ -42,8 +42,8 @@ void PauseScreen::processEvents(const sf::Event& event) {
         }
         break;
       case sf::Keyboard::Key::Escape:
-        // Return to game screen
-        game.setCurrentScreen(new GameScreen(window, game));
+        // Return to previous screen with countdown restart
+        game.returnToGameScreen();
         break;
       default:
         break;
@@ -79,10 +79,8 @@ void PauseScreen::renderTitle() {
   titleText.setString(L"Пауза");
   titleText.setCharacterSize(50);
   titleText.setLineSpacing(0.0f);
-  titleText.setFillColor(textColor);
+  titleText.setFillColor(sf::Color::White);
   titleText.setStyle(sf::Text::Bold);
-  titleText.setOutlineColor(textColor - sf::Color(10, 10, 10));
-  titleText.setOutlineThickness(2.0f);
 
   // Center title horizontally
   sf::Vector2u windowSize = window.getSize();
