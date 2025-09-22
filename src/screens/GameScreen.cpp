@@ -1,9 +1,8 @@
 #include "GameScreen.hpp"
 #include "../utils/ResourceLoader.hpp"
 #include "../utils/ScalingUtils.hpp"
-#include "../utils/SettingReader.hpp"
+#include "../utils/SettingStorage.hpp"
 #include "HighScores.hpp"
-#include "MainMenu.hpp"
 #include "PauseScreen.hpp"
 
 using namespace utils::shape;
@@ -15,15 +14,15 @@ GameScreen::GameScreen(sf::RenderWindow& win, Game& gameRef)
       countdownTimer(3, false) {
   initializeGrid();
 
-  utils::SettingReader settingReader;
+  utils::SettingStorage settingStorage;
 
-  if (settingReader.initialize()) {
-    snake.setSnakeType(settingReader.getSnakeType());
-    game.setGameLevel(settingReader.getGameLevel());
+  if (settingStorage.initialize()) {
+    snake.setSnakeType(settingStorage.getSnakeType());
+    game.setGameLevel(settingStorage.getGameLevel());
 
     // Configure countdown timer based on settings
-    if (settingReader.getGameCountdownEnabled()) {
-      countdownTimer.setDuration(settingReader.getGameCountdownInSeconds());
+    if (settingStorage.getGameCountdownEnabled()) {
+      countdownTimer.setDuration(settingStorage.getGameCountdownInSeconds());
       countdownTimer.start();
     }
   }

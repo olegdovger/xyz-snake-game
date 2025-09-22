@@ -10,7 +10,7 @@ void PauseScreen::drawMenuBackground(sf::RenderWindow& window, const sf::Text& t
   sf::RectangleShape background;
   background.setSize(sf::Vector2f(text.getLocalBounds().size.x + 20, text.getLocalBounds().size.y + 10));
   background.setPosition(sf::Vector2f(text.getPosition().x - 10, text.getPosition().y - 5));
-  background.setFillColor(sf::Color(BORDER_R, BORDER_G, BORDER_B));
+  background.setFillColor(backgroundColor);
   window.draw(background);
 }
 

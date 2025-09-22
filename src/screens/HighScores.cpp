@@ -15,7 +15,7 @@ HighScores::HighScores(sf::RenderWindow& win, Game& gameRef) : Screen(win, gameR
 
   // Initialize back button
   backText.setFont(font);
-  backText.setString(L"Назад (ESC)");
+  backText.setString(L"Назад (B)");
   backText.setCharacterSize(24);
   backText.setFillColor(sf::Color::White);
   backText.setStyle(sf::Text::Bold);
@@ -24,7 +24,7 @@ HighScores::HighScores(sf::RenderWindow& win, Game& gameRef) : Screen(win, gameR
 void HighScores::processEvents(const sf::Event& event) {
   if (event.is<sf::Event::KeyPressed>()) {
     switch (event.getIf<sf::Event::KeyPressed>()->code) {
-      case sf::Keyboard::Key::Escape:
+      case sf::Keyboard::Key::B:
         game.setCurrentScreen(new MainMenu(window, game));
         break;
       default:
@@ -61,7 +61,6 @@ void HighScores::renderMenuRect() {
 }
 
 void HighScores::renderTitle() {
-  sf::Vector2u windowSize = window.getSize();
   sf::FloatRect titleBounds = titleText.getLocalBounds();
 
   sf::Vector2f centerPosition =

@@ -1,22 +1,24 @@
 #include <SFML/Graphics.hpp>
 
 #include "Game.hpp"
+#include "screens/DifficultyScreen.hpp"
 #include "screens/GameScreen.hpp"
 #include "screens/MainMenu.hpp"
+#include "screens/PauseScreen.hpp"
 #include "utils/DebugUI.hpp"
 #include "utils/EventLogger.hpp"
 #include "utils/ResourceLoader.hpp"
 
 Game::Game(sf::RenderWindow& win) : window(win), isRunning(true), previousScreen(nullptr) {
   // Initialize settings first
-  if (!settingsReader.initialize()) {
+  if (!settingStorage.initialize()) {
     std::cerr << "Warning: Failed to initialize settings, using defaults" << std::endl;
   }
 
   //initializeAllResources
   utils::ResourceLoader::initializeAllResources();
 
-  setCurrentScreen(new MainMenu(window, *this));
+  setCurrentScreen(new DifficultyScreen(window, *this));
 
   // Initialize debug UI
   utils::DebugUI::initialize(window);
@@ -96,10 +98,10 @@ void Game::returnToGameScreen() {
 }
 
 void Game::saveScoreToRecordTable() {
-  settingsReader.addScoreToRecordTable(score);
+  settingStorage.addScoreToRecordTable(score);
 }
 
 bool Game::isNewHighScore() const {
-  const auto& recordTable = settingsReader.getGameRecordTable();
+  const auto& recordTable = settingStorage.getGameRecordTable();
   return recordTable.empty() || score > recordTable.back();
 }

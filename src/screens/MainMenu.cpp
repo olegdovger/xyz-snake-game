@@ -1,7 +1,7 @@
 #include "MainMenu.hpp"
 #include <iostream>
 #include "../utils/ResourceLoader.hpp"
-#include "Difficulty.hpp"
+#include "DifficultyScreen.hpp"
 #include "Exit.hpp"
 #include "GameScreen.hpp"
 #include "HighScores.hpp"
@@ -36,7 +36,7 @@ void MainMenu::processEvents(const sf::Event& event) {
             game.setCurrentScreen(new GameScreen(window, game));
             break;
           case 1:  // Уровень сложности
-            game.setCurrentScreen(new Difficulty(window, game));
+            game.setCurrentScreen(new DifficultyScreen(window, game));
             break;
           case 2:  // Таблица рекордов
             game.setCurrentScreen(new HighScores(window, game));

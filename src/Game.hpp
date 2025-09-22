@@ -1,7 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "Screen.hpp"
-#include "utils/SettingReader.hpp"
+#include "utils/SettingStorage.hpp"
 
 class Game {
 private:
@@ -9,7 +9,7 @@ private:
   bool isRunning;
   Screen* currentScreen;
   Screen* previousScreen;  // Store previous screen for pause functionality
-  utils::SettingReader settingsReader;
+  utils::SettingStorage settingStorage;
 
   // Game state variables (moved from GameState)
   int score = 0;
@@ -45,8 +45,8 @@ public:
   void setIsPaused(bool paused) { isPaused = paused; }
 
   // Settings accessors
-  [[nodiscard]] const utils::SettingReader& getSettingsReader() const { return settingsReader; }
-  [[nodiscard]] const utils::GameSettings& getGameSettings() const { return settingsReader.getSettings(); }
+  [[nodiscard]] const utils::SettingStorage& getSettingsReader() const { return settingStorage; }
+  [[nodiscard]] const utils::GameSettings& getGameSettings() const { return settingStorage.getSettings(); }
 
   // Game logic methods (moved from GameState)
   void addScore(int points) { score += points; }
