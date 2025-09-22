@@ -1,4 +1,4 @@
-#include "SettingReader.hpp"
+#include "SettingStorage.hpp"
 #include <algorithm>
 #include <fstream>
 #include <functional>
@@ -14,7 +14,7 @@ namespace utils {
  * @param jsonStr JSON string to parse
  * @return map of key-value pairs
  */
-std::map<std::string, std::string> SettingReader::parseSimpleJson(const std::string& jsonStr) {
+std::map<std::string, std::string> SettingStorage::parseSimpleJson(const std::string& jsonStr) {
   std::map<std::string, std::string> result;
 
   // Remove whitespace and newlines
@@ -58,7 +58,7 @@ std::map<std::string, std::string> SettingReader::parseSimpleJson(const std::str
   return result;
 }
 
-bool SettingReader::initialize() {
+bool SettingStorage::initialize() {
   try {
     std::ifstream file(SETTINGS_FILE_PATH);
 
@@ -166,7 +166,7 @@ bool SettingReader::initialize() {
   }
 }
 
-SnakeSprite::SnakeType SettingReader::parseSnakeType(const std::string& snakeTypeStr) {
+SnakeSprite::SnakeType SettingStorage::parseSnakeType(const std::string& snakeTypeStr) {
   if (snakeTypeStr == "purple")
     return SnakeSprite::SnakeType::Purple;
   if (snakeTypeStr == "green")
@@ -182,7 +182,7 @@ SnakeSprite::SnakeType SettingReader::parseSnakeType(const std::string& snakeTyp
   return SnakeSprite::SnakeType::Purple;
 }
 
-GameLevel SettingReader::parseGameLevel(const std::string& gameLevelStr) {
+GameLevel SettingStorage::parseGameLevel(const std::string& gameLevelStr) {
   if (gameLevelStr == "easy")
     return GameLevel::Easy;
   if (gameLevelStr == "harderTheEasy")
@@ -198,7 +198,7 @@ GameLevel SettingReader::parseGameLevel(const std::string& gameLevelStr) {
   return GameLevel::Easy;
 }
 
-bool SettingReader::createDefaultSettingsFile() {
+bool SettingStorage::createDefaultSettingsFile() {
   try {
     std::ofstream file(SETTINGS_FILE_PATH);
     if (!file.is_open()) {
@@ -229,7 +229,7 @@ bool SettingReader::createDefaultSettingsFile() {
   }
 }
 
-std::string SettingReader::snakeTypeToString(SnakeSprite::SnakeType snakeType) {
+std::string SettingStorage::snakeTypeToString(SnakeSprite::SnakeType snakeType) {
   switch (snakeType) {
     case SnakeSprite::SnakeType::Purple:
       return "purple";
@@ -246,7 +246,7 @@ std::string SettingReader::snakeTypeToString(SnakeSprite::SnakeType snakeType) {
   }
 }
 
-std::string SettingReader::gameLevelToString(GameLevel gameLevel) {
+std::string SettingStorage::gameLevelToString(GameLevel gameLevel) {
   switch (gameLevel) {
     case GameLevel::Easy:
       return "easy";
@@ -263,7 +263,7 @@ std::string SettingReader::gameLevelToString(GameLevel gameLevel) {
   }
 }
 
-bool SettingReader::addScoreToRecordTable(int score) {
+bool SettingStorage::addScoreToRecordTable(int score) {
   // Check if score qualifies for the record table
   if (settings.gameRecordTable.empty() || score > settings.gameRecordTable.back()) {
     // Add score and sort in descending order
@@ -282,7 +282,7 @@ bool SettingReader::addScoreToRecordTable(int score) {
   return false;
 }
 
-bool SettingReader::saveSettings() {
+bool SettingStorage::saveSettings() {
   try {
     std::ofstream file(SETTINGS_FILE_PATH);
     if (!file.is_open()) {

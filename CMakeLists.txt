@@ -24,7 +24,7 @@ add_executable(${PROJECT_NAME}
         "src/screens/MainMenu.cpp"
         "src/screens/GameScreen.cpp"
         "src/screens/PauseScreen.cpp"
-        "src/screens/Difficulty.cpp"
+        "src/screens/DifficultyScreen.cpp"
         "src/screens/HighScores.cpp"
         "src/screens/Settings.cpp"
         "src/screens/Exit.cpp"
@@ -34,13 +34,16 @@ add_executable(${PROJECT_NAME}
         "src/utils/ResourceManager.cpp"
         "src/utils/GameGrid.cpp"
         "src/utils/ScalingUtils.cpp"
-        "src/utils/SettingReader.cpp"
+        "src/utils/SettingStorage.cpp"
         "src/utils/CountdownTimer.cpp"
         "src/SnakeSprite.cpp"
         "src/Snake.cpp"
 )
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics SFML::Audio)
+
+# Copy resources folder to build directory
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR})
 
 # Code formatting target
 find_program(CLANG_FORMAT clang-format)

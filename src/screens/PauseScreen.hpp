@@ -22,18 +22,17 @@ private:
 
   sf::Color backgroundColor = sf::Color(164, 144, 164);
 
-  // Colors
-  static constexpr uint8_t BACKGROUND_R = 130;
-  static constexpr uint8_t BACKGROUND_G = 73;
-  static constexpr uint8_t BACKGROUND_B = 113;
-
-  sf::Color menuBackgroundColor = sf::Color(BACKGROUND_R, BACKGROUND_G, BACKGROUND_B);
-
   static constexpr uint8_t TEXT_R = 251;  // 251, 242, 54
   static constexpr uint8_t TEXT_G = 242;  // 251, 242, 54
   static constexpr uint8_t TEXT_B = 54;   // 251, 242, 54
 
   sf::Color textColor = sf::Color(TEXT_R, TEXT_G, TEXT_B);
+
+  static constexpr uint8_t BACKGROUND_R = 130;
+  static constexpr uint8_t BACKGROUND_G = 73;
+  static constexpr uint8_t BACKGROUND_B = 113;
+
+  sf::Color menuBackgroundColor = sf::Color(BACKGROUND_R, BACKGROUND_G, BACKGROUND_B);
 
   static constexpr uint8_t BORDER_R = 171;
   static constexpr uint8_t BORDER_G = 99;

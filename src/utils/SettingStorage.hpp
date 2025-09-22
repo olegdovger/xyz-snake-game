@@ -31,7 +31,7 @@ struct GameSettings {
 /**
  * @brief Class responsible for reading and managing game settings from JSON file
  */
-class SettingReader {
+class SettingStorage {
 private:
   static constexpr const char* SETTINGS_FILE_PATH = "../settings.json";
   GameSettings settings;
@@ -68,12 +68,12 @@ public:
   /**
      * @brief Default constructor
      */
-  SettingReader() = default;
+  SettingStorage() = default;
 
   /**
      * @brief Destructor
      */
-  ~SettingReader() = default;
+  ~SettingStorage() = default;
 
   /**
      * @brief Initialize settings by reading from JSON file
@@ -179,6 +179,19 @@ public:
      * @return string representation
      */
   static std::string gameLevelToString(GameLevel gameLevel);
+
+  void setGameLevel(GameLevel gameLevel) { settings.gameLevel = gameLevel; }
+  void setSnakeType(SnakeSprite::SnakeType snakeType) { settings.snakeType = snakeType; }
+  void setSnakeSpeed(int snakeSpeed) { settings.snakeSpeed = snakeSpeed; }
+  void setSnakeSize(int snakeSize) { settings.snakeSize = snakeSize; }
+  void setGameMusic(bool gameMusic) { settings.gameMusic = gameMusic; }
+  void setGameSound(bool gameSound) { settings.gameSound = gameSound; }
+  void setGameCountdownEnabled(bool gameCountdownEnabled) { settings.gameCountdownEnabled = gameCountdownEnabled; }
+  void setGameCountdownInSeconds(int gameCountdownInSeconds) {
+    settings.gameCountdownInSeconds = gameCountdownInSeconds;
+  }
+  void setGameCountdownSound(bool gameCountdownSound) { settings.gameCountdownSound = gameCountdownSound; }
+  void setGameRecordTable(const std::vector<int>& gameRecordTable) { settings.gameRecordTable = gameRecordTable; }
 };
 
 }  // namespace utils
