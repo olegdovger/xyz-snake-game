@@ -18,7 +18,7 @@ Game::Game(sf::RenderWindow& win) : window(win), isRunning(true), previousScreen
   //initializeAllResources
   utils::ResourceLoader::initializeAllResources();
 
-  setCurrentScreen(new DifficultyScreen(window, *this));
+  setCurrentScreen(new PauseScreen(window, *this));
 
   // Initialize debug UI
   utils::DebugUI::initialize(window);
@@ -94,6 +94,8 @@ void Game::returnToGameScreen() {
     }
     currentScreen = previousScreen;
     previousScreen = nullptr;
+  } else {
+    currentScreen = new GameScreen(window, *this);
   }
 }
 
