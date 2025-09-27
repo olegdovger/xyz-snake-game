@@ -1,13 +1,36 @@
 #include "MainMenu.hpp"
 #include <iostream>
 #include "../utils/ResourceLoader.hpp"
+#include "../utils/ScalingUtils.hpp"
 #include "DifficultyScreen.hpp"
 #include "Exit.hpp"
 #include "GameScreen.hpp"
 #include "HighScores.hpp"
 #include "Settings.hpp"
 
-MainMenu::MainMenu(sf::RenderWindow& win, Game& gameRef) : Screen(win, gameRef), titleText(font) {}
+using namespace utils::shape;
+
+MainMenu::MainMenu(sf::RenderWindow& win, Game& gameRef) : Screen(win, gameRef), titleText(font) {
+  font = utils::ResourceLoader::getFont(utils::FontType::DebugFont);
+
+  titleText.setString(L"Главное меню");
+  titleText.setFont(font);
+  titleText.setCharacterSize(40);
+  titleText.setFillColor(sf::Color::White);
+  titleText.setStyle(sf::Text::Bold);
+
+  screenRect.setSize(originSize);
+  screenRect.setFillColor(menuBackgroundColor);
+  screenRect.setOutlineColor(borderColor);
+  screenRect.setOutlineThickness(10.0f);
+
+  screenRect.setSize(originSize);
+  screenRect.setFillColor(menuBackgroundColor);
+  screenRect.setOutlineColor(borderColor);
+  screenRect.setOutlineThickness(10.0f);
+
+  initializeMenuItems();
+}
 
 void MainMenu::drawMenuBackground(sf::RenderWindow& window, const sf::Text& text) const {
   sf::RectangleShape background;
@@ -59,81 +82,73 @@ void MainMenu::update() {
   // No update logic needed for menu
 }
 
+void MainMenu::render() {
+  renderMenuRect();
+  renderTitle();
+  renderMenuItems();
+}
+
+void MainMenu::initializeMenuItems() {
+  menuLabels = {L"Начать игру", L"Уровень сложности", L"Таблица рекордов", L"Настройки", L"Выход"};
+
+  menuItems.clear();
+  menuItems.reserve(menuLabels.size());
+
+  for (size_t i = 0; i < menuLabels.size(); ++i) {
+    sf::Text item(font);
+    item.setString(menuLabels[i]);
+    item.setCharacterSize(24);
+    item.setFillColor(sf::Color::White);
+
+    menuItems.push_back(item);
+  }
+}
+
 void MainMenu::renderMenuRect() {
-  menuRect.setSize(menuRectSize);
-
   sf::Vector2u windowSize = window.getSize();
+  screenRect.setPosition(sf::Vector2f((static_cast<float>(windowSize.x) - screenRect.getSize().x) / 2.0f,
+                                      (static_cast<float>(windowSize.y) - screenRect.getSize().y) / 2.0f));
 
-  menuRect.setPosition(
-      sf::Vector2f(windowSize.x / 2.0f - menuRectSize.x / 2.0f, windowSize.y / 2.0f - menuRectSize.y / 2.0f));
+  const float scale = getScale(sf::Vector2f(screenRect.getSize()), window.getSize()) * 0.8f;
+  screenRect.setScale(sf::Vector2f(scale, scale));
 
-  menuRect.setFillColor(menuBackgroundColor);
-  menuRect.setOutlineColor(borderColor);
-  menuRect.setOutlineThickness(10.0f);
+  const auto position = getPosition(sf::Vector2f(screenRect.getSize()), window.getSize(), scale);
+  screenRect.setPosition(position);
 
-  window.draw(menuRect);
+  window.draw(screenRect);
 }
 
 void MainMenu::renderTitle() {
-  // Load font using ResourceLoader
-  font = utils::ResourceLoader::getFont(utils::FontType::DebugFont);
+  const auto position =
+      getPosition(sf::Vector2f(titleText.getLocalBounds().size), window.getSize(), screenRect.getScale().x);
+  titleText.setPosition(sf::Vector2f(position.x, screenRect.getPosition().y + 20 * screenRect.getScale().y));
 
-  // Initialize title
-  titleText.setFont(font);
-  titleText.setString(L"Змейка");
-  titleText.setCharacterSize(60);
-  titleText.setLineSpacing(0.0f);
-  titleText.setFillColor(sf::Color::White);
-  titleText.setStyle(sf::Text::Bold);
-
-  // Center title horizontally
-  const sf::Vector2u windowSize = window.getSize();
-  const sf::FloatRect titleBounds = titleText.getLocalBounds();
-
-  const sf::Vector2f centerPosition =
-      sf::Vector2f(menuRect.getPosition().x + menuRect.getSize().x / 2.0f - titleBounds.size.x / 2.0f,
-                   menuRect.getPosition().y + 20);
-
-  titleText.setPosition(centerPosition);
+  titleText.setScale(screenRect.getScale());
 
   window.draw(titleText);
 }
 
 void MainMenu::renderMenuItems() {
-  // Initialize menu items
-  menuLabels = {L"Начать игру", L"Уровень сложности", L"Таблица рекордов", L"Настройки", L"Выход"};
+  for (size_t i = 0; i < menuItems.size(); ++i) {
+    sf::Text item = menuItems[i];
 
-  menuItems.clear();
+    const auto position =
+        getPosition(sf::Vector2f(item.getLocalBounds().size), window.getSize(), screenRect.getScale().x);
 
-  // Center title horizontally
-  const sf::Vector2u windowSize = window.getSize();
+    item.setPosition(sf::Vector2f(position.x, screenRect.getPosition().y + 100.0f * screenRect.getScale().y +
+                                                  i * 50.0f * screenRect.getScale().y));
 
-  for (size_t i = 0; i < menuLabels.size(); ++i) {
-    sf::Text menuItem(font);
-
-    menuItem.setCharacterSize(28);
-    menuItem.setFillColor(sf::Color::White);
-    menuItem.setString(menuLabels[i]);
-    menuItem.setStyle(sf::Text::Bold);
-
-    const sf::Vector2f position =
-        sf::Vector2f(menuRect.getPosition().x + 180.0f, menuRect.getPosition().y + 140.0f + i * 50.0f);
-
-    menuItem.setPosition(position);
+    item.setScale(screenRect.getScale());
+    window.draw(item);
 
     if (i == selectedIndex) {
-      menuItem.setFillColor(textColor);
-      menuItem.setStyle(sf::Text::Bold | sf::Text::Underlined);
+      item.setFillColor(textColor);
+      item.setStyle(sf::Text::Underlined);
+    } else {
+      item.setFillColor(sf::Color::White);
+      item.setStyle(sf::Text::Regular);
     }
 
-    window.draw(menuItem);
+    window.draw(item);
   }
-}
-
-void MainMenu::render() {
-  window.clear(backgroundColor);
-
-  renderMenuRect();
-  renderTitle();
-  renderMenuItems();
 }

@@ -23,6 +23,12 @@ public:
   sf::Sprite getBodyCornerSprite(float rotation) const;
   sf::Sprite getTailSprite(float rotation) const;
 
+  // Get tongue sprites
+  sf::Sprite getTongueLowSprite() const;
+  sf::Sprite getTongueHighSprite() const;
+  sf::Sprite getTongueLowSprite(float rotation) const;
+  sf::Sprite getTongueHighSprite(float rotation) const;
+
   // Set snake type
   void setSnakeType(SnakeType type);
 
@@ -43,8 +49,14 @@ private:
   static constexpr int TAIL_Y = 64 + 28 + 28;
   static constexpr int STATE_MARGIN = 112;
 
+  static constexpr int SNAKE_TONGUE_LOW_X = 56;
+  static constexpr int SNAKE_TONGUE_LOW_Y = 28;
+  static constexpr int SNAKE_TONGUE_HIGH_X = 112;
+  static constexpr int SNAKE_TONGUE_HIGH_Y = 28;
+
   // Calculate sprite position for given type and segment
   sf::IntRect getSpriteRect(SegmentType segment) const;
+  sf::IntRect getTongueSpriteRect(int tongueType) const;
 
   // Load texture
   bool loadTexture();

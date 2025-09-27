@@ -6,10 +6,14 @@
 
 class HighScores : public Screen {
 private:
+  sf::RectangleShape screenRect;
   sf::Font font;
   sf::Text titleText;
   std::vector<sf::Text> scoreTexts;
   sf::Text backText;
+  sf::Vector2f originSize = sf::Vector2f(600.0f, 500.0f);
+
+  static constexpr float SCORES_COUNT = 5;
 
   // Colors
   sf::Color backgroundColor = sf::Color(164, 144, 164);
@@ -17,11 +21,9 @@ private:
   sf::Color textColor = sf::Color(251, 242, 54);
   sf::Color borderColor = sf::Color(171, 99, 148);
 
-  // Menu rectangle
-  sf::RectangleShape menuRect;
-  sf::Vector2f menuRectSize = sf::Vector2f(600.0f, 500.0f);
+  void initializeScreenRect();
 
-  void renderMenuRect();
+  void renderScreenRect();
   void renderTitle();
   void renderScores();
   void renderBackButton();

@@ -8,19 +8,23 @@
 using namespace utils::shape;
 
 PauseScreen::PauseScreen(sf::RenderWindow& win, Game& gameRef) : Screen(win, gameRef), titleText(font) {
+  font = utils::ResourceLoader::getFont(utils::FontType::DebugFont);
+
+  titleText.setString(L"Пауза");
+  titleText.setFont(font);
+  titleText.setCharacterSize(40);
+  titleText.setFillColor(sf::Color::White);
+  titleText.setStyle(sf::Text::Bold);
+
   screenRect.setSize(originSize);
   screenRect.setFillColor(menuBackgroundColor);
   screenRect.setOutlineColor(borderColor);
   screenRect.setOutlineThickness(10.0f);
 
-  font = utils::ResourceLoader::getFont(utils::FontType::DebugFont);
-
-  titleText.setFont(font);
-  titleText.setString(L"Пауза");
-  titleText.setCharacterSize(40);
-  titleText.setLineSpacing(0.0f);
-  titleText.setFillColor(sf::Color::White);
-  titleText.setStyle(sf::Text::Bold);
+  screenRect.setSize(originSize);
+  screenRect.setFillColor(menuBackgroundColor);
+  screenRect.setOutlineColor(borderColor);
+  screenRect.setOutlineThickness(10.0f);
 
   initializeMenuItems();
 }

@@ -1,5 +1,7 @@
 #include "Snake.hpp"
 #include <algorithm>
+#include <iostream>
+#include <random>
 #include "SnakeSprite.hpp"
 #include "utils/GameGrid.hpp"
 
@@ -9,7 +11,11 @@ Snake::Snake(sf::Vector2i startPosition, int initialLength)
       alive(true),
       directionChanged(false),
       growthEnabled(false),
-      snakeSprite(utils::SnakeSprite::SnakeType::Green) {
+      snakeSprite(utils::SnakeSprite::SnakeType::Green),
+      speed(1.0f),
+      tongueSprite(snakeSprite.getTongueLowSprite()),
+      tongueTimer(0.0f),
+      tongueVisible(false) {
   // Initialize body starting from head
   body.reserve(initialLength);
   for (int i = 0; i < initialLength; ++i) {
@@ -144,10 +150,80 @@ void Snake::render(sf::RenderWindow& window, const utils::GameGrid& grid) const 
 
     window.draw(segment);
   }
+
+  // Update tongue timer
+  updateTongue(grid);
+
+  // Render tongue based on timer
+  if (tongueVisible) {
+    // Position the tongue in front of the head based on direction
+    sf::Vector2f headPosition = grid.getCellPosition(body[0].y, body[0].x);
+    sf::Vector2f centerOffset(grid.getScaledCellSize() / 2.0f, grid.getScaledCellSize() / 2.0f);
+
+    // Add offset based on snake direction to position tongue in front of head
+    sf::Vector2f tongueOffset(0.0f, 0.0f);
+    switch (currentDirection) {
+      case Direction::Up:
+        tongueOffset.y = -grid.getScaledCellSize() * 1.5f;  // Above the head
+        break;
+      case Direction::Down:
+        tongueOffset.y = grid.getScaledCellSize() * 1.5f;  // Below the head
+        break;
+      case Direction::Left:
+        tongueOffset.x = -grid.getScaledCellSize() * 1.5f;  // Left of the head
+        break;
+      case Direction::Right:
+        tongueOffset.x = grid.getScaledCellSize() * 1.5f;  // Right of the head
+        break;
+    }
+
+    tongueSprite.setPosition(headPosition + centerOffset + tongueOffset);
+
+    // Scale the sprite to fit the cell (make tongue bigger)
+    float scale = grid.getScaledCellSize() / 28.0f;  // 28 is the sprite size
+    float tongueScale = scale * 2.0f;                // Make tongue 50% bigger
+    tongueSprite.setScale(sf::Vector2f(tongueScale, tongueScale));
+
+    tongueSprite.setRotation(sf::degrees(getDirectionRotation()));
+
+    window.draw(tongueSprite);
+  }
 }
 
 void Snake::updateDirection() {
   currentDirection = nextDirection;
+}
+
+void Snake::updateTongue(const utils::GameGrid& grid) const {
+  if (tongueVisible) {
+    tongueTimer += 1.0f / 60.0f;
+
+    if (tongueTimer >= TONGUE_DURATION) {
+      tongueVisible = false;
+      tongueTimer = 0.0f;
+    }
+
+  } else {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    static std::uniform_real_distribution<float> dis(0.0f, 1.0f);
+
+    if (dis(gen) < 0.3f) {
+      tongueVisible = true;
+      tongueTimer = 0.0f;
+
+      tongueSprite = (dis(gen) < 0.5f) ? snakeSprite.getTongueLowSprite(getDirectionRotation())
+                                       : snakeSprite.getTongueHighSprite(getDirectionRotation());
+
+      // Don't position here - will be positioned in render method
+
+      if (dis(gen) < 0.8f) {
+        tongueSprite.setColor(sf::Color(255, 255, 255, 255));
+      } else {
+        tongueSprite.setColor(sf::Color(255, 255, 255, 0));
+      }
+    }
+  }
 }
 
 sf::Vector2i Snake::getNextHeadPosition() const {

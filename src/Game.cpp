@@ -3,6 +3,7 @@
 #include "Game.hpp"
 #include "screens/DifficultyScreen.hpp"
 #include "screens/GameScreen.hpp"
+#include "screens/HighScores.hpp"
 #include "screens/MainMenu.hpp"
 #include "screens/PauseScreen.hpp"
 #include "utils/DebugUI.hpp"
@@ -18,7 +19,7 @@ Game::Game(sf::RenderWindow& win) : window(win), isRunning(true), previousScreen
   //initializeAllResources
   utils::ResourceLoader::initializeAllResources();
 
-  setCurrentScreen(new PauseScreen(window, *this));
+  setCurrentScreen(new GameScreen(window, *this));
 
   // Initialize debug UI
   utils::DebugUI::initialize(window);
