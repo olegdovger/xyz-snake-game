@@ -12,11 +12,14 @@
 
 class MainMenu : public Screen {
 private:
+  sf::RectangleShape screenRect;
   sf::Font font;
   sf::Text titleText;
   std::vector<sf::Text> menuItems;
   std::vector<std::wstring> menuLabels;
   int selectedIndex = 0;
+  sf::Vector2f originSize = sf::Vector2f(400.0f, 400.0f);
+
   static constexpr size_t MENU_ITEMS_COUNT = 5;
 
   sf::Color backgroundColor = sf::Color(164, 144, 164);
@@ -40,13 +43,16 @@ private:
 
   sf::Color borderColor = sf::Color(BORDER_R, BORDER_G, BORDER_B);
 
-  // Draw main menu rectangle
-  sf::RectangleShape menuRect;
   float scaleRelativeFactor = 0.8f;
 
-  sf::Vector2f menuRectSize = sf::Vector2f(800.0f * scaleRelativeFactor, 600.0f * scaleRelativeFactor);
+  sf::Vector2f menuRectSize = originSize * scaleRelativeFactor;
 
   void drawMenuBackground(sf::RenderWindow& window, const sf::Text& text) const;
+
+  void initializeMenuItems();
+  void renderMenuRect();
+  void renderTitle();
+  void renderMenuItems();
 
 public:
   explicit MainMenu(sf::RenderWindow& win, Game& gameRef);
@@ -54,9 +60,4 @@ public:
   void processEvents(const sf::Event& event) override;
   void update() override;
   void render() override;
-
-private:
-  void renderMenuRect();
-  void renderTitle();
-  void renderMenuItems();
 };

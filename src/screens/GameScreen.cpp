@@ -11,7 +11,7 @@ GameScreen::GameScreen(sf::RenderWindow& win, Game& gameRef)
     : Screen(win, gameRef),
       gameGrid(32, 32, 824.0f, sf::Vector2f(0, 0), 1.0f, 912.0f),
       snake(sf::Vector2i(16, 16), 5),
-      countdownTimer(3, false) {
+      countdownTimer(1, false) {
   initializeGrid();
 
   utils::SettingStorage settingStorage;
@@ -26,6 +26,8 @@ GameScreen::GameScreen(sf::RenderWindow& win, Game& gameRef)
       countdownTimer.start();
     }
   }
+
+  snake.setSpeed(settingStorage.getSnakeSpeed());
 }
 
 void GameScreen::processEvents(const sf::Event& event) {
@@ -77,8 +79,8 @@ void GameScreen::update() {
 
   // Only update game logic if countdown is finished
   if (countdownTimer.getIsFinished()) {
-    // Move snake every second
-    if (moveTimer.getElapsedTime().asSeconds() >= SNAKE_MOVE_INTERVAL) {
+    // Move snake every step
+    if (moveTimer.getElapsedTime().asSeconds() >= 1 / snake.getSpeed()) {
       snake.move();
       moveTimer.restart();
 
@@ -207,6 +209,7 @@ void GameScreen::initializeGrid() {
 }
 
 void GameScreen::updateGrid() {
+  const float scaleRelativeFactor = gameGrid.getScaleFactor();
   const float scale = getScale(sf::Vector2f(gridSize, gridSize), window.getSize()) * scaleRelativeFactor;
   const auto position = getPosition(sf::Vector2f(gridSize, gridSize), window.getSize(), scale);
 

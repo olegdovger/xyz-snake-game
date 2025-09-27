@@ -1,19 +1,25 @@
 #include "HighScores.hpp"
 #include "../utils/ResourceLoader.hpp"
+#include "../utils/ScalingUtils.hpp"
 #include "MainMenu.hpp"
 
+using namespace utils::shape;
+
 HighScores::HighScores(sf::RenderWindow& win, Game& gameRef) : Screen(win, gameRef), titleText(font), backText(font) {
-  // Load font
   font = utils::ResourceLoader::getFont(utils::FontType::DebugFont);
 
-  // Initialize title
+  screenRect.setSize(originSize);
+  screenRect.setFillColor(menuBackgroundColor);
+  screenRect.setOutlineColor(borderColor);
+  screenRect.setOutlineThickness(10.0f);
+
   titleText.setFont(font);
   titleText.setString(L"Таблица рекордов");
   titleText.setCharacterSize(40);
+  titleText.setLineSpacing(0.0f);
   titleText.setFillColor(sf::Color::White);
   titleText.setStyle(sf::Text::Bold);
 
-  // Initialize back button
   backText.setFont(font);
   backText.setString(L"Назад (B)");
   backText.setCharacterSize(24);
@@ -40,58 +46,60 @@ void HighScores::update() {
 void HighScores::render() {
   window.clear(backgroundColor);
 
-  renderMenuRect();
+  renderScreenRect();
   renderTitle();
   renderScores();
   renderBackButton();
 }
 
-void HighScores::renderMenuRect() {
-  menuRect.setSize(menuRectSize);
-
+void HighScores::renderScreenRect() {
   sf::Vector2u windowSize = window.getSize();
-  menuRect.setPosition(
-      sf::Vector2f(windowSize.x / 2.0f - menuRectSize.x / 2.0f, windowSize.y / 2.0f - menuRectSize.y / 2.0f));
 
-  menuRect.setFillColor(menuBackgroundColor);
-  menuRect.setOutlineColor(borderColor);
-  menuRect.setOutlineThickness(8.0f);
+  screenRect.setPosition(sf::Vector2f((static_cast<float>(windowSize.x) - screenRect.getSize().x) / 2.0f,
+                                      (static_cast<float>(windowSize.y) - screenRect.getSize().y) / 2.0f));
 
-  window.draw(menuRect);
+  const float scale = getScale(sf::Vector2f(screenRect.getSize()), window.getSize()) * 0.8f;
+  screenRect.setScale(sf::Vector2f(scale, scale));
+
+  const auto position = getPosition(sf::Vector2f(screenRect.getSize()), window.getSize(), scale);
+  screenRect.setPosition(position);
+
+  window.draw(screenRect);
 }
 
 void HighScores::renderTitle() {
-  sf::FloatRect titleBounds = titleText.getLocalBounds();
+  const auto position =
+      getPosition(sf::Vector2f(titleText.getLocalBounds().size), window.getSize(), screenRect.getScale().x);
+  titleText.setPosition(sf::Vector2f(position.x, screenRect.getPosition().y + 20 * screenRect.getScale().y));
 
-  sf::Vector2f centerPosition =
-      sf::Vector2f(menuRect.getPosition().x + menuRect.getSize().x / 2.0f - titleBounds.size.x / 2.0f,
-                   menuRect.getPosition().y + 20);
-  titleText.setPosition(centerPosition);
+  titleText.setScale(screenRect.getScale());
+
   window.draw(titleText);
 }
 
 void HighScores::renderScores() {
   const auto& recordTable = game.getSettingsReader().getGameRecordTable();
 
-  scoreTexts.clear();
+  for (size_t i = 0; i < recordTable.size(); ++i) {
+    sf::Text item(font);
 
-  for (size_t i = 0; i < recordTable.size() && i < 5; ++i) {
-    sf::Text scoreText(font);
-    scoreText.setCharacterSize(28);
-    scoreText.setFillColor(sf::Color::White);
-    scoreText.setStyle(sf::Text::Bold);
+    item.setString(std::to_string(i + 1) + std::string(2, ' ') + std::string(14, '.') + std::string(2, ' ') +
+                   std::to_string(recordTable[i]));
 
-    // Format: "1. 100"
-    std::string scoreString = std::to_string(i + 1) + ". " + std::to_string(recordTable[i]);
-    scoreText.setString(scoreString);
+    const auto position =
+        getPosition(sf::Vector2f(item.getLocalBounds().size), window.getSize(), screenRect.getScale().x);
 
-    // Position scores vertically
-    sf::Vector2f position =
-        sf::Vector2f(menuRect.getPosition().x + 50.0f, menuRect.getPosition().y + 120.0f + i * 50.0f);
+    item.setPosition(sf::Vector2f(
+        screenRect.getPosition().x + 120.0f * screenRect.getScale().x,
+        screenRect.getPosition().y + 100.0f * screenRect.getScale().y + i * 50.0f * screenRect.getScale().y));
 
-    scoreText.setPosition(position);
-    scoreTexts.push_back(scoreText);
-    window.draw(scoreText);
+    item.setScale(screenRect.getScale());
+    window.draw(item);
+
+    item.setFillColor(sf::Color::White);
+    item.setStyle(sf::Text::Regular);
+
+    window.draw(item);
   }
 
   // If no scores, show message
@@ -103,8 +111,7 @@ void HighScores::renderScores() {
     noScoresText.setStyle(sf::Text::Bold);
 
     sf::FloatRect textBounds = noScoresText.getLocalBounds();
-    sf::Vector2f position = sf::Vector2f(menuRect.getPosition().x + menuRectSize.x / 2.0f - textBounds.size.x / 2.0f,
-                                         menuRect.getPosition().y + menuRectSize.y / 2.0f);
+    const auto position = getPosition(sf::Vector2f(textBounds.size), window.getSize(), screenRect.getScale().x);
 
     noScoresText.setPosition(position);
     window.draw(noScoresText);
@@ -112,12 +119,12 @@ void HighScores::renderScores() {
 }
 
 void HighScores::renderBackButton() {
-  sf::FloatRect textBounds = backText.getLocalBounds();
+  backText.setScale(screenRect.getScale());
 
-  sf::Vector2f centerPosition =
-      sf::Vector2f(menuRect.getPosition().x + menuRect.getSize().x / 2.0f - textBounds.size.x / 2.0f,
-                   menuRect.getPosition().y + menuRect.getSize().y - 40);
-
-  backText.setPosition(centerPosition);
+  const auto position =
+      getPosition(sf::Vector2f(backText.getLocalBounds().size), window.getSize(), screenRect.getScale().x);
+  backText.setPosition(sf::Vector2f(
+      position.x,
+      screenRect.getPosition().y + screenRect.getSize().y * screenRect.getScale().y - 40.0f * screenRect.getScale().y));
   window.draw(backText);
 }

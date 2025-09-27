@@ -44,6 +44,8 @@ public:
   // Rendering
   void render(sf::RenderWindow& window, const utils::GameGrid& grid) const;
   void setSnakeType(utils::SnakeSprite::SnakeType type);
+  float getSpeed() const { return speed; }
+  void setSpeed(float speed) { this->speed = speed; }
 
 private:
   std::vector<sf::Vector2i> body;
@@ -53,6 +55,12 @@ private:
   bool directionChanged;
   bool growthEnabled;
   utils::SnakeSprite snakeSprite;
+  float speed;
+  mutable sf::Sprite tongueSprite;
+
+  mutable float tongueTimer;
+  mutable bool tongueVisible = false;
+  static constexpr float TONGUE_DURATION = 0.5f;  // 0.3 seconds
 
   void updateDirection();
   sf::Vector2i getNextHeadPosition() const;
@@ -62,4 +70,6 @@ private:
   float getTailRotation() const;
   utils::SnakeSprite::SegmentType getSegmentType(int segmentIndex) const;
   bool isBodyCorner(int segmentIndex) const;
+
+  void updateTongue(const utils::GameGrid& grid) const;
 };

@@ -59,6 +59,32 @@ sf::Sprite SnakeSprite::getTailSprite(float rotation) const {
   return sprite;
 }
 
+sf::Sprite SnakeSprite::getTongueLowSprite() const {
+  sf::Sprite sprite(texture);
+  sprite.setTextureRect(getTongueSpriteRect(1));
+  return sprite;
+}
+
+sf::Sprite SnakeSprite::getTongueHighSprite() const {
+  sf::Sprite sprite(texture);
+  sprite.setTextureRect(getTongueSpriteRect(2));
+  return sprite;
+}
+
+sf::Sprite SnakeSprite::getTongueLowSprite(float rotation) const {
+  sf::Sprite sprite = getTongueLowSprite();
+  sprite.setRotation(sf::degrees(rotation));
+  sprite.setOrigin(sf::Vector2f(SPRITE_WIDTH / 2.0f, SPRITE_HEIGHT / 2.0f));
+  return sprite;
+}
+
+sf::Sprite SnakeSprite::getTongueHighSprite(float rotation) const {
+  sf::Sprite sprite = getTongueHighSprite();
+  sprite.setRotation(sf::degrees(rotation));
+  sprite.setOrigin(sf::Vector2f(SPRITE_WIDTH / 2.0f, SPRITE_HEIGHT / 2.0f));
+  return sprite;
+}
+
 void SnakeSprite::setSnakeType(SnakeType type) {
   currentType = type;
 }
@@ -80,6 +106,21 @@ sf::IntRect SnakeSprite::getSpriteRect(SegmentType segment) const {
     case SegmentType::Tail:
       y = TAIL_Y;
       break;
+  }
+
+  return sf::IntRect(sf::Vector2i(x, y), sf::Vector2i(SPRITE_WIDTH, SPRITE_HEIGHT));
+}
+
+sf::IntRect SnakeSprite::getTongueSpriteRect(int tongueType) const {
+  int x = 0;
+  int y = 0;
+
+  if (tongueType == 1) {
+    x = SNAKE_TONGUE_LOW_X;
+    y = SNAKE_TONGUE_LOW_Y;
+  } else if (tongueType == 2) {
+    x = SNAKE_TONGUE_HIGH_X;
+    y = SNAKE_TONGUE_HIGH_Y;
   }
 
   return sf::IntRect(sf::Vector2i(x, y), sf::Vector2i(SPRITE_WIDTH, SPRITE_HEIGHT));
