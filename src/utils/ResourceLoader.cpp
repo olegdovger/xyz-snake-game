@@ -21,7 +21,9 @@ const std::string TEXTURE_NAMES[] = {
     "wall_1",        // TextureType::Wall_1
     "wall_2",        // TextureType::Wall_2
     "wall_3",        // TextureType::Wall_3
-    "wall_4"         // TextureType::Wall_4
+    "wall_4",        // TextureType::Wall_4
+    "game_ui",       // TextureType::GameUI
+    "digits"         // TextureType::Digits
 };
 }  // namespace
 
@@ -58,6 +60,9 @@ bool ResourceLoader::loadTextures() {
   success &= loadTexture(textureTypeToString(TextureType::Wall_2), "resources/Wall_2.png");
   success &= loadTexture(textureTypeToString(TextureType::Wall_3), "resources/Wall_3.png");
   success &= loadTexture(textureTypeToString(TextureType::Wall_4), "resources/Wall_4.png");
+
+  success &= loadTexture(textureTypeToString(TextureType::GameUI), "resources/GameUI.png");
+  success &= loadTexture(textureTypeToString(TextureType::Digits), "resources/Digits.png");
 
   return success;
 }

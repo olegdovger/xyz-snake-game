@@ -1,4 +1,5 @@
 #include "GameScreen.hpp"
+#include "../utils/GameUI.hpp"
 #include "../utils/ResourceLoader.hpp"
 #include "../utils/ScalingUtils.hpp"
 #include "../utils/SettingStorage.hpp"
@@ -28,6 +29,8 @@ GameScreen::GameScreen(sf::RenderWindow& win, Game& gameRef)
   }
 
   snake.setSpeed(settingStorage.getSnakeSpeed());
+
+  gameUI = utils::GameUI();
 }
 
 void GameScreen::processEvents(const sf::Event& event) {
@@ -93,7 +96,7 @@ void GameScreen::update() {
   }
 }
 
-void GameScreen::renderBoardBorder() const {
+sf::Sprite GameScreen::renderBoardBorder() const {
   const auto texture = utils::ResourceLoader::getTexture(utils::TextureType::BoardBorder);
   sf::Sprite sprite(texture);
 
@@ -108,6 +111,8 @@ void GameScreen::renderBoardBorder() const {
   // sprite.setColor(sf::Color(255, 255, 255, 48));
 
   window.draw(sprite);
+
+  return sprite;
 }
 
 void GameScreen::renderBoardGrid() const {
@@ -155,7 +160,7 @@ void GameScreen::renderDebugGrid() const {
 }
 
 void GameScreen::render() {
-  renderBoardBorder();
+  const auto boardBorder = renderBoardBorder();
   renderBoardGrid();
 
   // Render snake
@@ -171,6 +176,21 @@ void GameScreen::render() {
   }
 
   // renderDebugGrid();
+  renderGameUI(boardBorder);
+}
+
+void GameScreen::renderGameUI(const sf::Sprite& boardBorder) const {
+  // scale it
+  const auto boardBorderSize = boardBorder.getLocalBounds().size;
+  const auto position =
+      getPosition(sf::Vector2f(boardBorder.getTexture().getSize()), window.getSize(), boardBorder.getScale().x);
+
+  gameUI.setScale(boardBorder.getScale().x);
+  gameUI.render(
+      window,
+      sf::Vector2f(boardBorder.getGlobalBounds().position.x + (boardBorderSize.x + 16) * boardBorder.getScale().x,
+                   boardBorder.getGlobalBounds().position.y),
+      1234567890, 1234567890, 1234567890);
 }
 
 void GameScreen::restartCountdown() {

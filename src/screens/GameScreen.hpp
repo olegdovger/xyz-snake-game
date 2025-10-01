@@ -4,6 +4,7 @@
 #include "../Snake.hpp"
 #include "../utils/CountdownTimer.hpp"
 #include "../utils/GameGrid.hpp"
+#include "../utils/GameUI.hpp"
 
 class GameScreen final : public Screen {
 public:
@@ -28,6 +29,7 @@ private:
 
   // Snake
   Snake snake;
+  mutable utils::GameUI gameUI;
 
   // Countdown timer
   utils::CountdownTimer countdownTimer;
@@ -40,7 +42,7 @@ private:
   bool gameOver = false;
   bool scoreSaved = false;
 
-  void renderBoardBorder() const;
+  sf::Sprite renderBoardBorder() const;
 
   void renderBoardGrid() const;
 
@@ -49,4 +51,5 @@ private:
 
   void initializeGrid();
   void updateGrid();
+  void renderGameUI(const sf::Sprite& boardBorder) const;
 };

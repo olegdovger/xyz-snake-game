@@ -18,7 +18,9 @@ enum class TextureType {
   Wall_1,
   Wall_2,
   Wall_3,
-  Wall_4
+  Wall_4,
+  GameUI,
+  Digits,
 };
 
 class ResourceLoader {
