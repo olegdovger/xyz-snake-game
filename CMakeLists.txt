@@ -36,6 +36,8 @@ add_executable(${PROJECT_NAME}
         "src/utils/ScalingUtils.cpp"
         "src/utils/SettingStorage.cpp"
         "src/utils/CountdownTimer.cpp"
+        "src/utils/GameUI.cpp"
+        "src/utils/Digits.cpp"
         "src/SnakeSprite.cpp"
         "src/Snake.cpp"
 )
@@ -44,6 +46,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics SFML::Audio)
 
 # Copy resources folder to build directory
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR}/bin)
 
 # Code formatting target
 find_program(CLANG_FORMAT clang-format)
