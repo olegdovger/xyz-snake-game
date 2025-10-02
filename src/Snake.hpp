@@ -38,7 +38,11 @@ public:
 
   // State
   bool isAlive() const { return alive; }
-  void kill() { alive = false; }
+  bool isBlinking() const { return blinking; }
+  void kill() {
+    alive = false;
+    tongueVisible = false;
+  }
   void reset(sf::Vector2i startPosition, int initialLength = 3);
 
   // Rendering
@@ -46,6 +50,8 @@ public:
   void setSnakeType(utils::SnakeSprite::SnakeType type);
   float getSpeed() const { return speed; }
   void setSpeed(float speed) { this->speed = speed; }
+  void setBlinking(bool blinking) { this->blinking = blinking; }
+  void setBlinkTimer(const sf::Clock& timer) { blinkTimer = timer; }
 
 private:
   std::vector<sf::Vector2i> body;
@@ -57,6 +63,8 @@ private:
   utils::SnakeSprite snakeSprite;
   float speed;
   mutable sf::Sprite tongueSprite;
+  bool blinking = false;
+  mutable sf::Clock blinkTimer;
 
   mutable float tongueTimer;
   mutable bool tongueVisible = false;

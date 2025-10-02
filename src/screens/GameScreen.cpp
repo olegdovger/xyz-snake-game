@@ -12,7 +12,8 @@ GameScreen::GameScreen(sf::RenderWindow& win, Game& gameRef)
     : Screen(win, gameRef),
       gameGrid(32, 32, 824.0f, sf::Vector2f(0, 0), 1.0f, 912.0f),
       snake(sf::Vector2i(16, 16), 5),
-      countdownTimer(1, false) {
+      countdownTimer(1, false),
+      currentSnakeTypeIndex(0) {
   initializeGrid();
 
   utils::SettingStorage settingStorage;
@@ -27,6 +28,9 @@ GameScreen::GameScreen(sf::RenderWindow& win, Game& gameRef)
       countdownTimer.start();
     }
   }
+
+  // Initialize snake type timer for testing
+  snakeTypeTimer.restart();
 
   snake.setSpeed(settingStorage.getSnakeSpeed());
 
@@ -84,18 +88,43 @@ void GameScreen::update() {
   // Update countdown timer
   countdownTimer.update();
 
-  // Only update game logic if countdown is finished
-  if (countdownTimer.getIsFinished()) {
+  // Handle blinking effect
+  if (isBlinking) {
+    if (blinkTimer.getElapsedTime().asSeconds() >= BLINK_DURATION) {
+      blinkCount++;
+      blinkTimer.restart();
+
+      if (blinkCount >= MAX_BLINKS) {
+        isBlinking = false;
+        blinkCount = 0;
+        handleGameOver();
+      }
+    }
+  }
+
+  // Only update game logic if countdown is finished and not blinking
+  if (countdownTimer.getIsFinished() && !isBlinking) {
     // Move snake every step
     if (moveTimer.getElapsedTime().asSeconds() >= 1 / snake.getSpeed()) {
       snake.move();
-      moveTimer.restart();
 
-      // Check collisions
-      if (snake.checkSelfCollision() || snake.checkWallCollision(gameGrid.getCols(), gameGrid.getRows())) {
+      if (snake.checkWallCollision(gameGrid.getCols(), gameGrid.getRows()) || snake.checkSelfCollision()) {
         snake.kill();
-        handleGameOver();
+        startBlinking();
       }
+
+      moveTimer.restart();
+    }
+
+    // Change snake type every second for testing
+    if (snakeTypeTimer.getElapsedTime().asSeconds() >= SNAKE_TYPE_CHANGE_INTERVAL) {
+      currentSnakeTypeIndex = (currentSnakeTypeIndex + 1) % TOTAL_SNAKE_TYPES;
+
+      // Convert index to SnakeType enum
+      utils::SnakeSprite::SnakeType newType = static_cast<utils::SnakeSprite::SnakeType>(currentSnakeTypeIndex);
+      snake.setSnakeType(newType);
+
+      snakeTypeTimer.restart();
     }
   }
 }
@@ -167,9 +196,6 @@ void GameScreen::render() {
   const auto boardBorder = renderBoardBorder();
   renderBoardGrid();
 
-  // Render snake
-  snake.render(window, gameGrid);
-
   // Render countdown timer if active
   if (countdownTimer.getIsActive()) {
     // Center the countdown text on screen
@@ -181,6 +207,16 @@ void GameScreen::render() {
 
   // renderDebugGrid();
   renderGameUI(boardBorder);
+
+  // Set blinking state and timer for snake
+  snake.setBlinking(isBlinking);
+  if (isBlinking) {
+    snake.setBlinkTimer(blinkTimer);
+    std::cout << "Setting snake blinking state: isBlinking=" << isBlinking << std::endl;
+  }
+
+  // Render snake last (highest z-index) - always on top of other elements
+  snake.render(window, gameGrid);
 }
 
 void GameScreen::renderGameUI(const sf::Sprite& boardBorder) const {
@@ -245,4 +281,10 @@ void GameScreen::resume() {
   updateGrid();
 
   countdownTimer.start();
+}
+
+void GameScreen::startBlinking() {
+  isBlinking = true;
+  blinkCount = 0;
+  blinkTimer.restart();
 }

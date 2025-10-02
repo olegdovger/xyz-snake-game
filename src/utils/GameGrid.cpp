@@ -27,7 +27,9 @@ void GameGrid::calculateCellPositions() {
 
 sf::Vector2f GameGrid::getCellPosition(int row, int col) const {
   if (!isValidPosition(row, col)) {
-    return sf::Vector2f(0, 0);
+    const float x = topLeft.x + col * scaledCellSize;
+    const float y = topLeft.y + row * scaledCellSize;
+    return sf::Vector2f(x, y);
   }
   return cellPositions[row][col];
 }
