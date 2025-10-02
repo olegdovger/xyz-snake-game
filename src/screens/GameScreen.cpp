@@ -47,21 +47,25 @@ void GameScreen::processEvents(const sf::Event& event) {
         }
         break;
       case sf::Keyboard::Key::Up:
+      case sf::Keyboard::Key::W:
         if (!gameOver) {
           snake.setDirection(Snake::Direction::Up);
         }
         break;
       case sf::Keyboard::Key::Down:
+      case sf::Keyboard::Key::S:
         if (!gameOver) {
           snake.setDirection(Snake::Direction::Down);
         }
         break;
       case sf::Keyboard::Key::Left:
+      case sf::Keyboard::Key::A:
         if (!gameOver) {
           snake.setDirection(Snake::Direction::Left);
         }
         break;
       case sf::Keyboard::Key::Right:
+      case sf::Keyboard::Key::D:
         if (!gameOver) {
           snake.setDirection(Snake::Direction::Right);
         }
