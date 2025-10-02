@@ -36,11 +36,24 @@ private:
 
   // Timing
   sf::Clock moveTimer;
-  static constexpr float SNAKE_MOVE_INTERVAL = 1.0f;  // seconds
+  sf::Clock snakeTypeTimer;
+  static constexpr float SNAKE_MOVE_INTERVAL = 1.0f;         // seconds
+  static constexpr float SNAKE_TYPE_CHANGE_INTERVAL = 1.0f;  // seconds
+
+  // Snake type cycling for testing
+  int currentSnakeTypeIndex = 0;
+  static constexpr int TOTAL_SNAKE_TYPES = 5;  // Purple, Green, Blue, Red, Black
 
   // Game state
   bool gameOver = false;
   bool scoreSaved = false;
+
+  // Blinking effect for collision
+  bool isBlinking = false;
+  int blinkCount = 0;
+  static constexpr int MAX_BLINKS = 3;
+  sf::Clock blinkTimer;
+  static constexpr float BLINK_DURATION = 0.5f;  // Duration of each blink state
 
   sf::Sprite renderBoardBorder() const;
 
@@ -52,4 +65,5 @@ private:
   void initializeGrid();
   void updateGrid();
   void renderGameUI(const sf::Sprite& boardBorder) const;
+  void startBlinking();
 };

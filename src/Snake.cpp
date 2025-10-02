@@ -1,5 +1,6 @@
 #include "Snake.hpp"
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <random>
 #include "SnakeSprite.hpp"
@@ -84,8 +85,8 @@ sf::Vector2i Snake::getTail() const {
 }
 
 bool Snake::checkSelfCollision() const {
-  if (body.size() < 4)
-    return false;  // Need at least 4 segments to collide with self
+  if (body.size() < 3)
+    return false;  // Need at least 3 segments to collide with self
 
   sf::Vector2i head = getHead();
   return std::find(body.begin() + 1, body.end(), head) != body.end();
@@ -118,8 +119,15 @@ void Snake::setSnakeType(utils::SnakeSprite::SnakeType type) {
 }
 
 void Snake::render(sf::RenderWindow& window, const utils::GameGrid& grid) const {
-  if (!alive)
+  // Always render if blinking, otherwise only if alive
+  if (!isAlive() && !isBlinking()) {
+    std::cout << "Snake not rendering: alive=" << isAlive() << ", blinking=" << isBlinking() << std::endl;
     return;
+  }
+
+  if (isBlinking()) {
+    std::cout << "Snake rendering while blinking: alive=" << isAlive() << ", body size=" << body.size() << std::endl;
+  }
 
   for (size_t i = 0; i < body.size(); ++i) {
     // Get sprite for this segment
@@ -148,14 +156,25 @@ void Snake::render(sf::RenderWindow& window, const utils::GameGrid& grid) const 
     float scale = grid.getScaledCellSize() / 28.0f;  // 28 is the sprite size
     segment.setScale(sf::Vector2f(scale, scale));
 
+    // Apply blinking effect with animated transparency
+    if (blinking) {
+      // Calculate animated alpha based on time
+      float time = blinkTimer.getElapsedTime().asSeconds();
+      float alpha = 128 + 127 * std::sin(time * 3.14159f * 4.0f);  // Oscillates between 128 and 255
+      segment.setColor(sf::Color(255, 255, 255, static_cast<unsigned char>(alpha)));
+
+    } else {
+      segment.setColor(sf::Color::White);
+    }
+
     window.draw(segment);
   }
 
   // Update tongue timer
   updateTongue(grid);
 
-  // Render tongue based on timer
-  if (tongueVisible) {
+  // Render tongue based on timer (only if snake is alive)
+  if (tongueVisible && isAlive()) {
     // Position the tongue in front of the head based on direction
     sf::Vector2f headPosition = grid.getCellPosition(body[0].y, body[0].x);
     sf::Vector2f centerOffset(grid.getScaledCellSize() / 2.0f, grid.getScaledCellSize() / 2.0f);
@@ -195,6 +214,12 @@ void Snake::updateDirection() {
 }
 
 void Snake::updateTongue(const utils::GameGrid& grid) const {
+  // Don't update tongue if snake is dead
+  if (!isAlive()) {
+    tongueVisible = false;
+    return;
+  }
+
   if (tongueVisible) {
     tongueTimer += 1.0f / 60.0f;
 
