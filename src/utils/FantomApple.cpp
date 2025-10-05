@@ -30,11 +30,12 @@ void FantomApple::render(sf::RenderWindow& window, const GameGrid& grid) const {
 }
 
 void FantomApple::applySpecialEffects(Snake& snake) const {
-  // Apply invincibility and speed bonus
+  // Apply invincibility
   snake.setInvincible(true, INVINCIBILITY_DURATION);
-  snake.setSpeedMultiplier(1.0f, 0.0f);            // Reset any speed reduction
-  snake.setSpeed(snake.getSpeed() + SPEED_BONUS);  // Add permanent speed bonus
+  snake.setSpeedMultiplier(1.0f, 0.0f);  // Reset any speed reduction
 
   // Change snake type when fantom apple is eaten
   snake.setSnakeType(SnakeSprite::SnakeType::Black);
+
+  snake.cancelDisorientation();
 }

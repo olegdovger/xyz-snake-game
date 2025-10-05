@@ -48,6 +48,8 @@ GameItem* GameItemManager::checkCollision(sf::Vector2i snakeHead) {
 
 bool GameItemManager::spawnRandomItem(const Snake& snake) {
   GameItemType type = static_cast<GameItemType>(itemTypeDistribution(randomGenerator));
+  // TEMPORARY: Generate only FantomApple for testing wall collisions
+  // GameItemType type = GameItemType::FantomApple;
   return spawnItem(type, snake);
 }
 
@@ -110,10 +112,19 @@ bool GameItemManager::isValidPosition(sf::Vector2i position, const Snake& snake)
   return true;
 }
 
+template <typename Predicate>
+void GameItemManager::removeItemsIf(Predicate predicate) {
+  items.erase(std::remove_if(items.begin(), items.end(), predicate), items.end());
+}
+
+void GameItemManager::removeItem(GameItem* item) {
+  if (item) {
+    removeItemsIf([item](const std::unique_ptr<GameItem>& gameItem) { return gameItem.get() == item; });
+  }
+}
+
 void GameItemManager::removeExpiredItems() {
-  items.erase(std::remove_if(items.begin(), items.end(),
-                             [](const std::unique_ptr<GameItem>& item) { return item->isExpired(); }),
-              items.end());
+  removeItemsIf([](const std::unique_ptr<GameItem>& item) { return item->isExpired(); });
 }
 
 void GameItemManager::clear() {

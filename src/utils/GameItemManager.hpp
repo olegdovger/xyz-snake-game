@@ -70,6 +70,12 @@ public:
   int getItemCount() const { return static_cast<int>(items.size()); }
 
   /**
+     * @brief Remove a specific game item
+     * @param item Pointer to the item to remove
+     */
+  void removeItem(GameItem* item);
+
+  /**
      * @brief Clear all game items
      */
   void clear();
@@ -83,8 +89,8 @@ private:
   mutable std::uniform_int_distribution<int> positionDistributionY;
 
   // Spawning parameters
-  static constexpr float SPAWN_INTERVAL = 3.0f;  // seconds
-  static constexpr int MAX_ITEMS = 5;
+  static constexpr float SPAWN_INTERVAL = 0.3f;  // seconds (reduced for testing)
+  static constexpr int MAX_ITEMS = 15;
   sf::Clock spawnTimer;
 
   /**
@@ -106,4 +112,11 @@ private:
      * @brief Remove expired game items
      */
   void removeExpiredItems();
+
+  /**
+     * @brief Remove items that match a predicate
+     * @param predicate Function that returns true for items to remove
+     */
+  template <typename Predicate>
+  void removeItemsIf(Predicate predicate);
 };

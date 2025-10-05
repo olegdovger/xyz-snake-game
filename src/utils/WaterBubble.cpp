@@ -28,9 +28,14 @@ void WaterBubble::render(sf::RenderWindow& window, const GameGrid& grid) const {
 }
 
 void WaterBubble::applySpecialEffects(Snake& snake) const {
-  // Apply disorientation and speed reduction effects
+  // Decrease speed by 5
+  snake.decreaseSpeed(5.0f);
+
+  // Cancel any existing invincibility effect (phantom state)
+  snake.cancelInvincibility();
+
+  // Apply disorientation effect
   snake.setDisoriented(true, EFFECT_DURATION);
-  snake.setSpeedMultiplier(SPEED_MULTIPLIER, EFFECT_DURATION);
 
   // Change snake type when water bubble is eaten
   snake.setSnakeType(SnakeSprite::SnakeType::Blue);

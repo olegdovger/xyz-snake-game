@@ -48,6 +48,8 @@ public:
   void setDisoriented(bool disoriented, float duration = 0.0f);
   void setInvincible(bool invincible, float duration = 0.0f);
   void setSpeedMultiplier(float multiplier, float duration = 0.0f);
+  void cancelInvincibility();
+  void cancelDisorientation();
   bool isDisoriented() const { return disoriented; }
   bool isInvincible() const { return invincible; }
   float getSpeedMultiplier() const { return speedMultiplier; }
@@ -59,6 +61,9 @@ public:
   void changeSnakeType();  // Randomly change to a different snake type
   float getSpeed() const { return speed; }
   void setSpeed(float speed) { this->speed = speed; }
+  void decreaseSpeed(float amount);
+  void setTemporarySpeedBonus(float bonus, float duration);
+  void setFantomSpeedBonus(float bonus, float duration);
   void setBlinking(bool blinking) { this->blinking = blinking; }
   void setBlinkTimer(const sf::Clock& timer) { blinkTimer = timer; }
 
@@ -85,6 +90,24 @@ private:
   float disorientedDuration = 0.0f;
   float invincibleDuration = 0.0f;
   float speedMultiplierDuration = 0.0f;
+
+  // Snake type management
+  SnakeSprite::SnakeType originalSnakeType = SnakeSprite::SnakeType::Purple;
+  bool hasTemporaryType = false;
+
+  // Temporary speed changes
+  float temporarySpeedBonus = 0.0f;
+  float temporarySpeedDuration = 0.0f;
+  sf::Clock temporarySpeedTimer;
+
+  // FantomApple specific speed accumulation
+  float fantomSpeedBonus = 0.0f;
+  float fantomSpeedDuration = 0.0f;
+  sf::Clock fantomSpeedTimer;
+
+  // Automatic speed increase timer
+  sf::Clock automaticSpeedTimer;
+  static constexpr float AUTOMATIC_SPEED_INTERVAL = 5.0f;  // 5 seconds
 
   mutable float tongueTimer;
   mutable bool tongueVisible = false;

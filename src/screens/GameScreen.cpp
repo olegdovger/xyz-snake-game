@@ -92,9 +92,6 @@ void GameScreen::processEvents(const sf::Event& event) {
 }
 
 void GameScreen::update() {
-  // Update countdown timer
-  countdownTimer.update();
-
   // Update walls
   if (wallManager) {
     wallManager->update(1.0f / 60.0f, snake);  // Assuming 60 FPS
@@ -135,19 +132,13 @@ void GameScreen::update() {
           // Add points
           game.addScore(collidedItem->getPoints());
 
-          // Apply speed bonus if any
-          if (collidedItem->getSpeedBonus() > 0) {
-            if (collidedItem->getSpeedBonusDuration() > 0.0f) {
-              // Temporary speed bonus
-              snake.setSpeed(snake.getSpeed() + collidedItem->getSpeedBonus());
-            } else {
-              // Permanent speed bonus
-              snake.setSpeed(snake.getSpeed() + collidedItem->getSpeedBonus());
-            }
-          }
+          // Make snake grow when eating any item
+          snake.grow();
+          gameUI.setScore(gameUI.getScore() + collidedItem->getPoints());
+          gameUI.setApples(gameUI.getApples() + 1);
 
-          // Remove the item
-          // Note: GameItemManager will handle removal in next update cycle
+          // Remove the item immediately
+          gameItemManager->removeItem(collidedItem);
         }
       }
 
@@ -157,26 +148,20 @@ void GameScreen::update() {
         wallCollision = wallManager->checkWallCollision(snake.getHead());
       }
 
-      if (wallCollision || snake.checkWallCollision(gameGrid.getCols(), gameGrid.getRows()) ||
-          snake.checkSelfCollision()) {
-        snake.kill();
-        startBlinking();
+      if (!snake.isInvincible()) {
+        if (wallCollision || snake.checkWallCollision(gameGrid.getCols(), gameGrid.getRows()) ||
+            snake.checkSelfCollision()) {
+          snake.kill();
+          startBlinking();
+        }
       }
 
       moveTimer.restart();
     }
-
-    // Change snake type every second for testing
-    // if (snakeTypeTimer.getElapsedTime().asSeconds() >= SNAKE_TYPE_CHANGE_INTERVAL) {
-    //   currentSnakeTypeIndex = (currentSnakeTypeIndex + 1) % TOTAL_SNAKE_TYPES;
-
-    //   // Convert index to SnakeType enum
-    //   SnakeSprite::SnakeType newType = static_cast<SnakeSprite::SnakeType>(currentSnakeTypeIndex);
-    //   snake.setSnakeType(newType);
-
-    //   snakeTypeTimer.restart();
-    // }
   }
+
+  // Update countdown timer
+  countdownTimer.update();
 }
 
 sf::Sprite GameScreen::renderBoardBorder() const {
@@ -246,7 +231,25 @@ void GameScreen::render() {
   const auto boardBorder = renderBoardBorder();
   renderBoardGrid();
 
-  // Render countdown timer if active
+  renderGameUI(boardBorder);
+
+  if (wallManager) {
+    wallManager->render(window, gameGrid);
+  }
+
+  if (gameItemManager) {
+    gameItemManager->render(window, gameGrid);
+  }
+
+  snake.setBlinking(isBlinking);
+  if (isBlinking) {
+    snake.setBlinkTimer(blinkTimer);
+    std::cout << "Setting snake blinking state: isBlinking=" << isBlinking << std::endl;
+  }
+
+  snake.render(window, gameGrid);
+
+  // Render countdown timer last to be on top of everything
   if (countdownTimer.getIsActive()) {
     // Center the countdown text on screen
     sf::Vector2u windowSize = window.getSize();
@@ -254,29 +257,6 @@ void GameScreen::render() {
     countdownTimer.render(window);
     std::cout << "Rendering countdown: " << countdownTimer.getRemainingSeconds() << std::endl;
   }
-
-  // renderDebugGrid();
-  renderGameUI(boardBorder);
-
-  // Render walls
-  if (wallManager) {
-    wallManager->render(window, gameGrid);
-  }
-
-  // Render game items
-  if (gameItemManager) {
-    gameItemManager->render(window, gameGrid);
-  }
-
-  // Set blinking state and timer for snake
-  snake.setBlinking(isBlinking);
-  if (isBlinking) {
-    snake.setBlinkTimer(blinkTimer);
-    std::cout << "Setting snake blinking state: isBlinking=" << isBlinking << std::endl;
-  }
-
-  // Render snake last (highest z-index) - always on top of other elements
-  snake.render(window, gameGrid);
 }
 
 void GameScreen::renderGameUI(const sf::Sprite& boardBorder) const {
@@ -286,11 +266,12 @@ void GameScreen::renderGameUI(const sf::Sprite& boardBorder) const {
       getPosition(sf::Vector2f(boardBorder.getTexture().getSize()), window.getSize(), boardBorder.getScale().x);
 
   gameUI.setScale(boardBorder.getScale().x);
-  gameUI.render(
-      window,
-      sf::Vector2f(boardBorder.getGlobalBounds().position.x + (boardBorderSize.x + 16) * boardBorder.getScale().x,
-                   boardBorder.getGlobalBounds().position.y),
-      1234567890, 1234567890, 1234567890);
+  // gameUI.setScore(0);
+  // gameUI.setApples(0);
+  gameUI.setSpeed(static_cast<int>(snake.getSpeed()));
+  gameUI.render(window, sf::Vector2f(boardBorder.getGlobalBounds().position.x +
+                                         (boardBorderSize.x + 16) * boardBorder.getScale().x,
+                                     boardBorder.getGlobalBounds().position.y));
 }
 
 void GameScreen::restartCountdown() {

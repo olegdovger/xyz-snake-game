@@ -27,6 +27,9 @@ void GreenApple::render(sf::RenderWindow& window, const GameGrid& grid) const {
 }
 
 void GreenApple::applySpecialEffects(Snake& snake) const {
-  // Change snake type when green apple is eaten
-  snake.setSnakeType(SnakeSprite::SnakeType::Green);
+  // Decrease speed by 2
+  snake.decreaseSpeed(2.0f);
+
+  snake.cancelInvincibility();
+  snake.cancelDisorientation();
 }

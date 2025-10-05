@@ -50,17 +50,7 @@ void Snake::move() {
 }
 
 void Snake::setDirection(Direction newDirection) {
-  // Prevent reversing into itself
-  if (currentDirection == Direction::Up && newDirection == Direction::Down)
-    return;
-  if (currentDirection == Direction::Down && newDirection == Direction::Up)
-    return;
-  if (currentDirection == Direction::Left && newDirection == Direction::Right)
-    return;
-  if (currentDirection == Direction::Right && newDirection == Direction::Left)
-    return;
-
-  // Apply disorientation effect
+  // Apply disorientation effect first
   if (disoriented) {
     switch (newDirection) {
       case Direction::Left:
@@ -77,6 +67,16 @@ void Snake::setDirection(Direction newDirection) {
         break;
     }
   }
+
+  // Prevent reversing into itself (check after disorientation)
+  if (currentDirection == Direction::Up && newDirection == Direction::Down)
+    return;
+  if (currentDirection == Direction::Down && newDirection == Direction::Up)
+    return;
+  if (currentDirection == Direction::Left && newDirection == Direction::Right)
+    return;
+  if (currentDirection == Direction::Right && newDirection == Direction::Left)
+    return;
 
   nextDirection = newDirection;
   directionChanged = true;
@@ -106,6 +106,11 @@ sf::Vector2i Snake::getTail() const {
 }
 
 bool Snake::checkSelfCollision() const {
+  // If invincible (FantomApple effect), no self collision
+  if (invincible) {
+    return false;
+  }
+
   if (body.size() < 3)
     return false;  // Need at least 3 segments to collide with self
 
@@ -129,6 +134,11 @@ bool Snake::checkCollisionWithPosition(sf::Vector2i position) const {
 }
 
 bool Snake::checkCollisionWithWalls(const std::vector<sf::Vector2i>& wallPositions) const {
+  // If invincible (FantomApple effect), no wall collision
+  if (invincible) {
+    return false;
+  }
+
   for (const auto& wallPos : wallPositions) {
     if (std::find(body.begin(), body.end(), wallPos) != body.end()) {
       return true;
@@ -148,10 +158,23 @@ void Snake::reset(sf::Vector2i startPosition, int initialLength) {
   alive = true;
   directionChanged = false;
   growthEnabled = false;
+
+  // Reset snake type to Purple
+  snakeSprite.setType(SnakeSprite::SnakeType::Purple);
+  hasTemporaryType = false;
+
+  // Reset temporary speed changes
+  temporarySpeedBonus = 0.0f;
+  temporarySpeedDuration = 0.0f;
+
+  // Reset FantomApple speed changes
+  fantomSpeedBonus = 0.0f;
+  fantomSpeedDuration = 0.0f;
 }
 
 void Snake::setSnakeType(SnakeSprite::SnakeType type) {
   snakeSprite.setType(type);
+  hasTemporaryType = (type != SnakeSprite::SnakeType::Purple);
 }
 
 void Snake::render(sf::RenderWindow& window, const GameGrid& grid) const {
@@ -459,7 +482,26 @@ void Snake::setInvincible(bool invincible, float duration) {
   if (invincible) {
     invincibleDuration = duration;
     invincibleTimer.restart();
+  } else {
+    // If manually setting to false, reset all invincibility-related state
+    invincibleDuration = 0.0f;
+    snakeSprite.setType(SnakeSprite::SnakeType::Purple);
+    hasTemporaryType = false;
   }
+}
+
+void Snake::cancelInvincibility() {
+  invincible = false;
+  invincibleDuration = 0.0f;
+  snakeSprite.setType(SnakeSprite::SnakeType::Purple);
+  hasTemporaryType = false;
+}
+
+void Snake::cancelDisorientation() {
+  disoriented = false;
+  disorientedDuration = 0.0f;
+  // snakeSprite.setType(SnakeSprite::SnakeType::Purple);
+  hasTemporaryType = false;
 }
 
 void Snake::setSpeedMultiplier(float multiplier, float duration) {
@@ -470,12 +512,49 @@ void Snake::setSpeedMultiplier(float multiplier, float duration) {
   }
 }
 
+void Snake::setTemporarySpeedBonus(float bonus, float duration) {
+  temporarySpeedBonus = bonus;
+  if (duration > 0.0f) {
+    temporarySpeedDuration = duration;
+    temporarySpeedTimer.restart();
+    // Apply the bonus to current speed
+    speed += bonus;
+  }
+}
+
+void Snake::setFantomSpeedBonus(float bonus, float duration) {
+  // If there's already an active FantomApple effect, add to it
+  if (fantomSpeedDuration > 0.0f) {
+    // Add the new bonus to existing bonus
+    fantomSpeedBonus += bonus;
+    // Apply the new bonus to current speed
+    speed += bonus;
+    // Reset duration to full duration
+    fantomSpeedDuration = duration;
+    fantomSpeedTimer.restart();
+  } else {
+    // Start new effect
+    fantomSpeedBonus = bonus;
+    fantomSpeedDuration = duration;
+    fantomSpeedTimer.restart();
+    // Apply the bonus to current speed
+    speed += bonus;
+  }
+}
+
+void Snake::decreaseSpeed(float amount) {
+  speed = std::max(1.0f, speed - amount);
+}
+
 void Snake::updateEffects() {
   // Update disorientation effect
   if (disoriented && disorientedDuration > 0.0f) {
     if (disorientedTimer.getElapsedTime().asSeconds() >= disorientedDuration) {
       disoriented = false;
       disorientedDuration = 0.0f;
+
+      snakeSprite.setType(SnakeSprite::SnakeType::Purple);
+      hasTemporaryType = false;
     }
   }
 
@@ -484,6 +563,9 @@ void Snake::updateEffects() {
     if (invincibleTimer.getElapsedTime().asSeconds() >= invincibleDuration) {
       invincible = false;
       invincibleDuration = 0.0f;
+
+      snakeSprite.setType(SnakeSprite::SnakeType::Purple);
+      hasTemporaryType = false;
     }
   }
 
@@ -492,7 +574,42 @@ void Snake::updateEffects() {
     if (speedMultiplierTimer.getElapsedTime().asSeconds() >= speedMultiplierDuration) {
       speedMultiplier = 1.0f;
       speedMultiplierDuration = 0.0f;
+
+      snakeSprite.setType(SnakeSprite::SnakeType::Purple);
+      hasTemporaryType = false;
     }
+  }
+
+  // Update temporary speed bonus effect
+  if (temporarySpeedDuration > 0.0f) {
+    if (temporarySpeedTimer.getElapsedTime().asSeconds() >= temporarySpeedDuration) {
+      // Remove temporary speed bonus
+      speed -= temporarySpeedBonus;
+      temporarySpeedBonus = 0.0f;
+      temporarySpeedDuration = 0.0f;
+
+      snakeSprite.setType(SnakeSprite::SnakeType::Purple);
+      hasTemporaryType = false;
+    }
+  }
+
+  // Update FantomApple speed bonus effect
+  if (fantomSpeedDuration > 0.0f) {
+    if (fantomSpeedTimer.getElapsedTime().asSeconds() >= fantomSpeedDuration) {
+      // Remove FantomApple speed bonus
+      speed -= fantomSpeedBonus;
+      fantomSpeedBonus = 0.0f;
+      fantomSpeedDuration = 0.0f;
+
+      snakeSprite.setType(SnakeSprite::SnakeType::Purple);
+      hasTemporaryType = false;
+    }
+  }
+
+  // Automatic speed increase every 5 seconds
+  if (automaticSpeedTimer.getElapsedTime().asSeconds() >= AUTOMATIC_SPEED_INTERVAL) {
+    speed += 1.0f;
+    automaticSpeedTimer.restart();
   }
 }
 

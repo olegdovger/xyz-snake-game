@@ -29,8 +29,11 @@ void RedApple::render(sf::RenderWindow& window, const GameGrid& grid) const {
 }
 
 void RedApple::applySpecialEffects(Snake& snake) const {
-  // Change snake type when red apple is eaten
-  snake.setSnakeType(SnakeSprite::SnakeType::Red);
+  // Decrease speed by 1
+  snake.decreaseSpeed(1.0f);
+
+  snake.cancelInvincibility();
+  snake.cancelDisorientation();
 }
 
 float RedApple::calculateLifetime(int boardWidth, int boardHeight, float snakeSpeed) {
