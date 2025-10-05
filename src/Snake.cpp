@@ -12,7 +12,7 @@ Snake::Snake(sf::Vector2i startPosition, int initialLength)
       alive(true),
       directionChanged(false),
       growthEnabled(false),
-      snakeSprite(utils::SnakeSprite::SnakeType::Green),
+      snakeSprite(SnakeSprite::SnakeType::Green),
       speed(1.0f),
       tongueSprite(snakeSprite.getTongueLowSprite()),
       tongueTimer(0.0f),
@@ -27,6 +27,9 @@ Snake::Snake(sf::Vector2i startPosition, int initialLength)
 void Snake::move() {
   if (!alive)
     return;
+
+  // Update effects
+  updateEffects();
 
   updateDirection();
 
@@ -56,6 +59,24 @@ void Snake::setDirection(Direction newDirection) {
     return;
   if (currentDirection == Direction::Right && newDirection == Direction::Left)
     return;
+
+  // Apply disorientation effect
+  if (disoriented) {
+    switch (newDirection) {
+      case Direction::Left:
+        newDirection = Direction::Right;
+        break;
+      case Direction::Right:
+        newDirection = Direction::Left;
+        break;
+      case Direction::Up:
+        newDirection = Direction::Down;
+        break;
+      case Direction::Down:
+        newDirection = Direction::Up;
+        break;
+    }
+  }
 
   nextDirection = newDirection;
   directionChanged = true;
@@ -93,12 +114,27 @@ bool Snake::checkSelfCollision() const {
 }
 
 bool Snake::checkWallCollision(int gridWidth, int gridHeight) const {
+  // If invincible, only check for out-of-bounds (not internal walls)
+  if (invincible) {
+    sf::Vector2i head = getHead();
+    return head.x < 0 || head.x >= gridWidth || head.y < 0 || head.y >= gridHeight;
+  }
+
   sf::Vector2i head = getHead();
   return head.x < 0 || head.x >= gridWidth || head.y < 0 || head.y >= gridHeight;
 }
 
 bool Snake::checkCollisionWithPosition(sf::Vector2i position) const {
   return std::find(body.begin(), body.end(), position) != body.end();
+}
+
+bool Snake::checkCollisionWithWalls(const std::vector<sf::Vector2i>& wallPositions) const {
+  for (const auto& wallPos : wallPositions) {
+    if (std::find(body.begin(), body.end(), wallPos) != body.end()) {
+      return true;
+    }
+  }
+  return false;
 }
 
 void Snake::reset(sf::Vector2i startPosition, int initialLength) {
@@ -114,11 +150,11 @@ void Snake::reset(sf::Vector2i startPosition, int initialLength) {
   growthEnabled = false;
 }
 
-void Snake::setSnakeType(utils::SnakeSprite::SnakeType type) {
-  snakeSprite.setSnakeType(type);
+void Snake::setSnakeType(SnakeSprite::SnakeType type) {
+  snakeSprite.setType(type);
 }
 
-void Snake::render(sf::RenderWindow& window, const utils::GameGrid& grid) const {
+void Snake::render(sf::RenderWindow& window, const GameGrid& grid) const {
   // Always render if blinking, otherwise only if alive
   if (!isAlive() && !isBlinking()) {
     std::cout << "Snake not rendering: alive=" << isAlive() << ", blinking=" << isBlinking() << std::endl;
@@ -131,16 +167,16 @@ void Snake::render(sf::RenderWindow& window, const utils::GameGrid& grid) const 
 
   for (size_t i = 0; i < body.size(); ++i) {
     // Get sprite for this segment
-    utils::SnakeSprite::SegmentType segmentType = getSegmentType(static_cast<int>(i));
+    SnakeSprite::SegmentType segmentType = getSegmentType(static_cast<int>(i));
     sf::Sprite segment = [&]() -> sf::Sprite {
       switch (segmentType) {
-        case utils::SnakeSprite::SegmentType::Head:
+        case SnakeSprite::SegmentType::Head:
           return snakeSprite.getHeadSprite(getDirectionRotation());
-        case utils::SnakeSprite::SegmentType::Body:
+        case SnakeSprite::SegmentType::Body:
           return snakeSprite.getBodySprite(getBodySegmentRotation(static_cast<int>(i)));
-        case utils::SnakeSprite::SegmentType::BodyCorner:
+        case SnakeSprite::SegmentType::BodyCorner:
           return snakeSprite.getBodyCornerSprite(getBodyCornerRotation(static_cast<int>(i)));
-        case utils::SnakeSprite::SegmentType::Tail:
+        case SnakeSprite::SegmentType::Tail:
           return snakeSprite.getTailSprite(getTailRotation());
         default:
           return snakeSprite.getBodySprite();
@@ -213,7 +249,7 @@ void Snake::updateDirection() {
   currentDirection = nextDirection;
 }
 
-void Snake::updateTongue(const utils::GameGrid& grid) const {
+void Snake::updateTongue(const GameGrid& grid) const {
   // Don't update tongue if snake is dead
   if (!isAlive()) {
     tongueVisible = false;
@@ -379,15 +415,15 @@ float Snake::getTailRotation() const {
   return 0.0f;  // Default
 }
 
-utils::SnakeSprite::SegmentType Snake::getSegmentType(int segmentIndex) const {
+SnakeSprite::SegmentType Snake::getSegmentType(int segmentIndex) const {
   if (segmentIndex == 0) {
-    return utils::SnakeSprite::SegmentType::Head;
+    return SnakeSprite::SegmentType::Head;
   } else if (segmentIndex == static_cast<int>(body.size()) - 1) {
-    return utils::SnakeSprite::SegmentType::Tail;
+    return SnakeSprite::SegmentType::Tail;
   } else if (isBodyCorner(segmentIndex)) {
-    return utils::SnakeSprite::SegmentType::BodyCorner;
+    return SnakeSprite::SegmentType::BodyCorner;
   } else {
-    return utils::SnakeSprite::SegmentType::Body;
+    return SnakeSprite::SegmentType::Body;
   }
 }
 
@@ -408,4 +444,86 @@ bool Snake::isBodyCorner(int segmentIndex) const {
   // Check if directions are perpendicular (corner)
   // If both directions are not the same, it's a corner
   return (dirFromPrev.x != dirToNext.x) || (dirFromPrev.y != dirToNext.y);
+}
+
+void Snake::setDisoriented(bool disoriented, float duration) {
+  this->disoriented = disoriented;
+  if (disoriented) {
+    disorientedDuration = duration;
+    disorientedTimer.restart();
+  }
+}
+
+void Snake::setInvincible(bool invincible, float duration) {
+  this->invincible = invincible;
+  if (invincible) {
+    invincibleDuration = duration;
+    invincibleTimer.restart();
+  }
+}
+
+void Snake::setSpeedMultiplier(float multiplier, float duration) {
+  this->speedMultiplier = multiplier;
+  if (duration > 0.0f) {
+    speedMultiplierDuration = duration;
+    speedMultiplierTimer.restart();
+  }
+}
+
+void Snake::updateEffects() {
+  // Update disorientation effect
+  if (disoriented && disorientedDuration > 0.0f) {
+    if (disorientedTimer.getElapsedTime().asSeconds() >= disorientedDuration) {
+      disoriented = false;
+      disorientedDuration = 0.0f;
+    }
+  }
+
+  // Update invincibility effect
+  if (invincible && invincibleDuration > 0.0f) {
+    if (invincibleTimer.getElapsedTime().asSeconds() >= invincibleDuration) {
+      invincible = false;
+      invincibleDuration = 0.0f;
+    }
+  }
+
+  // Update speed multiplier effect
+  if (speedMultiplierDuration > 0.0f) {
+    if (speedMultiplierTimer.getElapsedTime().asSeconds() >= speedMultiplierDuration) {
+      speedMultiplier = 1.0f;
+      speedMultiplierDuration = 0.0f;
+    }
+  }
+}
+
+SnakeSprite::SnakeType Snake::getSnakeType() const {
+  return snakeSprite.getType();
+}
+
+void Snake::changeSnakeType() {
+  // Get current snake type
+  SnakeSprite::SnakeType currentType = snakeSprite.getType();
+
+  // Get all available snake types
+  std::vector<SnakeSprite::SnakeType> allTypes = {SnakeSprite::SnakeType::Purple, SnakeSprite::SnakeType::Green,
+                                                  SnakeSprite::SnakeType::Blue, SnakeSprite::SnakeType::Red,
+                                                  SnakeSprite::SnakeType::Black};
+
+  // Find a different type
+  std::vector<SnakeSprite::SnakeType> otherTypes;
+  for (const auto& type : allTypes) {
+    if (type != currentType) {
+      otherTypes.push_back(type);
+    }
+  }
+
+  // Randomly select a different type
+  if (!otherTypes.empty()) {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, otherTypes.size() - 1);
+
+    SnakeSprite::SnakeType newType = otherTypes[dis(gen)];
+    snakeSprite.setType(newType);
+  }
 }

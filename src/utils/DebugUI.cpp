@@ -2,7 +2,6 @@
 #include <SFML/Graphics.hpp>
 #include "ResourceLoader.hpp"
 
-namespace utils {
 std::string DebugUI::debugLines;
 bool DebugUI::isInitialized = false;
 
@@ -41,4 +40,3 @@ void DebugUI::render(sf::RenderWindow& window) {
 void DebugUI::clear() {
   debugLines.clear();
 }
-}  // namespace utils

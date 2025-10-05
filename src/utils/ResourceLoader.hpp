@@ -2,8 +2,6 @@
 #include <string>
 #include "ResourceManager.hpp"
 
-namespace utils {
-
 enum class FontType { DebugFont, UIFont };
 
 enum class TextureType {
@@ -59,5 +57,3 @@ private:
 
   static std::string textureTypeToString(const TextureType textureType);
 };
-
-}  // namespace utils

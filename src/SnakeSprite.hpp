@@ -1,8 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 
-namespace utils {
-
 class SnakeSprite {
 public:
   enum class SnakeType { Purple, Green, Blue, Red, Black };
@@ -30,7 +28,8 @@ public:
   sf::Sprite getTongueHighSprite(float rotation) const;
 
   // Set snake type
-  void setSnakeType(SnakeType type);
+  void setType(SnakeType type);
+  SnakeType getType() const;
 
 private:
   SnakeType currentType;
@@ -62,5 +61,3 @@ private:
   // Load texture
   bool loadTexture();
 };
-
-}  // namespace utils

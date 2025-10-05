@@ -2,8 +2,6 @@
 #include <iostream>
 #include <type_traits>
 
-namespace utils {
-
 template <typename T>
 ResourceManager<T>& ResourceManager<T>::getInstance() {
   static ResourceManager<T> instance;
@@ -11,8 +9,7 @@ ResourceManager<T>& ResourceManager<T>::getInstance() {
 }
 
 template <typename T>
-bool ResourceManager<T>::loadResource(const std::string& name,
-                                      const std::string& filePath) {
+bool ResourceManager<T>::loadResource(const std::string& name, const std::string& filePath) {
   // Check if resource already exists
   if (hasResource(name)) {
     std::cout << "Resource '" << name << "' already loaded" << std::endl;
@@ -25,28 +22,24 @@ bool ResourceManager<T>::loadResource(const std::string& name,
   // Try to load the resource
   if constexpr (std::is_same_v<T, sf::Font>) {
     if (!resource->openFromFile(filePath)) {
-      std::cerr << "Failed to load resource '" << name << "' from '" << filePath
-                << "'" << std::endl;
+      std::cerr << "Failed to load resource '" << name << "' from '" << filePath << "'" << std::endl;
       return false;
     }
   } else if constexpr (std::is_same_v<T, sf::Texture>) {
     if (!resource->loadFromFile(filePath)) {
-      std::cerr << "Failed to load resource '" << name << "' from '" << filePath
-                << "'" << std::endl;
+      std::cerr << "Failed to load resource '" << name << "' from '" << filePath << "'" << std::endl;
       return false;
     }
   } else if constexpr (std::is_same_v<T, sf::SoundBuffer>) {
     if (!resource->loadFromFile(filePath)) {
-      std::cerr << "Failed to load resource '" << name << "' from '" << filePath
-                << "'" << std::endl;
+      std::cerr << "Failed to load resource '" << name << "' from '" << filePath << "'" << std::endl;
       return false;
     }
   }
 
   // Store the resource
   resources[name] = std::move(resource);
-  std::cout << "Successfully loaded resource '" << name << "' from '"
-            << filePath << "'" << std::endl;
+  std::cout << "Successfully loaded resource '" << name << "' from '" << filePath << "'" << std::endl;
   return true;
 }
 
@@ -99,5 +92,3 @@ size_t ResourceManager<T>::getResourceCount() const {
 template class ResourceManager<sf::Texture>;
 template class ResourceManager<sf::Font>;
 template class ResourceManager<sf::SoundBuffer>;
-
-}  // namespace utils

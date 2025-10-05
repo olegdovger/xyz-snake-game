@@ -1,7 +1,6 @@
 #include "EventLogger.hpp"
 #include "DebugUI.hpp"
 
-namespace utils {
 bool EventLogger::debugMode = false;
 namespace {
 std::string getKeyName(const sf::Keyboard::Key key) {
@@ -224,4 +223,3 @@ void EventLogger::logEvent(const sf::Event& event) {
     std::cout << "Event: " << eventText << std::endl;
   }
 }
-}  // namespace utils

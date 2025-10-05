@@ -1,7 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 
-namespace utils {
 namespace shape {
 
 // Get scale factor for object to fit in window
@@ -15,4 +14,3 @@ std::pair<float, sf::Vector2f> getScaleAndPosition(const sf::Vector2f objectSize
                                                    float scaleFactor = 0.8f);
 
 }  // namespace shape
-}  // namespace utils

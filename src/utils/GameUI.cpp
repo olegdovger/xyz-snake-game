@@ -2,8 +2,6 @@
 #include "Digits.hpp"
 #include "ResourceLoader.hpp"
 
-namespace utils {
-
 GameUI::GameUI() : scale(1.0f), color(sf::Color::White) {
   texture = ResourceLoader::getTexture(TextureType::GameUI);
   digits = Digits();
@@ -75,5 +73,3 @@ void GameUI::renderTextElement(sf::RenderTarget& target, const sf::Vector2f& pos
   textSprite.setColor(color);
   target.draw(textSprite);
 }
-
-}  // namespace utils

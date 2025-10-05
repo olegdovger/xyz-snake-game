@@ -3,8 +3,6 @@
 #include <sstream>
 #include "ResourceLoader.hpp"
 
-namespace utils {
-
 Digits::Digits() : scale(1.0f), color(sf::Color::White) {
   texture = ResourceLoader::getTexture(TextureType::Digits);
 }
@@ -77,5 +75,3 @@ sf::IntRect Digits::getDigitRect(int digit) const {
   int x = spriteIndex * TOTAL_DIGIT_WIDTH;
   return sf::IntRect(sf::Vector2i(x, 0), sf::Vector2i(DIGIT_WIDTH, DIGIT_HEIGHT));
 }
-
-}  // namespace utils

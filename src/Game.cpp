@@ -17,13 +17,13 @@ Game::Game(sf::RenderWindow& win) : window(win), isRunning(true), previousScreen
   }
 
   //initializeAllResources
-  utils::ResourceLoader::initializeAllResources();
+  ResourceLoader::initializeAllResources();
 
   setCurrentScreen(new GameScreen(window, *this));
 
   // Initialize debug UI
-  utils::DebugUI::initialize(window);
-  utils::EventLogger::setDebugMode(DEBUG_UI_TEXT);
+  DebugUI::initialize(window);
+  EventLogger::setDebugMode(DEBUG_UI_TEXT);
 }
 
 void Game::start() const {
@@ -43,7 +43,7 @@ void Game::start() const {
 
     // Render debug UI if enabled
     if (DEBUG_UI_TEXT) {
-      utils::DebugUI::render(window);
+      DebugUI::render(window);
     }
 
     window.display();
@@ -52,7 +52,7 @@ void Game::start() const {
 
 void Game::processEvents(const sf::Event& event) const {
   // Log event details using utility method
-  utils::EventLogger::logEvent(event);
+  EventLogger::logEvent(event);
 
   // Handle specific events
   if (event.is<sf::Event::Closed>()) {

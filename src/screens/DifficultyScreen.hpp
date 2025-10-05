@@ -52,5 +52,5 @@ private:
   void selectNextDifficulty();
   void selectPreviousDifficulty();
   void confirmSelection();
-  std::string getDifficultyDisplayName(utils::GameLevel level);
+  std::string getDifficultyDisplayName(GameLevel level);
 };

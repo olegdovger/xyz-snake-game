@@ -1,10 +1,6 @@
 #include "ResourceLoader.hpp"
 #include <iostream>
 
-namespace utils {
-
-// Font name mapping
-namespace {
 const std::string FONT_NAMES[] = {
     "debug_font",  // FontType::DebugFont
     "ui_font"      // FontType::UIFont
@@ -25,7 +21,6 @@ const std::string TEXTURE_NAMES[] = {
     "game_ui",       // TextureType::GameUI
     "digits"         // TextureType::Digits
 };
-}  // namespace
 
 bool ResourceLoader::initializeAllResources() {
   std::cout << "Loading all game resources..." << std::endl;
@@ -101,7 +96,7 @@ bool ResourceLoader::loadSound(const std::string& name, const std::string& path)
   return getSoundManager().loadResource(name, path);
 }
 
-TextureManager& ResourceLoader::getTextureManager() {
+ResourceManager<sf::Texture>& ResourceLoader::getTextureManager() {
   return TextureManager::getInstance();
 }
 
@@ -128,4 +123,3 @@ const sf::Font& ResourceLoader::getFont(const FontType fontType) {
 const sf::Texture& ResourceLoader::getTexture(const TextureType textureType) {
   return getTextureManager().getResource(textureTypeToString(textureType));
 }
-}  // namespace utils

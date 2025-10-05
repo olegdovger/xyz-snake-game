@@ -2,9 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 
-namespace utils {
 class GameGrid;
-}
 
 #include "SnakeSprite.hpp"
 
@@ -35,6 +33,7 @@ public:
   bool checkSelfCollision() const;
   bool checkWallCollision(int gridWidth, int gridHeight) const;
   bool checkCollisionWithPosition(sf::Vector2i position) const;
+  bool checkCollisionWithWalls(const std::vector<sf::Vector2i>& wallPositions) const;
 
   // State
   bool isAlive() const { return alive; }
@@ -45,9 +44,19 @@ public:
   }
   void reset(sf::Vector2i startPosition, int initialLength = 3);
 
+  // Effects
+  void setDisoriented(bool disoriented, float duration = 0.0f);
+  void setInvincible(bool invincible, float duration = 0.0f);
+  void setSpeedMultiplier(float multiplier, float duration = 0.0f);
+  bool isDisoriented() const { return disoriented; }
+  bool isInvincible() const { return invincible; }
+  float getSpeedMultiplier() const { return speedMultiplier; }
+
   // Rendering
-  void render(sf::RenderWindow& window, const utils::GameGrid& grid) const;
-  void setSnakeType(utils::SnakeSprite::SnakeType type);
+  void render(sf::RenderWindow& window, const GameGrid& grid) const;
+  void setSnakeType(SnakeSprite::SnakeType type);
+  SnakeSprite::SnakeType getSnakeType() const;
+  void changeSnakeType();  // Randomly change to a different snake type
   float getSpeed() const { return speed; }
   void setSpeed(float speed) { this->speed = speed; }
   void setBlinking(bool blinking) { this->blinking = blinking; }
@@ -60,24 +69,36 @@ private:
   bool alive;
   bool directionChanged;
   bool growthEnabled;
-  utils::SnakeSprite snakeSprite;
+  SnakeSprite snakeSprite;
   float speed;
   mutable sf::Sprite tongueSprite;
   bool blinking = false;
   mutable sf::Clock blinkTimer;
+
+  // Effects
+  bool disoriented = false;
+  bool invincible = false;
+  float speedMultiplier = 1.0f;
+  sf::Clock disorientedTimer;
+  sf::Clock invincibleTimer;
+  sf::Clock speedMultiplierTimer;
+  float disorientedDuration = 0.0f;
+  float invincibleDuration = 0.0f;
+  float speedMultiplierDuration = 0.0f;
 
   mutable float tongueTimer;
   mutable bool tongueVisible = false;
   static constexpr float TONGUE_DURATION = 0.5f;  // 0.3 seconds
 
   void updateDirection();
+  void updateEffects();
   sf::Vector2i getNextHeadPosition() const;
   float getDirectionRotation() const;
   float getBodySegmentRotation(int segmentIndex) const;
   float getBodyCornerRotation(int segmentIndex) const;
   float getTailRotation() const;
-  utils::SnakeSprite::SegmentType getSegmentType(int segmentIndex) const;
+  SnakeSprite::SegmentType getSegmentType(int segmentIndex) const;
   bool isBodyCorner(int segmentIndex) const;
 
-  void updateTongue(const utils::GameGrid& grid) const;
+  void updateTongue(const GameGrid& grid) const;
 };

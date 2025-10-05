@@ -2,8 +2,6 @@
 #include <SFML/Graphics.hpp>
 #include "Digits.hpp"
 
-namespace utils {
-
 /**
  * @brief Class for rendering game UI elements
  * 
@@ -107,5 +105,3 @@ private:
   void renderTextElement(sf::RenderTarget& target, const sf::Vector2f& position, const sf::IntRect& textRect, int value,
                          int textWidth) const;
 };
-
-}  // namespace utils

@@ -3,8 +3,6 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <vector>
 
-namespace utils {
-
 class GameGrid {
 public:
   GameGrid(int rows, int cols, float gridSize, sf::Vector2f topLeft, float cellScale, float gridTextureSize = 912.0f);
@@ -45,5 +43,3 @@ private:
 
   void calculateCellPositions();
 };
-
-}  // namespace utils

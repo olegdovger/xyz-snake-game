@@ -3,8 +3,6 @@
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 
-namespace utils {
-
 /**
  * @brief Class for handling game countdown timer
  */
@@ -84,5 +82,3 @@ public:
    */
   void setPosition(const sf::Vector2f& position);
 };
-
-}  // namespace utils

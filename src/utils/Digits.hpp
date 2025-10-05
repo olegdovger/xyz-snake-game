@@ -2,8 +2,6 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 
-namespace utils {
-
 /**
  * @brief Class for rendering digits from a sprite sheet
  * 
@@ -91,5 +89,3 @@ private:
      */
   sf::IntRect getDigitRect(int digit) const;
 };
-
-}  // namespace utils

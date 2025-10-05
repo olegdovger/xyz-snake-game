@@ -1,4 +1,5 @@
 #include "GameScreen.hpp"
+#include "../utils/GameItem.hpp"
 #include "../utils/GameUI.hpp"
 #include "../utils/ResourceLoader.hpp"
 #include "../utils/ScalingUtils.hpp"
@@ -6,7 +7,7 @@
 #include "HighScores.hpp"
 #include "PauseScreen.hpp"
 
-using namespace utils::shape;
+using namespace shape;
 
 GameScreen::GameScreen(sf::RenderWindow& win, Game& gameRef)
     : Screen(win, gameRef),
@@ -16,7 +17,7 @@ GameScreen::GameScreen(sf::RenderWindow& win, Game& gameRef)
       currentSnakeTypeIndex(0) {
   initializeGrid();
 
-  utils::SettingStorage settingStorage;
+  SettingStorage settingStorage;
 
   if (settingStorage.initialize()) {
     snake.setSnakeType(settingStorage.getSnakeType());
@@ -34,7 +35,13 @@ GameScreen::GameScreen(sf::RenderWindow& win, Game& gameRef)
 
   snake.setSpeed(settingStorage.getSnakeSpeed());
 
-  gameUI = utils::GameUI();
+  gameUI = GameUI();
+
+  // Initialize wall manager
+  wallManager = std::make_unique<WallManager>(gameGrid);
+
+  // Initialize game item manager
+  gameItemManager = std::make_unique<GameItemManager>(gameGrid);
 }
 
 void GameScreen::processEvents(const sf::Event& event) {
@@ -88,6 +95,16 @@ void GameScreen::update() {
   // Update countdown timer
   countdownTimer.update();
 
+  // Update walls
+  if (wallManager) {
+    wallManager->update(1.0f / 60.0f, snake);  // Assuming 60 FPS
+  }
+
+  // Update game items
+  if (gameItemManager) {
+    gameItemManager->update(1.0f / 60.0f, snake);  // Assuming 60 FPS
+  }
+
   // Handle blinking effect
   if (isBlinking) {
     if (blinkTimer.getElapsedTime().asSeconds() >= BLINK_DURATION) {
@@ -108,7 +125,40 @@ void GameScreen::update() {
     if (moveTimer.getElapsedTime().asSeconds() >= 1 / snake.getSpeed()) {
       snake.move();
 
-      if (snake.checkWallCollision(gameGrid.getCols(), gameGrid.getRows()) || snake.checkSelfCollision()) {
+      // Check game item collisions
+      if (gameItemManager) {
+        auto* collidedItem = gameItemManager->checkCollision(snake.getHead());
+        if (collidedItem) {
+          // Apply item effects
+          collidedItem->applySpecialEffects(snake);
+
+          // Add points
+          game.addScore(collidedItem->getPoints());
+
+          // Apply speed bonus if any
+          if (collidedItem->getSpeedBonus() > 0) {
+            if (collidedItem->getSpeedBonusDuration() > 0.0f) {
+              // Temporary speed bonus
+              snake.setSpeed(snake.getSpeed() + collidedItem->getSpeedBonus());
+            } else {
+              // Permanent speed bonus
+              snake.setSpeed(snake.getSpeed() + collidedItem->getSpeedBonus());
+            }
+          }
+
+          // Remove the item
+          // Note: GameItemManager will handle removal in next update cycle
+        }
+      }
+
+      // Check collisions with walls, grid boundaries, and self
+      bool wallCollision = false;
+      if (wallManager) {
+        wallCollision = wallManager->checkWallCollision(snake.getHead());
+      }
+
+      if (wallCollision || snake.checkWallCollision(gameGrid.getCols(), gameGrid.getRows()) ||
+          snake.checkSelfCollision()) {
         snake.kill();
         startBlinking();
       }
@@ -117,20 +167,20 @@ void GameScreen::update() {
     }
 
     // Change snake type every second for testing
-    if (snakeTypeTimer.getElapsedTime().asSeconds() >= SNAKE_TYPE_CHANGE_INTERVAL) {
-      currentSnakeTypeIndex = (currentSnakeTypeIndex + 1) % TOTAL_SNAKE_TYPES;
+    // if (snakeTypeTimer.getElapsedTime().asSeconds() >= SNAKE_TYPE_CHANGE_INTERVAL) {
+    //   currentSnakeTypeIndex = (currentSnakeTypeIndex + 1) % TOTAL_SNAKE_TYPES;
 
-      // Convert index to SnakeType enum
-      utils::SnakeSprite::SnakeType newType = static_cast<utils::SnakeSprite::SnakeType>(currentSnakeTypeIndex);
-      snake.setSnakeType(newType);
+    //   // Convert index to SnakeType enum
+    //   SnakeSprite::SnakeType newType = static_cast<SnakeSprite::SnakeType>(currentSnakeTypeIndex);
+    //   snake.setSnakeType(newType);
 
-      snakeTypeTimer.restart();
-    }
+    //   snakeTypeTimer.restart();
+    // }
   }
 }
 
 sf::Sprite GameScreen::renderBoardBorder() const {
-  const auto texture = utils::ResourceLoader::getTexture(utils::TextureType::BoardBorder);
+  const auto texture = ResourceLoader::getTexture(TextureType::BoardBorder);
   sf::Sprite sprite(texture);
 
   const float scale = getScale(sf::Vector2f(sprite.getTexture().getSize()), window.getSize());
@@ -149,7 +199,7 @@ sf::Sprite GameScreen::renderBoardBorder() const {
 }
 
 void GameScreen::renderBoardGrid() const {
-  const auto texture = utils::ResourceLoader::getTexture(utils::TextureType::BoardGrid);
+  const auto texture = ResourceLoader::getTexture(TextureType::BoardGrid);
   sf::Sprite sprite(texture);
 
   const float scaleRelativeFactor = 912.0f / 992.0f;
@@ -207,6 +257,16 @@ void GameScreen::render() {
 
   // renderDebugGrid();
   renderGameUI(boardBorder);
+
+  // Render walls
+  if (wallManager) {
+    wallManager->render(window, gameGrid);
+  }
+
+  // Render game items
+  if (gameItemManager) {
+    gameItemManager->render(window, gameGrid);
+  }
 
   // Set blinking state and timer for snake
   snake.setBlinking(isBlinking);
