@@ -6,8 +6,6 @@
 #include <string>
 #include <unordered_map>
 
-namespace utils {
-
 template <typename T>
 class ResourceManager {
 public:
@@ -45,5 +43,3 @@ private:
 using TextureManager = ResourceManager<sf::Texture>;
 using FontManager = ResourceManager<sf::Font>;
 using SoundBufferManager = ResourceManager<sf::SoundBuffer>;
-
-}  // namespace utils

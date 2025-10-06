@@ -6,9 +6,6 @@
 #include <sstream>
 #include "../SnakeSprite.hpp"
 
-
-namespace utils {
-
 /**
  * @brief Simple JSON parser for basic key-value pairs
  * @param jsonStr JSON string to parse
@@ -320,5 +317,3 @@ bool SettingStorage::saveSettings() {
     return false;
   }
 }
-
-}  // namespace utils

@@ -5,10 +5,10 @@
 #include "GameScreen.hpp"
 #include "MainMenu.hpp"
 
-using namespace utils::shape;
+using namespace shape;
 
 PauseScreen::PauseScreen(sf::RenderWindow& win, Game& gameRef) : Screen(win, gameRef), titleText(font) {
-  font = utils::ResourceLoader::getFont(utils::FontType::DebugFont);
+  font = ResourceLoader::getFont(FontType::DebugFont);
 
   titleText.setString(L"Пауза");
   titleText.setFont(font);

@@ -2,15 +2,13 @@
 #include <iostream>
 #include "ResourceLoader.hpp"
 
-namespace utils {
-
 CountdownTimer::CountdownTimer(int totalSeconds, bool soundEnabled)
     : totalSeconds(totalSeconds),
       currentSeconds(totalSeconds),
       isActive(false),
       isFinished(false),
       soundEnabled(soundEnabled),
-      countdownText(utils::ResourceLoader::getFont(utils::FontType::DebugFont)) {
+      countdownText(ResourceLoader::getFont(FontType::DebugFont)) {
 
   countdownText.setCharacterSize(72.0f);
   countdownText.setFillColor(sf::Color(130, 73, 113, 255));
@@ -85,5 +83,3 @@ void CountdownTimer::updateText() {
   countdownText.setOrigin(
       sf::Vector2f(textRect.position.x + textRect.size.x / 2.0f, textRect.position.y + textRect.size.y / 2.0f));
 }
-
-}  // namespace utils

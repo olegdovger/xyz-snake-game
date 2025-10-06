@@ -2,9 +2,7 @@
 #include "Digits.hpp"
 #include "ResourceLoader.hpp"
 
-namespace utils {
-
-GameUI::GameUI() : scale(1.0f), color(sf::Color::White) {
+GameUI::GameUI() : scale(1.0f), color(sf::Color::White), score(0), apples(0), speed(0) {
   texture = ResourceLoader::getTexture(TextureType::GameUI);
   digits = Digits();
 }
@@ -17,36 +15,36 @@ void GameUI::setColor(const sf::Color& color) {
   this->color = color;
 }
 
-void GameUI::render(sf::RenderTarget& target, const sf::Vector2f& position, int level, int apples, int speed) const {
-  renderLevel(target, position, level);
-  renderApples(target, sf::Vector2f(position.x, position.y + getElementHeight() + 50), apples);
-  renderSpeed(target, sf::Vector2f(position.x, position.y + getElementHeight() * 2 + 50), speed);
+void GameUI::render(sf::RenderTarget& target, const sf::Vector2f& position) const {
+  renderScore(target, position);
+  renderApples(target, sf::Vector2f(position.x, position.y + getElementHeight()));
+  renderSpeed(target, sf::Vector2f(position.x, position.y + getElementHeight() * 2));
 }
 
-void GameUI::renderLevel(sf::RenderTarget& target, const sf::Vector2f& position, int level) const {
-  sf::IntRect levelTextRect(sf::Vector2i(0, LEVEL_Y), sf::Vector2i(LEVEL_WIDTH, ELEMENT_HEIGHT));
-  renderTextElement(target, position, levelTextRect, level, LEVEL_WIDTH);
+void GameUI::renderScore(sf::RenderTarget& target, const sf::Vector2f& position) const {
+  sf::IntRect scoreTextRect(sf::Vector2i(0, SCORE_Y), sf::Vector2i(SCORE_WIDTH, ELEMENT_HEIGHT));
 
-  // Render the numeric value next to the text
+  renderTextElement(target, position, scoreTextRect);
+
   sf::Vector2f valuePosition(position.x + 148 * scale, position.y);
   digits.setScale(scale);
-  digits.renderNumber(target, level, valuePosition);
+  digits.renderNumber(target, score, valuePosition);
 }
 
-void GameUI::renderApples(sf::RenderTarget& target, const sf::Vector2f& position, int apples) const {
+void GameUI::renderApples(sf::RenderTarget& target, const sf::Vector2f& position) const {
   sf::IntRect applesTextRect(sf::Vector2i(0, APPLES_Y), sf::Vector2i(APPLES_WIDTH, ELEMENT_HEIGHT + 8));
 
-  renderTextElement(target, position, applesTextRect, apples, APPLES_WIDTH);
+  renderTextElement(target, position, applesTextRect);
 
   sf::Vector2f valuePosition(position.x + 148 * scale, position.y + 8 * scale);
   digits.setScale(scale);
   digits.renderNumber(target, apples, valuePosition);
 }
 
-void GameUI::renderSpeed(sf::RenderTarget& target, const sf::Vector2f& position, int speed) const {
+void GameUI::renderSpeed(sf::RenderTarget& target, const sf::Vector2f& position) const {
   sf::IntRect speedTextRect(sf::Vector2i(0, SPEED_Y), sf::Vector2i(SPEED_WIDTH, ELEMENT_HEIGHT + 16));
 
-  renderTextElement(target, position, speedTextRect, speed, SPEED_WIDTH);
+  renderTextElement(target, position, speedTextRect);
 
   sf::Vector2f valuePosition(position.x + 148 * scale, position.y + 16 * scale);
   digits.setScale(scale);
@@ -54,7 +52,7 @@ void GameUI::renderSpeed(sf::RenderTarget& target, const sf::Vector2f& position,
 }
 
 float GameUI::getTotalHeight() const {
-  return ELEMENT_HEIGHT * 3 * scale;  // 3 elements
+  return ELEMENT_HEIGHT * 4 * scale;
 }
 
 float GameUI::getElementHeight() const {
@@ -62,12 +60,35 @@ float GameUI::getElementHeight() const {
 }
 
 float GameUI::getWidth() const {
-  return SPEED_WIDTH * scale;  // Use the widest element
+  return SPEED_WIDTH * scale;
 }
 
-void GameUI::renderTextElement(sf::RenderTarget& target, const sf::Vector2f& position, const sf::IntRect& textRect,
-                               int value, int textWidth) const {
-  // Render the text label
+void GameUI::setApples(int apples) {
+  this->apples = apples;
+}
+
+void GameUI::setSpeed(int speed) {
+  this->speed = speed;
+}
+
+void GameUI::setScore(int score) {
+  this->score = score;
+}
+
+int GameUI::getApples() const {
+  return apples;
+}
+
+int GameUI::getSpeed() const {
+  return speed;
+}
+
+int GameUI::getScore() const {
+  return score;
+}
+
+void GameUI::renderTextElement(sf::RenderTarget& target, const sf::Vector2f& position,
+                               const sf::IntRect& textRect) const {
   sf::Sprite textSprite(texture);
   textSprite.setTextureRect(textRect);
   textSprite.setPosition(position);
@@ -75,5 +96,3 @@ void GameUI::renderTextElement(sf::RenderTarget& target, const sf::Vector2f& pos
   textSprite.setColor(color);
   target.draw(textSprite);
 }
-
-}  // namespace utils

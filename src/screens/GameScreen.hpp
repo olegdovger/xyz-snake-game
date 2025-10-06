@@ -1,10 +1,13 @@
 #pragma once
 #include <SFML/System/Clock.hpp>
+#include <memory>
 #include "../Screen.hpp"
 #include "../Snake.hpp"
 #include "../utils/CountdownTimer.hpp"
 #include "../utils/GameGrid.hpp"
+#include "../utils/GameItemManager.hpp"
 #include "../utils/GameUI.hpp"
+#include "../utils/WallManager.hpp"
 
 class GameScreen final : public Screen {
 public:
@@ -25,14 +28,20 @@ private:
   float gridSize = 824.0f;
   float scaleRelativeFactor = 912.0f / 992.0f;
   // Grid data
-  utils::GameGrid gameGrid;
+  GameGrid gameGrid;
 
   // Snake
   Snake snake;
-  mutable utils::GameUI gameUI;
+  mutable GameUI gameUI;
+
+  // Walls
+  std::unique_ptr<WallManager> wallManager;
+
+  // Game Items
+  std::unique_ptr<GameItemManager> gameItemManager;
 
   // Countdown timer
-  utils::CountdownTimer countdownTimer;
+  CountdownTimer countdownTimer;
 
   // Timing
   sf::Clock moveTimer;

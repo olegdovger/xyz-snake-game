@@ -1,8 +1,6 @@
 #include "SnakeSprite.hpp"
 #include "utils/ResourceLoader.hpp"
 
-namespace utils {
-
 SnakeSprite::SnakeSprite(SnakeType type) : currentType(type) {
   loadTexture();
 }
@@ -85,8 +83,12 @@ sf::Sprite SnakeSprite::getTongueHighSprite(float rotation) const {
   return sprite;
 }
 
-void SnakeSprite::setSnakeType(SnakeType type) {
+void SnakeSprite::setType(SnakeType type) {
   currentType = type;
+}
+
+SnakeSprite::SnakeType SnakeSprite::getType() const {
+  return currentType;
 }
 
 sf::IntRect SnakeSprite::getSpriteRect(SegmentType segment) const {
@@ -131,5 +133,3 @@ bool SnakeSprite::loadTexture() {
   texture = textureRef;
   return true;
 }
-
-}  // namespace utils

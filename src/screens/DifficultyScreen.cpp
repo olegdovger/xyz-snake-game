@@ -6,7 +6,7 @@
 #include "GameScreen.hpp"
 #include "MainMenu.hpp"
 
-using namespace utils::shape;
+using namespace shape;
 
 DifficultyScreen::DifficultyScreen(sf::RenderWindow& win, Game& gameRef)
     : Screen(win, gameRef), titleText(font), backText(font) {
@@ -17,7 +17,7 @@ DifficultyScreen::DifficultyScreen(sf::RenderWindow& win, Game& gameRef)
   screenRect.setOutlineThickness(10.0f);
 
   // Initialize title
-  font = utils::ResourceLoader::getFont(utils::FontType::DebugFont);
+  font = ResourceLoader::getFont(FontType::DebugFont);
 
   titleText.setFont(font);
   titleText.setString(L"Уровень сложности");
@@ -152,16 +152,15 @@ void DifficultyScreen::selectPreviousDifficulty() {
 }
 
 void DifficultyScreen::confirmSelection() {
-  std::vector<utils::GameLevel> levels = {utils::GameLevel::Easy, utils::GameLevel::HarderThanEasy,
-                                          utils::GameLevel::Middle, utils::GameLevel::HarderThanMiddle,
-                                          utils::GameLevel::Hard};
+  std::vector<GameLevel> levels = {GameLevel::Easy, GameLevel::HarderThanEasy, GameLevel::Middle,
+                                   GameLevel::HarderThanMiddle, GameLevel::Hard};
 
   if (selectedDifficultyIndex < levels.size()) {
     game.setGameLevel(levels[selectedDifficultyIndex]);
     std::cout << "Selected difficulty: " << getDifficultyDisplayName(levels[selectedDifficultyIndex]) << std::endl;
 
     // Save settings to file
-    utils::SettingStorage settingStorage;
+    SettingStorage settingStorage;
     settingStorage.setGameLevel(levels[selectedDifficultyIndex]);
     if (settingStorage.saveSettings()) {
       std::cout << "Difficulty saved to settings" << std::endl;
@@ -174,17 +173,17 @@ void DifficultyScreen::confirmSelection() {
   }
 }
 
-std::string DifficultyScreen::getDifficultyDisplayName(utils::GameLevel level) {
+std::string DifficultyScreen::getDifficultyDisplayName(GameLevel level) {
   switch (level) {
-    case utils::GameLevel::Easy:
+    case GameLevel::Easy:
       return "Easy";
-    case utils::GameLevel::HarderThanEasy:
+    case GameLevel::HarderThanEasy:
       return "Harder Than Easy";
-    case utils::GameLevel::Middle:
+    case GameLevel::Middle:
       return "Middle";
-    case utils::GameLevel::HarderThanMiddle:
+    case GameLevel::HarderThanMiddle:
       return "Harder Than Middle";
-    case utils::GameLevel::Hard:
+    case GameLevel::Hard:
       return "Hard";
     default:
       return "Unknown";

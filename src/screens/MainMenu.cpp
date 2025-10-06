@@ -8,10 +8,10 @@
 #include "HighScores.hpp"
 #include "Settings.hpp"
 
-using namespace utils::shape;
+using namespace shape;
 
 MainMenu::MainMenu(sf::RenderWindow& win, Game& gameRef) : Screen(win, gameRef), titleText(font) {
-  font = utils::ResourceLoader::getFont(utils::FontType::DebugFont);
+  font = ResourceLoader::getFont(FontType::DebugFont);
 
   titleText.setString(L"Главное меню");
   titleText.setFont(font);

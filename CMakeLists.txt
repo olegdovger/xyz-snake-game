@@ -38,6 +38,14 @@ add_executable(${PROJECT_NAME}
         "src/utils/CountdownTimer.cpp"
         "src/utils/GameUI.cpp"
         "src/utils/Digits.cpp"
+        "src/utils/WallManager.cpp"
+        "src/utils/Wall.cpp"
+        "src/utils/GameItemManager.cpp"
+        "src/utils/GameItem.cpp"
+        "src/utils/RedApple.cpp"
+        "src/utils/GreenApple.cpp"
+        "src/utils/WaterBubble.cpp"
+        "src/utils/FantomApple.cpp"
         "src/SnakeSprite.cpp"
         "src/Snake.cpp"
 )
@@ -47,6 +55,22 @@ target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics SFML::Audio)
 # Copy resources folder to build directory
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR})
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR}/bin)
+
+# CPack configuration
+set(CPACK_PACKAGE_NAME "Snake Game")
+set(CPACK_PACKAGE_VERSION "1.0.0")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "A classic Snake game implementation")
+set(CPACK_PACKAGE_VENDOR "Your Name")
+
+# Set package generator (ZIP for cross-platform)
+set(CPACK_GENERATOR "ZIP")
+
+# Include the executable and resources in the package
+install(TARGETS ${PROJECT_NAME} DESTINATION bin)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/resources DESTINATION bin/resources)
+
+# Include CPack module
+include(CPack)
 
 # Code formatting target
 find_program(CLANG_FORMAT clang-format)

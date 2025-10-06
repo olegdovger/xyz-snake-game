@@ -1,6 +1,5 @@
 #include "ScalingUtils.hpp"
 
-namespace utils {
 namespace shape {
 
 float getScale(const sf::Vector2f objectSize, const sf::Vector2u windowSize, float scaleFactor) {
@@ -27,4 +26,3 @@ std::pair<float, sf::Vector2f> getScaleAndPosition(const sf::Vector2f objectSize
 }
 
 }  // namespace shape
-}  // namespace utils

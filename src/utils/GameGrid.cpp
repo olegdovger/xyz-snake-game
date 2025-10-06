@@ -1,10 +1,6 @@
 #include "GameGrid.hpp"
 #include <SFML/Graphics.hpp>
 
-#include <iostream>
-
-namespace utils {
-
 GameGrid::GameGrid(int rows, int cols, float gridSize, sf::Vector2f topLeft, float cellScale, float gridTextureSize)
     : rows(rows), cols(cols), topLeft(topLeft), scale(cellScale), gridTextureSize(gridTextureSize) {
   scaleFactor = gridSize / gridTextureSize;
@@ -64,5 +60,3 @@ void GameGrid::updateGrid(sf::Vector2f newTopLeft, float newCellScale) {
   scaledCellSize = cellSize * newCellScale;
   calculateCellPositions();
 }
-
-}  // namespace utils

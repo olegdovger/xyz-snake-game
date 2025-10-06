@@ -5,8 +5,6 @@
 #include <vector>
 #include "../SnakeSprite.hpp"
 
-namespace utils {
-
 /**
  * @brief Enumeration for game difficulty levels
  */
@@ -193,5 +191,3 @@ public:
   void setGameCountdownSound(bool gameCountdownSound) { settings.gameCountdownSound = gameCountdownSound; }
   void setGameRecordTable(const std::vector<int>& gameRecordTable) { settings.gameRecordTable = gameRecordTable; }
 };
-
-}  // namespace utils

@@ -3,7 +3,6 @@
 #include <string>
 #include "ResourceManager.hpp"
 
-namespace utils {
 class DebugUI {
 public:
   static void initialize(sf::RenderWindow& window);
@@ -15,4 +14,3 @@ private:
   static std::string debugLines;
   static bool isInitialized;
 };
-}  // namespace utils

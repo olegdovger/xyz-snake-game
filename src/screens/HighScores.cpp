@@ -3,10 +3,10 @@
 #include "../utils/ScalingUtils.hpp"
 #include "MainMenu.hpp"
 
-using namespace utils::shape;
+using namespace shape;
 
 HighScores::HighScores(sf::RenderWindow& win, Game& gameRef) : Screen(win, gameRef), titleText(font), backText(font) {
-  font = utils::ResourceLoader::getFont(utils::FontType::DebugFont);
+  font = ResourceLoader::getFont(FontType::DebugFont);
 
   screenRect.setSize(originSize);
   screenRect.setFillColor(menuBackgroundColor);
