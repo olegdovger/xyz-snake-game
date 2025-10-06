@@ -53,7 +53,6 @@ target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics SFML::Audio)
 
 # Copy resources folder to build directory
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR})
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR}/bin)
 
 # CPack configuration
@@ -67,7 +66,7 @@ set(CPACK_GENERATOR "ZIP")
 
 # Include the executable and resources in the package
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/resources DESTINATION bin/resources)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/resources DESTINATION bin)
 
 # Include CPack module
 include(CPack)
