@@ -55,6 +55,24 @@ target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics SFML::Audio)
 # Copy resources folder to build directory
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR}/bin)
 
+# Copy required MinGW DLLs for release
+if(WIN32 AND CMAKE_BUILD_TYPE STREQUAL "Release")
+    find_program(MINGW_GCC gcc PATHS "C:/msys64/ucrt64/bin" "C:/msys64/mingw64/bin")
+    if(MINGW_GCC)
+        get_filename_component(MINGW_BIN_DIR ${MINGW_GCC} DIRECTORY)
+        file(GLOB MINGW_DLLS 
+            "${MINGW_BIN_DIR}/libgcc_s_seh-1.dll"
+            "${MINGW_BIN_DIR}/libstdc++-6.dll"
+            "${MINGW_BIN_DIR}/libwinpthread-1.dll"
+        )
+        foreach(DLL ${MINGW_DLLS})
+            if(EXISTS ${DLL})
+                file(COPY ${DLL} DESTINATION ${CMAKE_BINARY_DIR}/bin)
+            endif()
+        endforeach()
+    endif()
+endif()
+
 # CPack configuration
 set(CPACK_PACKAGE_NAME "Snake Game")
 set(CPACK_PACKAGE_VERSION "1.0.0")
@@ -67,6 +85,24 @@ set(CPACK_GENERATOR "ZIP")
 # Include the executable and resources in the package
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/resources DESTINATION bin)
+
+# Install MinGW DLLs for release
+if(WIN32 AND CMAKE_BUILD_TYPE STREQUAL "Release")
+    find_program(MINGW_GCC gcc PATHS "C:/msys64/ucrt64/bin" "C:/msys64/mingw64/bin")
+    if(MINGW_GCC)
+        get_filename_component(MINGW_BIN_DIR ${MINGW_GCC} DIRECTORY)
+        file(GLOB MINGW_DLLS 
+            "${MINGW_BIN_DIR}/libgcc_s_seh-1.dll"
+            "${MINGW_BIN_DIR}/libstdc++-6.dll"
+            "${MINGW_BIN_DIR}/libwinpthread-1.dll"
+        )
+        foreach(DLL ${MINGW_DLLS})
+            if(EXISTS ${DLL})
+                install(FILES ${DLL} DESTINATION bin)
+            endif()
+        endforeach()
+    endif()
+endif()
 
 # Include CPack module
 include(CPack)
