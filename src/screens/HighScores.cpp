@@ -80,6 +80,8 @@ void HighScores::renderTitle() {
 void HighScores::renderScores() {
   const auto& recordTable = game.getSettingsReader().getGameRecordTable();
 
+  const auto currentScore = game.getScore();
+
   for (size_t i = 0; i < recordTable.size(); ++i) {
     sf::Text item(font);
 
@@ -96,7 +98,12 @@ void HighScores::renderScores() {
     item.setScale(screenRect.getScale());
     window.draw(item);
 
-    item.setFillColor(sf::Color::White);
+    if (currentScore == recordTable[i]) {
+      item.setFillColor(sf::Color::Green);
+    } else {
+      item.setFillColor(sf::Color::White);
+    }
+
     item.setStyle(sf::Text::Regular);
 
     window.draw(item);

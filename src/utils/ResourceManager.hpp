@@ -43,3 +43,4 @@ private:
 using TextureManager = ResourceManager<sf::Texture>;
 using FontManager = ResourceManager<sf::Font>;
 using SoundBufferManager = ResourceManager<sf::SoundBuffer>;
+using MusicManager = ResourceManager<sf::Music>;

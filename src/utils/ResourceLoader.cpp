@@ -22,6 +22,10 @@ const std::string TEXTURE_NAMES[] = {
     "digits"         // TextureType::Digits
 };
 
+const std::string MUSIC_NAMES[] = {
+    "background_music"  // MusicType::BackgroundMusic
+};
+
 bool ResourceLoader::initializeAllResources() {
   std::cout << "Loading all game resources..." << std::endl;
 
@@ -29,6 +33,7 @@ bool ResourceLoader::initializeAllResources() {
   success &= loadTextures();
   success &= loadFonts();
   success &= loadSounds();
+  success &= loadMusic();
 
   if (success) {
     std::cout << "All resources loaded successfully!" << std::endl;
@@ -84,6 +89,15 @@ bool ResourceLoader::loadSounds() {
   return true;  // No sounds yet
 }
 
+bool ResourceLoader::loadMusic() {
+  std::cout << "Loading music..." << std::endl;
+
+  bool success = true;
+  success &= loadMusicFile(musicTypeToString(MusicType::BackgroundMusic), "resources/sound/background_music.mp3");
+
+  return success;
+}
+
 bool ResourceLoader::loadTexture(const std::string& name, const std::string& path) {
   return getTextureManager().loadResource(name, path);
 }
@@ -94,6 +108,10 @@ bool ResourceLoader::loadFont(const std::string& name, const std::string& path) 
 
 bool ResourceLoader::loadSound(const std::string& name, const std::string& path) {
   return getSoundManager().loadResource(name, path);
+}
+
+bool ResourceLoader::loadMusicFile(const std::string& name, const std::string& path) {
+  return getMusicManager().loadResource(name, path);
 }
 
 ResourceManager<sf::Texture>& ResourceLoader::getTextureManager() {
@@ -108,6 +126,10 @@ SoundBufferManager& ResourceLoader::getSoundManager() {
   return SoundBufferManager::getInstance();
 }
 
+MusicManager& ResourceLoader::getMusicManager() {
+  return MusicManager::getInstance();
+}
+
 std::string ResourceLoader::fontTypeToString(const FontType fontType) {
   return FONT_NAMES[static_cast<int>(fontType)];
 }
@@ -116,10 +138,18 @@ std::string ResourceLoader::textureTypeToString(const TextureType textureType) {
   return TEXTURE_NAMES[static_cast<int>(textureType)];
 }
 
+std::string ResourceLoader::musicTypeToString(const MusicType musicType) {
+  return MUSIC_NAMES[static_cast<int>(musicType)];
+}
+
 const sf::Font& ResourceLoader::getFont(const FontType fontType) {
   return getFontManager().getResource(fontTypeToString(fontType));
 }
 
 const sf::Texture& ResourceLoader::getTexture(const TextureType textureType) {
   return getTextureManager().getResource(textureTypeToString(textureType));
+}
+
+sf::Music& ResourceLoader::getMusic(const MusicType musicType) {
+  return getMusicManager().getResource(musicTypeToString(musicType));
 }

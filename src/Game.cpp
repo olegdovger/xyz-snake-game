@@ -1,11 +1,8 @@
+#include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 
 #include "Game.hpp"
-#include "screens/DifficultyScreen.hpp"
 #include "screens/GameScreen.hpp"
-#include "screens/HighScores.hpp"
-#include "screens/MainMenu.hpp"
-#include "screens/PauseScreen.hpp"
 #include "utils/DebugUI.hpp"
 #include "utils/EventLogger.hpp"
 #include "utils/ResourceLoader.hpp"
@@ -18,6 +15,12 @@ Game::Game(sf::RenderWindow& win) : window(win), isRunning(true), previousScreen
 
   //initializeAllResources
   ResourceLoader::initializeAllResources();
+
+  // Get and configure background music from ResourceLoader
+  sf::Music& music = ResourceLoader::getMusic(MusicType::BackgroundMusic);
+  music.setLooping(true);
+  music.setVolume(25.0f);  // Set volume to 50% to avoid being too loud
+  music.play();
 
   setCurrentScreen(new GameScreen(window, *this));
 

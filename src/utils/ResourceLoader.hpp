@@ -21,6 +21,10 @@ enum class TextureType {
   Digits,
 };
 
+enum class MusicType {
+  BackgroundMusic
+};
+
 class ResourceLoader {
 public:
   // Initialize all game resources
@@ -33,6 +37,8 @@ public:
 
   static bool loadSounds();
 
+  static bool loadMusic();
+
   // Get resource managers
   static TextureManager& getTextureManager();
 
@@ -40,10 +46,14 @@ public:
 
   static SoundBufferManager& getSoundManager();
 
+  static MusicManager& getMusicManager();
+
   // Get font by type (type-safe)
   static const sf::Font& getFont(const FontType fontType);
 
   static const sf::Texture& getTexture(const TextureType textureType);
+
+  static sf::Music& getMusic(const MusicType musicType);
 
 private:
   static bool loadTexture(const std::string& name, const std::string& path);
@@ -52,8 +62,12 @@ private:
 
   static bool loadSound(const std::string& name, const std::string& path);
 
+  static bool loadMusicFile(const std::string& name, const std::string& path);
+
   // Convert enum to string
   static std::string fontTypeToString(const FontType fontType);
 
   static std::string textureTypeToString(const TextureType textureType);
+
+  static std::string musicTypeToString(const MusicType musicType);
 };
