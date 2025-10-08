@@ -37,6 +37,11 @@ GameScreen::GameScreen(sf::RenderWindow& win, Game& gameRef)
 
   gameUI = GameUI();
 
+  // Reset game score and GameUI score
+  game.resetScore();
+  gameUI.setScore(0);
+  gameUI.setApples(0);
+
   // Initialize wall manager
   wallManager = std::make_unique<WallManager>(gameGrid);
 
@@ -129,12 +134,11 @@ void GameScreen::update() {
           // Apply item effects
           collidedItem->applySpecialEffects(snake);
 
-          // Add points
-          game.addScore(collidedItem->getPoints());
-
           // Make snake grow when eating any item
           snake.grow();
-          gameUI.setScore(gameUI.getScore() + collidedItem->getPoints());
+
+          game.addScore(collidedItem->getPoints());
+          gameUI.setScore(game.getScore());
           gameUI.setApples(gameUI.getApples() + 1);
 
           // Remove the item immediately
@@ -255,7 +259,6 @@ void GameScreen::render() {
     sf::Vector2u windowSize = window.getSize();
     countdownTimer.setPosition(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f));
     countdownTimer.render(window);
-    std::cout << "Rendering countdown: " << countdownTimer.getRemainingSeconds() << std::endl;
   }
 }
 
@@ -266,8 +269,6 @@ void GameScreen::renderGameUI(const sf::Sprite& boardBorder) const {
       getPosition(sf::Vector2f(boardBorder.getTexture().getSize()), window.getSize(), boardBorder.getScale().x);
 
   gameUI.setScale(boardBorder.getScale().x);
-  // gameUI.setScore(0);
-  // gameUI.setApples(0);
   gameUI.setSpeed(static_cast<int>(snake.getSpeed()));
   gameUI.render(window, sf::Vector2f(boardBorder.getGlobalBounds().position.x +
                                          (boardBorderSize.x + 16) * boardBorder.getScale().x,
@@ -282,9 +283,8 @@ void GameScreen::handleGameOver() {
   if (!gameOver) {
     gameOver = true;
 
-    // Calculate score based on snake length (you can modify this logic)
-    int finalScore = snake.getLength() * 10;
-    game.setScore(finalScore);
+    // Score is already tracked properly through item collection
+    int finalScore = game.getScore();
 
     // Save score to record table if it qualifies
     if (game.isNewHighScore()) {

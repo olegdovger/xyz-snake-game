@@ -35,6 +35,11 @@ bool ResourceManager<T>::loadResource(const std::string& name, const std::string
       std::cerr << "Failed to load resource '" << name << "' from '" << filePath << "'" << std::endl;
       return false;
     }
+  } else if constexpr (std::is_same_v<T, sf::Music>) {
+    if (!resource->openFromFile(filePath)) {
+      std::cerr << "Failed to load resource '" << name << "' from '" << filePath << "'" << std::endl;
+      return false;
+    }
   }
 
   // Store the resource
@@ -92,3 +97,4 @@ size_t ResourceManager<T>::getResourceCount() const {
 template class ResourceManager<sf::Texture>;
 template class ResourceManager<sf::Font>;
 template class ResourceManager<sf::SoundBuffer>;
+template class ResourceManager<sf::Music>;

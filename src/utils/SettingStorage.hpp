@@ -23,7 +23,7 @@ struct GameSettings {
   bool gameCountdownEnabled = true;
   int gameCountdownInSeconds = 3;
   bool gameCountdownSound = false;
-  std::vector<int> gameRecordTable = {100, 50, 33, 12, 8};
+  std::vector<int> gameRecordTable = {0};
 };
 
 /**
@@ -31,7 +31,7 @@ struct GameSettings {
  */
 class SettingStorage {
 private:
-  static constexpr const char* SETTINGS_FILE_PATH = "../settings.json";
+  static constexpr const char* SETTINGS_FILE_PATH = "settings.json";
   GameSettings settings;
   bool isInitialized = false;
 

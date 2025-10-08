@@ -1,5 +1,6 @@
 #include "SettingStorage.hpp"
 #include <algorithm>
+#include <filesystem>
 #include <fstream>
 #include <functional>
 #include <iostream>
@@ -71,6 +72,10 @@ bool SettingStorage::initialize() {
         return false;
       }
     }
+
+    // get file absolute path
+    std::string filePath = std::filesystem::absolute(SETTINGS_FILE_PATH).string();
+    std::cout << "Settings file path: " << filePath << std::endl;
 
     // Read file content
     std::stringstream buffer;
