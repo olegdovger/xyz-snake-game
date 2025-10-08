@@ -6,6 +6,8 @@
 build
 clion-build
 
+settings.json
+
 # Prerequisites
 *.d
 
@@ -46,8 +48,4 @@ clion-build
 *.app
 
 # debug information files
-<<<<<<< HEAD
 *.dwo
-=======
-*.dwo
->>>>>>> 7c0c1d7 (Update .gitignore)
