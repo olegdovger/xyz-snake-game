@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Clock.hpp>
 #include <vector>
+#include "PausableClock.hpp"
 
 class GameGrid;
 
@@ -37,7 +38,7 @@ private:
   sf::Texture texture;
 
   // Timing
-  sf::Clock lifetimeClock;
+  PausableClock lifetimeClock;
   float lifetime;  // Random between 10-20 seconds
   bool expired;
 

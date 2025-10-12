@@ -4,6 +4,7 @@
 #include "../utils/ResourceLoader.hpp"
 #include "../utils/ScalingUtils.hpp"
 #include "../utils/SettingStorage.hpp"
+#include "../utils/TimerManager.hpp"
 #include "HighScores.hpp"
 #include "PauseScreen.hpp"
 
@@ -13,9 +14,27 @@ GameScreen::GameScreen(sf::RenderWindow& win, Game& gameRef)
     : Screen(win, gameRef),
       gameGrid(32, 32, 824.0f, sf::Vector2f(0, 0), 1.0f, 912.0f),
       snake(sf::Vector2i(16, 16), 5),
-      countdownTimer(1, false),
-      currentSnakeTypeIndex(0) {
+      countdownTimer(1, true),
+      currentSnakeTypeIndex(0),
+      gameOverSound(ResourceLoader::getSound(SoundType::GameOver)),
+      eatAppleSound(ResourceLoader::getSound(SoundType::EatApple)),
+      startGameSound(ResourceLoader::getSound(SoundType::StartGame)) {
   initializeGrid();
+
+  // Initialize background music
+  backgroundMusic = &ResourceLoader::getMusic(MusicType::BackgroundMusic);
+  backgroundMusic->setLooping(true);
+  backgroundMusic->setVolume(1.0f);  // 25% volume
+
+  // Set game over sound volume
+  gameOverSound.setVolume(10.0f);  // 50% volume
+  gameOverSoundPlayed = false;
+
+  // Set eating apple sound volume
+  eatAppleSound.setVolume(10.0f);  // 30% volume
+
+  // Set start game sound volume
+  startGameSound.setVolume(20.0f);  // 20% volume
 
   SettingStorage settingStorage;
 
@@ -55,10 +74,14 @@ void GameScreen::processEvents(const sf::Event& event) {
     switch (event.getIf<sf::Event::KeyPressed>()->code) {
       case sf::Keyboard::Key::Escape:
         // Pause game
+        pause();
+        pauseMusic();
         game.setCurrentScreenWithPrevious(new PauseScreen(window, game), this);
         break;
       case sf::Keyboard::Key::P:
         if (!gameOver) {
+          pause();
+          pauseMusic();
           game.setCurrentScreenWithPrevious(new PauseScreen(window, game), this);
         }
         break;
@@ -97,6 +120,11 @@ void GameScreen::processEvents(const sf::Event& event) {
 }
 
 void GameScreen::update() {
+  // Skip all game calculations when paused
+  if (isPaused) {
+    return;
+  }
+
   // Update walls
   if (wallManager) {
     wallManager->update(1.0f / 60.0f, snake);  // Assuming 60 FPS
@@ -121,6 +149,13 @@ void GameScreen::update() {
     }
   }
 
+  // Start music when countdown finishes
+  if (countdownTimer.getIsFinished() && !musicStarted && !isBlinking) {
+    backgroundMusic->play();
+    musicStarted = true;
+    startGameSound.play();  // Play start game sound when countdown finishes
+  }
+
   // Only update game logic if countdown is finished and not blinking
   if (countdownTimer.getIsFinished() && !isBlinking) {
     // Move snake every step
@@ -131,6 +166,9 @@ void GameScreen::update() {
       if (gameItemManager) {
         auto* collidedItem = gameItemManager->checkCollision(snake.getHead());
         if (collidedItem) {
+          // Play eating apple sound
+          eatAppleSound.play();
+
           // Apply item effects
           collidedItem->applySpecialEffects(snake);
 
@@ -148,16 +186,24 @@ void GameScreen::update() {
 
       // Check collisions with walls, grid boundaries, and self
       bool wallCollision = false;
-      if (wallManager) {
+      if (wallManager && !snake.isInvincible()) {
         wallCollision = wallManager->checkWallCollision(snake.getHead());
       }
 
-      if (!snake.isInvincible()) {
-        if (wallCollision || snake.checkWallCollision(gameGrid.getCols(), gameGrid.getRows()) ||
-            snake.checkSelfCollision()) {
-          snake.kill();
-          startBlinking();
+      // Always check grid boundary collisions and self collisions
+      // Internal wall collisions are only checked when not invincible
+      if (wallCollision || snake.checkWallCollision(gameGrid.getCols(), gameGrid.getRows()) ||
+          snake.checkSelfCollision()) {
+        pauseMusic();
+
+        // Play game over sound only once
+        if (!gameOverSoundPlayed) {
+          gameOverSound.play();
+          gameOverSoundPlayed = true;
         }
+
+        snake.kill();
+        startBlinking();
       }
 
       moveTimer.restart();
@@ -248,7 +294,6 @@ void GameScreen::render() {
   snake.setBlinking(isBlinking);
   if (isBlinking) {
     snake.setBlinkTimer(blinkTimer);
-    std::cout << "Setting snake blinking state: isBlinking=" << isBlinking << std::endl;
   }
 
   snake.render(window, gameGrid);
@@ -289,9 +334,6 @@ void GameScreen::handleGameOver() {
     // Save score to record table if it qualifies
     if (game.isNewHighScore()) {
       game.saveScoreToRecordTable();
-      std::cout << "New high score! Score: " << finalScore << std::endl;
-    } else {
-      std::cout << "Game over! Score: " << finalScore << std::endl;
     }
 
     // Switch to HighScores screen to show the updated record table
@@ -322,6 +364,33 @@ void GameScreen::resume() {
   updateGrid();
 
   countdownTimer.start();
+
+  // Music will resume when countdown finishes
+  musicStarted = false;
+
+  // Unpause the game
+  unpause();
+}
+
+void GameScreen::pauseMusic() {
+  if (backgroundMusic && musicStarted) {
+    backgroundMusic->stop();
+    musicStarted = false;
+  }
+}
+
+void GameScreen::pause() {
+  isPaused = true;
+
+  // Pause all timers globally
+  TimerManager::getInstance().pauseAll();
+}
+
+void GameScreen::unpause() {
+  isPaused = false;
+
+  // Unpause all timers globally
+  TimerManager::getInstance().unpauseAll();
 }
 
 void GameScreen::startBlinking() {

@@ -4,7 +4,32 @@ project(game)
 set(CMAKE_CXX_STANDARD 20)
 set(SFML_AUDIO_DISABLE_FLAC TRUE)
 
+# Additional compiler search directories
+set(CMAKE_PREFIX_PATH
+    "C:/msys64/mingw32/bin"
+    "C:/msys64/mingw64/bin"
+    "C:/msys64/clang32/bin"
+    "C:/msys64/clang64/bin"
+    "C:/msys64/clangarm64/bin"
+    "C:/msys64/ucrt64/bin"
+)
+
+# Force output to bin/ directory without Debug/Release subdirectories
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_BINARY_DIR}/bin)
+
+# Optimize linker for Windows to prevent memory issues
+if(WIN32 AND MINGW)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wa,-mbig-obj")
+    # Add linker flags to handle memory issues
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--disable-auto-image-base")
+    # Reduce memory usage during linking
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g1")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
+endif()
+
 
 include(FetchContent)
 
@@ -38,6 +63,8 @@ add_executable(${PROJECT_NAME}
         "src/utils/CountdownTimer.cpp"
         "src/utils/GameUI.cpp"
         "src/utils/Digits.cpp"
+        "src/utils/TimerManager.cpp"
+        "src/utils/PausableClock.cpp"
         "src/utils/WallManager.cpp"
         "src/utils/Wall.cpp"
         "src/utils/GameItemManager.cpp"
@@ -50,6 +77,13 @@ add_executable(${PROJECT_NAME}
         "src/Snake.cpp"
 )
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
+# Additional linker optimizations for MinGW on Windows
+if(WIN32 AND MINGW)
+    target_link_options(${PROJECT_NAME} PRIVATE
+        -Wl,--disable-auto-image-base
+    )
+endif()
+
 target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics SFML::Audio)
 
 # Copy resources folder to build directory
@@ -60,7 +94,7 @@ if(WIN32 AND CMAKE_BUILD_TYPE STREQUAL "Release")
     find_program(MINGW_GCC gcc PATHS "C:/msys64/ucrt64/bin" "C:/msys64/mingw64/bin")
     if(MINGW_GCC)
         get_filename_component(MINGW_BIN_DIR ${MINGW_GCC} DIRECTORY)
-        file(GLOB MINGW_DLLS 
+        file(GLOB MINGW_DLLS
             "${MINGW_BIN_DIR}/libgcc_s_seh-1.dll"
             "${MINGW_BIN_DIR}/libstdc++-6.dll"
             "${MINGW_BIN_DIR}/libwinpthread-1.dll"
@@ -91,7 +125,7 @@ if(WIN32 AND CMAKE_BUILD_TYPE STREQUAL "Release")
     find_program(MINGW_GCC gcc PATHS "C:/msys64/ucrt64/bin" "C:/msys64/mingw64/bin")
     if(MINGW_GCC)
         get_filename_component(MINGW_BIN_DIR ${MINGW_GCC} DIRECTORY)
-        file(GLOB MINGW_DLLS 
+        file(GLOB MINGW_DLLS
             "${MINGW_BIN_DIR}/libgcc_s_seh-1.dll"
             "${MINGW_BIN_DIR}/libstdc++-6.dll"
             "${MINGW_BIN_DIR}/libwinpthread-1.dll"

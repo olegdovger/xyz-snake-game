@@ -10,6 +10,7 @@ class CountdownTimer {
 private:
   sf::Clock clock;
   sf::Text countdownText;
+  sf::Sound countdownSound;
   int totalSeconds;
   int currentSeconds;
   bool isActive;

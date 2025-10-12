@@ -1,5 +1,4 @@
 #include "CountdownTimer.hpp"
-#include <iostream>
 #include "ResourceLoader.hpp"
 
 CountdownTimer::CountdownTimer(int totalSeconds, bool soundEnabled)
@@ -8,7 +7,10 @@ CountdownTimer::CountdownTimer(int totalSeconds, bool soundEnabled)
       isActive(false),
       isFinished(false),
       soundEnabled(soundEnabled),
-      countdownText(ResourceLoader::getFont(FontType::DebugFont)) {
+      countdownText(ResourceLoader::getFont(FontType::DebugFont)),
+      countdownSound(ResourceLoader::getSound(SoundType::Countdown)) {
+
+  countdownSound.setVolume(15.0f);
 
   countdownText.setCharacterSize(72.0f);
   countdownText.setFillColor(sf::Color(130, 73, 113, 255));
@@ -25,6 +27,11 @@ void CountdownTimer::start() {
   currentSeconds = totalSeconds;
   clock.restart();
   updateText();
+
+  // Play initial countdown sound
+  if (soundEnabled && currentSeconds > 0) {
+    countdownSound.play();
+  }
 }
 
 void CountdownTimer::update() {
@@ -38,6 +45,11 @@ void CountdownTimer::update() {
   if (newCurrentSeconds != currentSeconds) {
     currentSeconds = newCurrentSeconds;
     updateText();
+
+    // Play countdown sound when seconds change
+    if (soundEnabled && currentSeconds > 0) {
+      countdownSound.play();
+    }
   }
 
   if (currentSeconds <= 0) {

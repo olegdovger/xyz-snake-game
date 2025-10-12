@@ -5,22 +5,12 @@
 #include "screens/GameScreen.hpp"
 #include "utils/DebugUI.hpp"
 #include "utils/EventLogger.hpp"
-#include "utils/ResourceLoader.hpp"
 
 Game::Game(sf::RenderWindow& win) : window(win), isRunning(true), previousScreen(nullptr) {
   // Initialize settings first
   if (!settingStorage.initialize()) {
     std::cerr << "Warning: Failed to initialize settings, using defaults" << std::endl;
   }
-
-  //initializeAllResources
-  ResourceLoader::initializeAllResources();
-
-  // Get and configure background music from ResourceLoader
-  sf::Music& music = ResourceLoader::getMusic(MusicType::BackgroundMusic);
-  music.setLooping(true);
-  music.setVolume(25.0f);  // Set volume to 50% to avoid being too loud
-  music.play();
 
   setCurrentScreen(new GameScreen(window, *this));
 

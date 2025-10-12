@@ -2,6 +2,7 @@
 .cursor
 .vscode
 .idea
+.zed
 
 build
 clion-build
