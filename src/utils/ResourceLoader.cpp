@@ -19,11 +19,21 @@ const std::string TEXTURE_NAMES[] = {
     "wall_3",        // TextureType::Wall_3
     "wall_4",        // TextureType::Wall_4
     "game_ui",       // TextureType::GameUI
-    "digits"         // TextureType::Digits
+    "digits",        // TextureType::Digits
+    "game_icon"      // TextureType::GameIcon
 };
 
 const std::string MUSIC_NAMES[] = {
     "background_music"  // MusicType::BackgroundMusic
+};
+
+const std::string SOUND_NAMES[] = {
+    "eat_apple",             // SoundType::EatApple
+    "game_over",             // SoundType::GameOver
+    "countdown",             // SoundType::Countdown
+    "select_menu_item",      // SoundType::SelectMenuItem
+    "set_active_menu_item",  // SoundType::SetActiveMenuItem
+    "start_game"             // SoundType::StartGame
 };
 
 bool ResourceLoader::initializeAllResources() {
@@ -63,6 +73,7 @@ bool ResourceLoader::loadTextures() {
 
   success &= loadTexture(textureTypeToString(TextureType::GameUI), "resources/GameUI.png");
   success &= loadTexture(textureTypeToString(TextureType::Digits), "resources/Digits.png");
+  success &= loadTexture(textureTypeToString(TextureType::GameIcon), "resources/GameIcon.png");
 
   return success;
 }
@@ -82,11 +93,15 @@ bool ResourceLoader::loadFonts() {
 bool ResourceLoader::loadSounds() {
   std::cout << "Loading sounds..." << std::endl;
 
-  // Add sound files here when available
-  // success &= loadSound("eat_apple", "resources/sounds/eat_apple.wav");
-  // success &= loadSound("game_over", "resources/sounds/game_over.wav");
+  bool success = true;
+  success &= loadSound(soundTypeToString(SoundType::EatApple), "resources/sound/eat_apple.mp3");
+  success &= loadSound(soundTypeToString(SoundType::GameOver), "resources/sound/game_over.mp3");
+  success &= loadSound(soundTypeToString(SoundType::Countdown), "resources/sound/countdown.mp3");
+  success &= loadSound(soundTypeToString(SoundType::SelectMenuItem), "resources/sound/select_menu_item.mp3");
+  success &= loadSound(soundTypeToString(SoundType::SetActiveMenuItem), "resources/sound/set_active_menu_item.mp3");
+  success &= loadSound(soundTypeToString(SoundType::StartGame), "resources/sound/start_game.mp3");
 
-  return true;  // No sounds yet
+  return success;
 }
 
 bool ResourceLoader::loadMusic() {
@@ -142,6 +157,10 @@ std::string ResourceLoader::musicTypeToString(const MusicType musicType) {
   return MUSIC_NAMES[static_cast<int>(musicType)];
 }
 
+std::string ResourceLoader::soundTypeToString(const SoundType soundType) {
+  return SOUND_NAMES[static_cast<int>(soundType)];
+}
+
 const sf::Font& ResourceLoader::getFont(const FontType fontType) {
   return getFontManager().getResource(fontTypeToString(fontType));
 }
@@ -152,4 +171,8 @@ const sf::Texture& ResourceLoader::getTexture(const TextureType textureType) {
 
 sf::Music& ResourceLoader::getMusic(const MusicType musicType) {
   return getMusicManager().getResource(musicTypeToString(musicType));
+}
+
+const sf::SoundBuffer& ResourceLoader::getSound(const SoundType soundType) {
+  return getSoundManager().getResource(soundTypeToString(soundType));
 }

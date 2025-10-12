@@ -3,6 +3,7 @@
 #include <SFML/System/Clock.hpp>
 #include <memory>
 #include <vector>
+#include "PausableClock.hpp"
 #include "Wall.hpp"
 
 class GameGrid;
@@ -31,7 +32,7 @@ private:
   std::vector<std::unique_ptr<Wall>> walls;
 
   // Wall generation timer
-  sf::Clock wallGenerationTimer;
+  PausableClock wallGenerationTimer;
   static constexpr float WALL_GENERATION_INTERVAL = 10.0f;  // 20 seconds
 
   // Generation parameters

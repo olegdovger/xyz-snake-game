@@ -1,13 +1,17 @@
 #include "PauseScreen.hpp"
+#include <iostream>
 #include "../utils/ResourceLoader.hpp"
 #include "../utils/ScalingUtils.hpp"
 #include "Exit.hpp"
-#include "GameScreen.hpp"
 #include "MainMenu.hpp"
 
 using namespace shape;
 
-PauseScreen::PauseScreen(sf::RenderWindow& win, Game& gameRef) : Screen(win, gameRef), titleText(font) {
+PauseScreen::PauseScreen(sf::RenderWindow& win, Game& gameRef)
+    : Screen(win, gameRef),
+      titleText(font),
+      setActiveMenuItemSound(ResourceLoader::getSound(SoundType::SetActiveMenuItem)),
+      selectMenuItemSound(ResourceLoader::getSound(SoundType::SelectMenuItem)) {
   font = ResourceLoader::getFont(FontType::DebugFont);
 
   titleText.setString(L"Пауза");
@@ -25,6 +29,10 @@ PauseScreen::PauseScreen(sf::RenderWindow& win, Game& gameRef) : Screen(win, gam
   screenRect.setFillColor(menuBackgroundColor);
   screenRect.setOutlineColor(borderColor);
   screenRect.setOutlineThickness(10.0f);
+
+  // Set menu sound volumes
+  setActiveMenuItemSound.setVolume(30.0f);  // 30% volume
+  selectMenuItemSound.setVolume(40.0f);     // 40% volume
 
   initializeMenuItems();
 }
@@ -52,13 +60,16 @@ void PauseScreen::processEvents(const sf::Event& event) {
       case sf::Keyboard::Key::Up:
         std::cout << "Keypressed up(w)" << std::endl;
         selectedIndex = (selectedIndex - 1 + MENU_ITEMS_COUNT) % MENU_ITEMS_COUNT;
+        setActiveMenuItemSound.play();  // Play sound when switching menu items
         break;
       case sf::Keyboard::Key::S:
       case sf::Keyboard::Key::Down:
         std::cout << "Keypressed down(s)" << std::endl;
         selectedIndex = (selectedIndex + 1) % MENU_ITEMS_COUNT;
+        setActiveMenuItemSound.play();  // Play sound when switching menu items
         break;
       case sf::Keyboard::Key::Enter:
+        selectMenuItemSound.play();  // Play sound when selecting menu item
         switch (selectedIndex) {
           case 0:  // Продолжить игру
             // Return to previous screen with countdown restart
@@ -73,6 +84,7 @@ void PauseScreen::processEvents(const sf::Event& event) {
         }
         break;
       case sf::Keyboard::Key::Escape:
+        selectMenuItemSound.play();  // Play sound when selecting menu item
         // Return to previous screen with countdown restart
         game.returnToGameScreen();
         break;

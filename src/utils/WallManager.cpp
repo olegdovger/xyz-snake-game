@@ -17,7 +17,7 @@ void WallManager::update(float deltaTime, const Snake& snake) {
   }
 
   // Generate new wall every 20 seconds
-  if (wallGenerationTimer.getElapsedTime().asSeconds() >= WALL_GENERATION_INTERVAL) {
+  if (wallGenerationTimer.getElapsedTime() >= WALL_GENERATION_INTERVAL) {
     tryGenerateWall(snake);
     wallGenerationTimer.restart();
   }

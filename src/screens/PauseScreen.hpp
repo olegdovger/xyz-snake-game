@@ -1,12 +1,11 @@
 #pragma once
 
+#include <SFML/Audio.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/System/String.hpp>
-#include <iostream>
-#include <string>
 #include <vector>
 #include "../Game.hpp"
 #include "../Screen.hpp"
@@ -45,6 +44,10 @@ private:
   float scaleRelativeFactor = 0.6f;
 
   sf::Vector2f menuRectSize = originSize * scaleRelativeFactor;
+
+  // Menu sounds
+  sf::Sound setActiveMenuItemSound;
+  sf::Sound selectMenuItemSound;
 
   void initializeMenuItems();
   void renderMenuRect();

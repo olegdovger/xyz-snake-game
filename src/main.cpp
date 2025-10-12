@@ -1,12 +1,22 @@
 #include <SFML/Graphics.hpp>
 #include "Game.hpp"
+#include "utils/ResourceLoader.hpp"
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(sf::Vector2u(800, 600)), "Snake Game");
+  sf::RenderWindow window(sf::VideoMode(sf::Vector2u(800, 600)), "Snake Game");
 
-    const Game game(window);
+  // Initialize resources
+  ResourceLoader::initializeAllResources();
 
-    game.start();
+  // Set application icon using ResourceLoader
+  const sf::Texture& iconTexture = ResourceLoader::getTexture(TextureType::GameIcon);
+  sf::Image icon = iconTexture.copyToImage();
 
-    return 0;
+  window.setIcon(icon.getSize(), icon.getPixelsPtr());
+
+  const Game game(window);
+
+  game.start();
+
+  return 0;
 }

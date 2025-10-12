@@ -1,5 +1,6 @@
 #pragma once
 
+#include <SFML/Audio.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
@@ -46,6 +47,10 @@ private:
   float scaleRelativeFactor = 0.8f;
 
   sf::Vector2f menuRectSize = originSize * scaleRelativeFactor;
+
+  // Menu sounds
+  sf::Sound setActiveMenuItemSound;
+  sf::Sound selectMenuItemSound;
 
   void drawMenuBackground(sf::RenderWindow& window, const sf::Text& text) const;
 

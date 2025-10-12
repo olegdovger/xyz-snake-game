@@ -1,4 +1,5 @@
 #pragma once
+#include <SFML/Audio.hpp>
 #include <SFML/System/Clock.hpp>
 #include <memory>
 #include "../Screen.hpp"
@@ -24,6 +25,12 @@ public:
 
   void resume();
 
+  void pauseMusic();
+
+  void pause();
+
+  void unpause();
+
 private:
   float gridSize = 824.0f;
   float scaleRelativeFactor = 912.0f / 992.0f;
@@ -43,6 +50,20 @@ private:
   // Countdown timer
   CountdownTimer countdownTimer;
 
+  // Background music
+  sf::Music* backgroundMusic;
+  bool musicStarted = false;
+
+  // Game over sound
+  sf::Sound gameOverSound;
+  bool gameOverSoundPlayed = false;
+
+  // Eating apple sound
+  sf::Sound eatAppleSound;
+
+  // Start game sound
+  sf::Sound startGameSound;
+
   // Timing
   sf::Clock moveTimer;
   sf::Clock snakeTypeTimer;
@@ -56,6 +77,7 @@ private:
   // Game state
   bool gameOver = false;
   bool scoreSaved = false;
+  bool isPaused = false;
 
   // Blinking effect for collision
   bool isBlinking = false;

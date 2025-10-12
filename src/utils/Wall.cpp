@@ -25,7 +25,7 @@ void Wall::update(float deltaTime) {
   if (expired)
     return;
 
-  float elapsedTime = lifetimeClock.getElapsedTime().asSeconds();
+  float elapsedTime = lifetimeClock.getElapsedTime();
 
   // Update wall phase
   if (currentPhase == WallPhase::Appearing && elapsedTime >= APPEARANCE_DURATION) {
@@ -74,7 +74,7 @@ void Wall::render(sf::RenderWindow& window, const GameGrid& grid) const {
     // Apply phase-based effects
     if (currentPhase == WallPhase::Appearing) {
       // Fade in during appearance phase
-      float elapsedTime = lifetimeClock.getElapsedTime().asSeconds();
+      float elapsedTime = lifetimeClock.getElapsedTime();
       float alpha = (elapsedTime / APPEARANCE_DURATION) * 255.0f;
       wallSprite.setColor(sf::Color(255, 255, 255, static_cast<unsigned char>(alpha)));
     } else if (blinking && currentPhase == WallPhase::Disappearing) {
@@ -92,7 +92,7 @@ void Wall::render(sf::RenderWindow& window, const GameGrid& grid) const {
 float Wall::getRemainingTime() const {
   if (expired)
     return 0.0f;
-  return std::max(0.0f, lifetime - lifetimeClock.getElapsedTime().asSeconds());
+  return std::max(0.0f, lifetime - lifetimeClock.getElapsedTime());
 }
 
 bool Wall::checkCollisionWithPosition(sf::Vector2i position) const {
