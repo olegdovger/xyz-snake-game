@@ -52,6 +52,9 @@ private:
   sf::Sound setActiveMenuItemSound;
   sf::Sound selectMenuItemSound;
 
+  // Sound settings
+  bool soundEnabled = true;
+
   void drawMenuBackground(sf::RenderWindow& window, const sf::Text& text) const;
 
   void initializeMenuItems();

@@ -15,6 +15,7 @@ private:
   sf::RectangleShape screenRect;
   sf::Font font;
   sf::Text titleText;
+  sf::Text backText;
   std::vector<sf::Text> menuItems;
   int selectedIndex = 0;
   sf::Vector2f originSize = sf::Vector2f(400.0f, 400.0f);
@@ -49,10 +50,14 @@ private:
   sf::Sound setActiveMenuItemSound;
   sf::Sound selectMenuItemSound;
 
+  // Sound settings
+  bool soundEnabled = true;
+
   void initializeMenuItems();
   void renderMenuRect();
   void renderTitle();
   void renderMenuItems();
+  void renderBackButton();
 
 public:
   explicit PauseScreen(sf::RenderWindow& win, Game& gameRef);

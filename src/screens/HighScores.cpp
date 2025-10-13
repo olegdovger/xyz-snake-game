@@ -21,7 +21,7 @@ HighScores::HighScores(sf::RenderWindow& win, Game& gameRef) : Screen(win, gameR
   titleText.setStyle(sf::Text::Bold);
 
   backText.setFont(font);
-  backText.setString(L"Назад (B)");
+  backText.setString(L"Назад (Escape)");
   backText.setCharacterSize(24);
   backText.setFillColor(sf::Color::White);
   backText.setStyle(sf::Text::Bold);
@@ -30,7 +30,7 @@ HighScores::HighScores(sf::RenderWindow& win, Game& gameRef) : Screen(win, gameR
 void HighScores::processEvents(const sf::Event& event) {
   if (event.is<sf::Event::KeyPressed>()) {
     switch (event.getIf<sf::Event::KeyPressed>()->code) {
-      case sf::Keyboard::Key::B:
+      case sf::Keyboard::Key::Escape:
         game.setCurrentScreen(new MainMenu(window, game));
         break;
       default:

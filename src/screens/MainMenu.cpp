@@ -2,6 +2,7 @@
 #include <iostream>
 #include "../utils/ResourceLoader.hpp"
 #include "../utils/ScalingUtils.hpp"
+#include "../utils/SettingStorage.hpp"
 #include "DifficultyScreen.hpp"
 #include "Exit.hpp"
 #include "GameScreen.hpp"
@@ -37,6 +38,12 @@ MainMenu::MainMenu(sf::RenderWindow& win, Game& gameRef)
   setActiveMenuItemSound.setVolume(30.0f);  // 30% volume
   selectMenuItemSound.setVolume(40.0f);     // 40% volume
 
+  // Load sound settings
+  SettingStorage settingStorage;
+  if (settingStorage.initialize()) {
+    soundEnabled = settingStorage.getGameSound();
+  }
+
   initializeMenuItems();
 }
 
@@ -55,16 +62,22 @@ void MainMenu::processEvents(const sf::Event& event) {
       case sf::Keyboard::Key::Up:
         std::cout << "Keypressed up(w)" << std::endl;
         selectedIndex = (selectedIndex - 1 + MENU_ITEMS_COUNT) % MENU_ITEMS_COUNT;
-        setActiveMenuItemSound.play();  // Play sound when switching menu items
+        if (soundEnabled) {
+          setActiveMenuItemSound.play();  // Play sound when switching menu items
+        }
         break;
       case sf::Keyboard::Key::S:
       case sf::Keyboard::Key::Down:
         std::cout << "Keypressed down(s)" << std::endl;
         selectedIndex = (selectedIndex + 1) % MENU_ITEMS_COUNT;
-        setActiveMenuItemSound.play();  // Play sound when switching menu items
+        if (soundEnabled) {
+          setActiveMenuItemSound.play();  // Play sound when switching menu items
+        }
         break;
       case sf::Keyboard::Key::Enter:
-        selectMenuItemSound.play();  // Play sound when selecting menu item
+        if (soundEnabled) {
+          selectMenuItemSound.play();  // Play sound when selecting menu item
+        }
         switch (selectedIndex) {
           case 0:  // Начать игру
             game.setCurrentScreen(new GameScreen(window, game));

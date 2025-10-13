@@ -1,16 +1,192 @@
 #include "Settings.hpp"
 #include <iostream>
+#include "../utils/ResourceLoader.hpp"
+#include "../utils/ScalingUtils.hpp"
+#include "../utils/SettingStorage.hpp"
+#include "MainMenu.hpp"
 
-Settings::Settings(sf::RenderWindow& win, Game& gameRef) : Screen(win, gameRef) {}
+using namespace shape;
+
+Settings::Settings(sf::RenderWindow& win, Game& gameRef)
+    : Screen(win, gameRef),
+      titleText(font),
+      backText(font),
+      setActiveMenuItemSound(ResourceLoader::getSound(SoundType::SetActiveMenuItem)),
+      selectMenuItemSound(ResourceLoader::getSound(SoundType::SelectMenuItem)) {
+  font = ResourceLoader::getFont(FontType::DebugFont);
+
+  titleText.setString(L"Настройки");
+  titleText.setFont(font);
+  titleText.setCharacterSize(40);
+  titleText.setFillColor(sf::Color::White);
+  titleText.setStyle(sf::Text::Bold);
+
+  backText.setString(L"Назад (Escape)");
+  backText.setFont(font);
+  backText.setCharacterSize(14);
+  backText.setFillColor(sf::Color::White);
+  backText.setStyle(sf::Text::Bold);
+
+  screenRect.setSize(originSize);
+  screenRect.setFillColor(menuBackgroundColor);
+  screenRect.setOutlineColor(borderColor);
+  screenRect.setOutlineThickness(10.0f);
+
+  // Set menu sound volumes
+  setActiveMenuItemSound.setVolume(30.0f);  // 30% volume
+  selectMenuItemSound.setVolume(40.0f);     // 40% volume
+
+  loadSettings();
+  initializeMenuItems();
+}
 
 void Settings::processEvents(const sf::Event& event) {
-  std::cout << "Settings screen - Handling settings input" << std::endl;
+  if (event.is<sf::Event::KeyPressed>()) {
+    switch (event.getIf<sf::Event::KeyPressed>()->code) {
+      case sf::Keyboard::Key::W:
+      case sf::Keyboard::Key::Up:
+        std::cout << "Keypressed up(w)" << std::endl;
+        selectedIndex = (selectedIndex - 1 + MENU_ITEMS_COUNT) % MENU_ITEMS_COUNT;
+        if (soundEnabled) {
+          setActiveMenuItemSound.play();  // Play sound when switching menu items
+        }
+        break;
+      case sf::Keyboard::Key::S:
+      case sf::Keyboard::Key::Down:
+        std::cout << "Keypressed down(s)" << std::endl;
+        selectedIndex = (selectedIndex + 1) % MENU_ITEMS_COUNT;
+        if (soundEnabled) {
+          setActiveMenuItemSound.play();  // Play sound when switching menu items
+        }
+        break;
+      case sf::Keyboard::Key::Enter:
+        if (soundEnabled) {
+          selectMenuItemSound.play();  // Play sound when selecting menu item
+        }
+        toggleSoundSetting();
+        break;
+      case sf::Keyboard::Key::Escape:
+      case sf::Keyboard::Key::B:
+        // Return to main menu
+        game.setCurrentScreen(new MainMenu(window, game));
+        break;
+      default:
+        break;
+    }
+  }
 }
 
 void Settings::update() {
-  std::cout << "Settings screen - Updating settings display" << std::endl;
+  // No update logic needed for menu
 }
 
 void Settings::render() {
-  std::cout << "Settings screen - Game configuration options" << std::endl;
+  renderMenuRect();
+  renderTitle();
+  renderMenuItems();
+  renderBackButton();
+}
+
+void Settings::initializeMenuItems() {
+  // Update menu labels with current states
+  menuLabels = {std::wstring(L"Звук: ") + (soundEnabled ? L"Включен" : L"Выключен"),
+                std::wstring(L"Музыка: ") + (musicEnabled ? L"Включена" : L"Выключена")};
+
+  menuItems.clear();
+  menuItems.reserve(menuLabels.size());
+
+  for (size_t i = 0; i < menuLabels.size(); ++i) {
+    sf::Text item(font);
+    item.setString(menuLabels[i]);
+    item.setCharacterSize(24);
+    item.setFillColor(sf::Color::White);
+
+    menuItems.push_back(item);
+  }
+}
+
+void Settings::renderMenuRect() {
+  sf::Vector2u windowSize = window.getSize();
+  screenRect.setPosition(sf::Vector2f((static_cast<float>(windowSize.x) - screenRect.getSize().x) / 2.0f,
+                                      (static_cast<float>(windowSize.y) - screenRect.getSize().y) / 2.0f));
+
+  const float scale = getScale(sf::Vector2f(screenRect.getSize()), window.getSize()) * 0.8f;
+  screenRect.setScale(sf::Vector2f(scale, scale));
+
+  const auto position = getPosition(sf::Vector2f(screenRect.getSize()), window.getSize(), scale);
+  screenRect.setPosition(position);
+
+  window.draw(screenRect);
+}
+
+void Settings::renderTitle() {
+  const auto position =
+      getPosition(sf::Vector2f(titleText.getLocalBounds().size), window.getSize(), screenRect.getScale().x);
+  titleText.setPosition(sf::Vector2f(position.x, screenRect.getPosition().y + 20 * screenRect.getScale().y));
+
+  titleText.setScale(screenRect.getScale());
+
+  window.draw(titleText);
+}
+
+void Settings::renderMenuItems() {
+  for (size_t i = 0; i < menuItems.size(); ++i) {
+    sf::Text item = menuItems[i];
+
+    const auto position =
+        getPosition(sf::Vector2f(item.getLocalBounds().size), window.getSize(), screenRect.getScale().x);
+
+    item.setPosition(sf::Vector2f(position.x, screenRect.getPosition().y + 100.0f * screenRect.getScale().y +
+                                                  i * 50.0f * screenRect.getScale().y));
+
+    item.setScale(screenRect.getScale());
+
+    if (i == selectedIndex) {
+      item.setFillColor(textColor);
+      item.setStyle(sf::Text::Underlined);
+    } else {
+      item.setFillColor(sf::Color::White);
+      item.setStyle(sf::Text::Regular);
+    }
+
+    window.draw(item);
+  }
+}
+
+void Settings::toggleSoundSetting() {
+  SettingStorage settingStorage;
+  settingStorage.initialize();
+
+  switch (selectedIndex) {
+    case 0:  // Звук
+      soundEnabled = !soundEnabled;
+      settingStorage.setGameSound(soundEnabled);
+      break;
+    case 1:  // Музыка
+      musicEnabled = !musicEnabled;
+      settingStorage.setGameMusic(musicEnabled);
+      break;
+  }
+
+  settingStorage.saveSettings();
+  initializeMenuItems();  // Refresh menu items to show new states
+}
+
+void Settings::renderBackButton() {
+  backText.setScale(screenRect.getScale());
+
+  const auto position =
+      getPosition(sf::Vector2f(backText.getLocalBounds().size), window.getSize(), screenRect.getScale().x);
+  backText.setPosition(sf::Vector2f(
+      position.x,
+      screenRect.getPosition().y + screenRect.getSize().y * screenRect.getScale().y - 40.0f * screenRect.getScale().y));
+  window.draw(backText);
+}
+
+void Settings::loadSettings() {
+  SettingStorage settingStorage;
+  if (settingStorage.initialize()) {
+    soundEnabled = settingStorage.getGameSound();
+    musicEnabled = settingStorage.getGameMusic();
+  }
 }

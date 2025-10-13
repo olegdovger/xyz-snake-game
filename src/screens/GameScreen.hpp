@@ -64,6 +64,10 @@ private:
   // Start game sound
   sf::Sound startGameSound;
 
+  // Sound settings
+  bool soundEnabled = true;
+  bool musicEnabled = true;
+
   // Timing
   sf::Clock moveTimer;
   sf::Clock snakeTypeTimer;

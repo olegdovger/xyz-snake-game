@@ -26,7 +26,7 @@ DifficultyScreen::DifficultyScreen(sf::RenderWindow& win, Game& gameRef)
   titleText.setStyle(sf::Text::Bold);
 
   backText.setFont(font);
-  backText.setString(L"Назад (B)");
+  backText.setString(L"Назад (Escape)");
   backText.setCharacterSize(24);
   backText.setFillColor(sf::Color::White);
   backText.setStyle(sf::Text::Bold);
@@ -48,7 +48,7 @@ void DifficultyScreen::processEvents(const sf::Event& event) {
       case sf::Keyboard::Key::Space:
         confirmSelection();
         break;
-      case sf::Keyboard::Key::B:
+      case sf::Keyboard::Key::Escape:
         game.setCurrentScreen(new MainMenu(window, game));
         break;
       default:
