@@ -82,4 +82,10 @@ public:
    * @param position Position to center the text at
    */
   void setPosition(const sf::Vector2f& position);
+
+  /**
+   * @brief Set whether countdown sound is enabled
+   * @param enabled Whether to play countdown sound
+   */
+  void setSoundEnabled(bool enabled);
 };

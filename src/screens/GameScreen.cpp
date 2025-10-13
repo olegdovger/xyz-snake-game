@@ -14,7 +14,7 @@ GameScreen::GameScreen(sf::RenderWindow& win, Game& gameRef)
     : Screen(win, gameRef),
       gameGrid(32, 32, 824.0f, sf::Vector2f(0, 0), 1.0f, 912.0f),
       snake(sf::Vector2i(16, 16), 5),
-      countdownTimer(1, true),
+      countdownTimer(1, false),  // Will be set based on settings
       currentSnakeTypeIndex(0),
       gameOverSound(ResourceLoader::getSound(SoundType::GameOver)),
       eatAppleSound(ResourceLoader::getSound(SoundType::EatApple)),
@@ -41,6 +41,13 @@ GameScreen::GameScreen(sf::RenderWindow& win, Game& gameRef)
   if (settingStorage.initialize()) {
     snake.setSnakeType(settingStorage.getSnakeType());
     game.setGameLevel(settingStorage.getGameLevel());
+
+    // Load sound settings
+    soundEnabled = settingStorage.getGameSound();
+    musicEnabled = settingStorage.getGameMusic();
+
+    // Set countdown timer sound setting
+    countdownTimer.setSoundEnabled(soundEnabled);
 
     // Configure countdown timer based on settings
     if (settingStorage.getGameCountdownEnabled()) {
@@ -130,8 +137,8 @@ void GameScreen::update() {
     wallManager->update(1.0f / 60.0f, snake);  // Assuming 60 FPS
   }
 
-  // Update game items
-  if (gameItemManager) {
+  // Update game items only after countdown finishes
+  if (gameItemManager && countdownTimer.getIsFinished()) {
     gameItemManager->update(1.0f / 60.0f, snake);  // Assuming 60 FPS
   }
 
@@ -151,9 +158,13 @@ void GameScreen::update() {
 
   // Start music when countdown finishes
   if (countdownTimer.getIsFinished() && !musicStarted && !isBlinking) {
-    backgroundMusic->play();
+    if (musicEnabled) {
+      backgroundMusic->play();
+    }
     musicStarted = true;
-    startGameSound.play();  // Play start game sound when countdown finishes
+    if (soundEnabled) {
+      startGameSound.play();  // Play start game sound when countdown finishes
+    }
   }
 
   // Only update game logic if countdown is finished and not blinking
@@ -167,7 +178,9 @@ void GameScreen::update() {
         auto* collidedItem = gameItemManager->checkCollision(snake.getHead());
         if (collidedItem) {
           // Play eating apple sound
-          eatAppleSound.play();
+          if (soundEnabled) {
+            eatAppleSound.play();
+          }
 
           // Apply item effects
           collidedItem->applySpecialEffects(snake);
@@ -198,7 +211,9 @@ void GameScreen::update() {
 
         // Play game over sound only once
         if (!gameOverSoundPlayed) {
-          gameOverSound.play();
+          if (soundEnabled) {
+            gameOverSound.play();
+          }
           gameOverSoundPlayed = true;
         }
 

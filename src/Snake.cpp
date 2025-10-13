@@ -180,12 +180,7 @@ void Snake::setSnakeType(SnakeSprite::SnakeType type) {
 void Snake::render(sf::RenderWindow& window, const GameGrid& grid) const {
   // Always render if blinking, otherwise only if alive
   if (!isAlive() && !isBlinking()) {
-    std::cout << "Snake not rendering: alive=" << isAlive() << ", blinking=" << isBlinking() << std::endl;
     return;
-  }
-
-  if (isBlinking()) {
-    std::cout << "Snake rendering while blinking: alive=" << isAlive() << ", body size=" << body.size() << std::endl;
   }
 
   for (size_t i = 0; i < body.size(); ++i) {

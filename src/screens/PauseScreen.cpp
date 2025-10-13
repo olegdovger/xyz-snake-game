@@ -2,6 +2,7 @@
 #include <iostream>
 #include "../utils/ResourceLoader.hpp"
 #include "../utils/ScalingUtils.hpp"
+#include "../utils/SettingStorage.hpp"
 #include "Exit.hpp"
 #include "MainMenu.hpp"
 
@@ -10,6 +11,7 @@ using namespace shape;
 PauseScreen::PauseScreen(sf::RenderWindow& win, Game& gameRef)
     : Screen(win, gameRef),
       titleText(font),
+      backText(font),
       setActiveMenuItemSound(ResourceLoader::getSound(SoundType::SetActiveMenuItem)),
       selectMenuItemSound(ResourceLoader::getSound(SoundType::SelectMenuItem)) {
   font = ResourceLoader::getFont(FontType::DebugFont);
@@ -19,6 +21,12 @@ PauseScreen::PauseScreen(sf::RenderWindow& win, Game& gameRef)
   titleText.setCharacterSize(40);
   titleText.setFillColor(sf::Color::White);
   titleText.setStyle(sf::Text::Bold);
+
+  backText.setString(L"Назад (Escape)");
+  backText.setFont(font);
+  backText.setCharacterSize(14);
+  backText.setFillColor(sf::Color::White);
+  backText.setStyle(sf::Text::Bold);
 
   screenRect.setSize(originSize);
   screenRect.setFillColor(menuBackgroundColor);
@@ -33,6 +41,12 @@ PauseScreen::PauseScreen(sf::RenderWindow& win, Game& gameRef)
   // Set menu sound volumes
   setActiveMenuItemSound.setVolume(30.0f);  // 30% volume
   selectMenuItemSound.setVolume(40.0f);     // 40% volume
+
+  // Load sound settings
+  SettingStorage settingStorage;
+  if (settingStorage.initialize()) {
+    soundEnabled = settingStorage.getGameSound();
+  }
 
   initializeMenuItems();
 }
@@ -60,16 +74,22 @@ void PauseScreen::processEvents(const sf::Event& event) {
       case sf::Keyboard::Key::Up:
         std::cout << "Keypressed up(w)" << std::endl;
         selectedIndex = (selectedIndex - 1 + MENU_ITEMS_COUNT) % MENU_ITEMS_COUNT;
-        setActiveMenuItemSound.play();  // Play sound when switching menu items
+        if (soundEnabled) {
+          setActiveMenuItemSound.play();  // Play sound when switching menu items
+        }
         break;
       case sf::Keyboard::Key::S:
       case sf::Keyboard::Key::Down:
         std::cout << "Keypressed down(s)" << std::endl;
         selectedIndex = (selectedIndex + 1) % MENU_ITEMS_COUNT;
-        setActiveMenuItemSound.play();  // Play sound when switching menu items
+        if (soundEnabled) {
+          setActiveMenuItemSound.play();  // Play sound when switching menu items
+        }
         break;
       case sf::Keyboard::Key::Enter:
-        selectMenuItemSound.play();  // Play sound when selecting menu item
+        if (soundEnabled) {
+          selectMenuItemSound.play();  // Play sound when selecting menu item
+        }
         switch (selectedIndex) {
           case 0:  // Продолжить игру
             // Return to previous screen with countdown restart
@@ -84,7 +104,9 @@ void PauseScreen::processEvents(const sf::Event& event) {
         }
         break;
       case sf::Keyboard::Key::Escape:
-        selectMenuItemSound.play();  // Play sound when selecting menu item
+        if (soundEnabled) {
+          selectMenuItemSound.play();  // Play sound when selecting menu item
+        }
         // Return to previous screen with countdown restart
         game.returnToGameScreen();
         break;
@@ -102,6 +124,7 @@ void PauseScreen::render() {
   renderMenuRect();
   renderTitle();
   renderMenuItems();
+  renderBackButton();
 }
 
 void PauseScreen::renderMenuRect() {
@@ -152,4 +175,15 @@ void PauseScreen::renderMenuItems() {
 
     window.draw(item);
   }
+}
+
+void PauseScreen::renderBackButton() {
+  backText.setScale(screenRect.getScale());
+
+  const auto position =
+      getPosition(sf::Vector2f(backText.getLocalBounds().size), window.getSize(), screenRect.getScale().x);
+  backText.setPosition(sf::Vector2f(
+      position.x,
+      screenRect.getPosition().y + screenRect.getSize().y * screenRect.getScale().y - 40.0f * screenRect.getScale().y));
+  window.draw(backText);
 }

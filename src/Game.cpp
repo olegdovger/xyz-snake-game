@@ -3,6 +3,7 @@
 
 #include "Game.hpp"
 #include "screens/GameScreen.hpp"
+#include "screens/Settings.hpp"
 #include "utils/DebugUI.hpp"
 #include "utils/EventLogger.hpp"
 
@@ -12,7 +13,7 @@ Game::Game(sf::RenderWindow& win) : window(win), isRunning(true), previousScreen
     std::cerr << "Warning: Failed to initialize settings, using defaults" << std::endl;
   }
 
-  setCurrentScreen(new GameScreen(window, *this));
+  setCurrentScreen(new Settings(window, *this));
 
   // Initialize debug UI
   DebugUI::initialize(window);

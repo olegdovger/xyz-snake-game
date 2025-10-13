@@ -83,6 +83,10 @@ void CountdownTimer::setPosition(const sf::Vector2f& position) {
   countdownText.setPosition(position);
 }
 
+void CountdownTimer::setSoundEnabled(bool enabled) {
+  soundEnabled = enabled;
+}
+
 void CountdownTimer::updateText() {
   if (currentSeconds > 0) {
     countdownText.setString(std::to_string(currentSeconds));
