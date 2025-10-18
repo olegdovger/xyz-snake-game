@@ -102,12 +102,6 @@ void Wall::render(sf::RenderWindow& window, const GameGrid& grid) const {
   }
 }
 
-float Wall::getRemainingTime() const {
-  if (expired)
-    return 0.0f;
-  return std::max(0.0f, lifetime - lifetimeClock.getElapsedTime());
-}
-
 bool Wall::checkCollisionWithPosition(sf::Vector2i position) const {
   return std::find(positions.begin(), positions.end(), position) != positions.end();
 }

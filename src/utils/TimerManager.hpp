@@ -44,11 +44,6 @@ public:
    */
   void unpauseAll();
 
-  /**
-   * @brief Check if timers are currently paused
-   */
-  bool isPaused() const { return paused; }
-
 private:
   TimerManager() = default;
   ~TimerManager() = default;
@@ -56,5 +51,4 @@ private:
   TimerManager& operator=(const TimerManager&) = delete;
 
   std::vector<PausableTimer*> timers;
-  bool paused = false;
 };

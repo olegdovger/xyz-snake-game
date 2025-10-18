@@ -18,11 +18,4 @@ sf::Vector2f getPosition(const sf::Vector2f objectSize, const sf::Vector2u windo
   return sf::Vector2f(positionX, positionY);
 }
 
-std::pair<float, sf::Vector2f> getScaleAndPosition(const sf::Vector2f objectSize, const sf::Vector2u windowSize,
-                                                   float scaleFactor) {
-  const float scale = getScale(objectSize, windowSize, scaleFactor);
-  const sf::Vector2f position = getPosition(objectSize, windowSize, scale);
-  return std::make_pair(scale, position);
-}
-
 }  // namespace shape

@@ -17,7 +17,6 @@ void TimerManager::unregisterTimer(PausableTimer* timer) {
 }
 
 void TimerManager::pauseAll() {
-  paused = true;
   for (auto* timer : timers) {
     if (timer) {
       timer->pause();
@@ -26,7 +25,6 @@ void TimerManager::pauseAll() {
 }
 
 void TimerManager::unpauseAll() {
-  paused = false;
   for (auto* timer : timers) {
     if (timer) {
       timer->unpause();

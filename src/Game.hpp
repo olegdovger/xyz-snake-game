@@ -19,7 +19,7 @@ private:
   bool isPaused = false;
 
   // Debug settings
-  static constexpr bool DEBUG_UI_TEXT = true;
+  static constexpr bool DEBUG_UI_TEXT = false;
 
   void processEvents(const sf::Event& event) const;
 

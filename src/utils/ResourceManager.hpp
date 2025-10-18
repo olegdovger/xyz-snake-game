@@ -39,7 +39,6 @@ private:
   std::unordered_map<std::string, std::unique_ptr<T>> resources;
 };
 
-// Specialized managers for common SFML types
 using TextureManager = ResourceManager<sf::Texture>;
 using FontManager = ResourceManager<sf::Font>;
 using SoundBufferManager = ResourceManager<sf::SoundBuffer>;
