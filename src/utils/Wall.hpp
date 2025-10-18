@@ -27,7 +27,6 @@ public:
   // Properties
   const std::vector<sf::Vector2i>& getPositions() const { return positions; }
   WallType getType() const { return type; }
-  float getRemainingTime() const;
 
   // Collision detection
   bool checkCollisionWithPosition(sf::Vector2i position) const;
