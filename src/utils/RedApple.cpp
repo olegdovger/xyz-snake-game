@@ -3,8 +3,8 @@
 #include "GameGrid.hpp"
 #include "ResourceLoader.hpp"
 
-RedApple::RedApple(sf::Vector2i position, int boardWidth, int boardHeight, float snakeSpeed)
-    : GameItem(position, calculateLifetime(boardWidth, boardHeight, snakeSpeed)) {
+RedApple::RedApple(sf::Vector2i position, int boardWidth, int boardHeight, float snakeSpeed, float lifetimeMultiplier)
+    : GameItem(position, calculateLifetime(boardWidth, boardHeight, snakeSpeed) * lifetimeMultiplier) {
   sprite = sf::Sprite(ResourceLoader::getTexture(TextureType::RedApple));
 
   // Scale sprite to fit grid cell (assuming 32x32 grid cells)

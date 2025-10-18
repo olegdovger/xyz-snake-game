@@ -3,6 +3,8 @@
 #include "../utils/ResourceLoader.hpp"
 #include "../utils/ScalingUtils.hpp"
 #include "../utils/SettingStorage.hpp"
+#include "../config/AudioConstants.hpp"
+#include "Settings.hpp"
 #include "DifficultyScreen.hpp"
 #include "Exit.hpp"
 #include "GameScreen.hpp"
@@ -35,8 +37,8 @@ MainMenu::MainMenu(sf::RenderWindow& win, Game& gameRef)
   screenRect.setOutlineThickness(10.0f);
 
   // Set menu sound volumes
-  setActiveMenuItemSound.setVolume(30.0f);  // 30% volume
-  selectMenuItemSound.setVolume(40.0f);     // 40% volume
+  setActiveMenuItemSound.setVolume(AudioConstants::SoundEffects::MENU_NAVIGATION_VOLUME);
+  selectMenuItemSound.setVolume(AudioConstants::SoundEffects::MENU_SELECTION_VOLUME);
 
   // Load sound settings
   SettingStorage settingStorage;

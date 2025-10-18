@@ -212,9 +212,9 @@ bool SettingStorage::createDefaultSettingsFile() {
     file << "    \"snakeSpeed\": 1,\n";
     file << "    \"snakeType\": \"purple\",\n";
     file << "    \"snakeSize\": \"3\",\n";
-    file << "    \"gameLevel\": \"easy\",\n";
-    file << "    \"gameMusic\": 0,\n";
-    file << "    \"gameSound\": 0,\n";
+    file << "    \"gameLevel\": \"hard\",\n";
+    file << "    \"gameMusic\": 1,\n";
+    file << "    \"gameSound\": 1,\n";
     file << "    \"gameCountdownEnabled\": 1,\n";
     file << "    \"gameCountdownInSeconds\": 3,\n";
     file << "    \"gameCountdownSound\": 0\n";

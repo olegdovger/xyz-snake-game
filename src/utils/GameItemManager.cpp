@@ -8,8 +8,9 @@
 
 class GameGrid;
 
-GameItemManager::GameItemManager(const GameGrid& grid)
+GameItemManager::GameItemManager(const GameGrid& grid, const DifficultySettings& difficultySettings)
     : grid(grid),
+      difficultySettings(difficultySettings),
       randomGenerator(std::random_device{}()),
       itemTypeDistribution(0, 3),  // 0=RedApple, 1=GreenApple, 2=WaterBubble, 3=FantomApple
       positionDistributionX(0, grid.getCols() - 1),
@@ -25,7 +26,8 @@ void GameItemManager::update(float deltaTime, const Snake& snake) {
   }
 
   // Try to spawn new item
-  if (spawnTimer.getElapsedTime().asSeconds() >= SPAWN_INTERVAL && items.size() < MAX_ITEMS) {
+  if (spawnTimer.getElapsedTime().asSeconds() >= difficultySettings.getItemSpawnInterval() && 
+      items.size() < difficultySettings.getMaxItemsOnBoard()) {
     spawnRandomItem(snake);
     spawnTimer.restart();
   }
@@ -47,14 +49,35 @@ GameItem* GameItemManager::checkCollision(sf::Vector2i snakeHead) {
 }
 
 bool GameItemManager::spawnRandomItem(const Snake& snake) {
-  GameItemType type = static_cast<GameItemType>(itemTypeDistribution(randomGenerator));
-  // TEMPORARY: Generate only FantomApple for testing wall collisions
-  // GameItemType type = GameItemType::FantomApple;
+  // Use difficulty-based apple probabilities
+  std::uniform_real_distribution<float> probabilityDistribution(0.0f, 1.0f);
+  float randomValue = probabilityDistribution(randomGenerator);
+  
+  GameItemType type;
+  float cumulativeChance = 0.0f;
+  
+  cumulativeChance += difficultySettings.getRedAppleChance();
+  if (randomValue <= cumulativeChance) {
+    type = GameItemType::RedApple;
+  } else {
+    cumulativeChance += difficultySettings.getGreenAppleChance();
+    if (randomValue <= cumulativeChance) {
+      type = GameItemType::GreenApple;
+    } else {
+      cumulativeChance += difficultySettings.getWaterBubbleChance();
+      if (randomValue <= cumulativeChance) {
+        type = GameItemType::WaterBubble;
+      } else {
+        type = GameItemType::FantomApple;
+      }
+    }
+  }
+  
   return spawnItem(type, snake);
 }
 
 bool GameItemManager::spawnItem(GameItemManager::GameItemType itemType, const Snake& snake) {
-  if (items.size() >= MAX_ITEMS) {
+  if (items.size() >= difficultySettings.getMaxItemsOnBoard()) {
     return false;
   }
 
@@ -66,16 +89,16 @@ bool GameItemManager::spawnItem(GameItemManager::GameItemType itemType, const Sn
   std::unique_ptr<GameItem> item;
   switch (itemType) {
     case GameItemType::RedApple:
-      item = std::make_unique<RedApple>(position, grid.getCols(), grid.getRows(), snake.getSpeed());
+      item = std::make_unique<RedApple>(position, grid.getCols(), grid.getRows(), snake.getSpeed(), difficultySettings.getAppleLifetimeMultiplier());
       break;
     case GameItemType::GreenApple:
-      item = std::make_unique<GreenApple>(position);
+      item = std::make_unique<GreenApple>(position, difficultySettings.getAppleLifetimeMultiplier());
       break;
     case GameItemType::WaterBubble:
-      item = std::make_unique<WaterBubble>(position);
+      item = std::make_unique<WaterBubble>(position, difficultySettings.getAppleLifetimeMultiplier());
       break;
     case GameItemType::FantomApple:
-      item = std::make_unique<FantomApple>(position);
+      item = std::make_unique<FantomApple>(position, difficultySettings.getAppleLifetimeMultiplier());
       break;
   }
 

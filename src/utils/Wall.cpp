@@ -3,18 +3,31 @@
 #include "GameGrid.hpp"
 #include "ResourceLoader.hpp"
 
-Wall::Wall(const std::vector<sf::Vector2i>& positions, WallType type)
+Wall::Wall(const std::vector<sf::Vector2i>& positions, WallType type, const DifficultySettings* difficulty)
     : positions(positions),
       type(type),
+      difficultySettings(difficulty),
       expired(false),
       currentPhase(WallPhase::Appearing),
       blinking(false),
       blinkCount(0) {
 
-  // Generate random lifetime between 10-20 seconds
+  // Generate random lifetime based on difficulty
   static std::random_device rd;
   static std::mt19937 gen(rd());
-  static std::uniform_real_distribution<float> dis(10.0f, 20.0f);
+
+  // Base lifetime between 10-20 seconds
+  float baseLifetime = 5.0f;
+  float maxLifetime = 10.0f;
+
+  // Adjust lifetime based on difficulty (longer at higher difficulties)
+  if (difficultySettings) {
+    float difficultyMultiplier = 1.0f + (difficultySettings->getWallCount() * 0.5f);  // 50% longer per wall level
+    baseLifetime *= difficultyMultiplier;
+    maxLifetime *= difficultyMultiplier;
+  }
+
+  static std::uniform_real_distribution<float> dis(baseLifetime, maxLifetime);
   lifetime = dis(gen);
 
   loadTexture();

@@ -5,13 +5,14 @@
 #include <vector>
 #include "PausableClock.hpp"
 #include "Wall.hpp"
+#include "difficulty/DifficultySettings.hpp"
 
 class GameGrid;
 class Snake;
 
 class WallManager {
 public:
-  explicit WallManager(const GameGrid& grid);
+  explicit WallManager(const GameGrid& grid, const DifficultySettings& difficulty);
 
   // Wall management
   void update(float deltaTime, const Snake& snake);
@@ -29,6 +30,7 @@ public:
 
 private:
   const GameGrid& grid;
+  const DifficultySettings& difficultySettings;
   std::vector<std::unique_ptr<Wall>> walls;
 
   // Wall generation timer

@@ -3,7 +3,7 @@
 #include "GameGrid.hpp"
 #include "ResourceLoader.hpp"
 
-GreenApple::GreenApple(sf::Vector2i position) : GameItem(position, 10.0f) {
+GreenApple::GreenApple(sf::Vector2i position, float lifetimeMultiplier) : GameItem(position, 10.0f * lifetimeMultiplier) {
   sprite = sf::Sprite(ResourceLoader::getTexture(TextureType::GreenApple));
   // Scale sprite to fit grid cell (assuming 32x32 grid cells)
   float scale = 32.0f / static_cast<float>(sprite.getTexture().getSize().x);

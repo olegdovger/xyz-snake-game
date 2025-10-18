@@ -1,4 +1,5 @@
 #include "CountdownTimer.hpp"
+#include "../config/AudioConstants.hpp"
 #include "ResourceLoader.hpp"
 
 CountdownTimer::CountdownTimer(int totalSeconds, bool soundEnabled)
@@ -10,7 +11,7 @@ CountdownTimer::CountdownTimer(int totalSeconds, bool soundEnabled)
       countdownText(ResourceLoader::getFont(FontType::DebugFont)),
       countdownSound(ResourceLoader::getSound(SoundType::Countdown)) {
 
-  countdownSound.setVolume(15.0f);
+  countdownSound.setVolume(AudioConstants::SoundEffects::COUNTDOWN_VOLUME);
 
   countdownText.setCharacterSize(72.0f);
   countdownText.setFillColor(sf::Color(130, 73, 113, 255));

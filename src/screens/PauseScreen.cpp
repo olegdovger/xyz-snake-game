@@ -3,8 +3,10 @@
 #include "../utils/ResourceLoader.hpp"
 #include "../utils/ScalingUtils.hpp"
 #include "../utils/SettingStorage.hpp"
-#include "Exit.hpp"
+#include "../config/AudioConstants.hpp"
+
 #include "MainMenu.hpp"
+#include "Exit.hpp"
 
 using namespace shape;
 
@@ -39,8 +41,8 @@ PauseScreen::PauseScreen(sf::RenderWindow& win, Game& gameRef)
   screenRect.setOutlineThickness(10.0f);
 
   // Set menu sound volumes
-  setActiveMenuItemSound.setVolume(30.0f);  // 30% volume
-  selectMenuItemSound.setVolume(40.0f);     // 40% volume
+  setActiveMenuItemSound.setVolume(AudioConstants::SoundEffects::MENU_NAVIGATION_VOLUME);
+  selectMenuItemSound.setVolume(AudioConstants::SoundEffects::MENU_SELECTION_VOLUME);
 
   // Load sound settings
   SettingStorage settingStorage;
