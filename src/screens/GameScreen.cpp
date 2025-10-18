@@ -4,7 +4,10 @@
 #include "../utils/ResourceLoader.hpp"
 #include "../utils/ScalingUtils.hpp"
 #include "../utils/SettingStorage.hpp"
-#include "../utils/TimerManager.hpp"
+#include "../utils/GameItemManager.hpp"
+#include "../utils/WallManager.hpp"
+#include "../utils/difficulty/DifficultyManager.hpp"
+#include "../config/AudioConstants.hpp"
 #include "HighScores.hpp"
 #include "PauseScreen.hpp"
 
@@ -24,23 +27,29 @@ GameScreen::GameScreen(sf::RenderWindow& win, Game& gameRef)
   // Initialize background music
   backgroundMusic = &ResourceLoader::getMusic(MusicType::BackgroundMusic);
   backgroundMusic->setLooping(true);
-  backgroundMusic->setVolume(1.0f);  // 25% volume
+  backgroundMusic->setVolume(AudioConstants::Music::BACKGROUND_MUSIC_VOLUME);
 
   // Set game over sound volume
-  gameOverSound.setVolume(10.0f);  // 50% volume
+  gameOverSound.setVolume(AudioConstants::SoundEffects::GAME_OVER_VOLUME);
   gameOverSoundPlayed = false;
 
-  // Set eating apple sound volume
-  eatAppleSound.setVolume(10.0f);  // 30% volume
+  // Set eat apple sound volume
+  eatAppleSound.setVolume(AudioConstants::SoundEffects::EAT_APPLE_VOLUME);
 
   // Set start game sound volume
-  startGameSound.setVolume(20.0f);  // 20% volume
+  startGameSound.setVolume(AudioConstants::SoundEffects::START_GAME_VOLUME);
 
   SettingStorage settingStorage;
 
   if (settingStorage.initialize()) {
     snake.setSnakeType(settingStorage.getSnakeType());
     game.setGameLevel(settingStorage.getGameLevel());
+
+    // Get difficulty settings for current level
+    this->difficultySettings = &DifficultyManager::getDifficultySettings(game.getGameLevel());
+
+    // Apply difficulty settings
+    snake.setSpeed(this->difficultySettings->getBaseSnakeSpeed());
 
     // Load sound settings
     soundEnabled = settingStorage.getGameSound();
@@ -54,12 +63,14 @@ GameScreen::GameScreen(sf::RenderWindow& win, Game& gameRef)
       countdownTimer.setDuration(settingStorage.getGameCountdownInSeconds());
       countdownTimer.start();
     }
+  } else {
+    // Fallback to default settings if setting storage fails
+    const auto& difficultySettings = DifficultyManager::getDifficultySettings(GameLevel::Easy);
+    snake.setSpeed(difficultySettings.getBaseSnakeSpeed());
   }
 
   // Initialize snake type timer for testing
   snakeTypeTimer.restart();
-
-  snake.setSpeed(settingStorage.getSnakeSpeed());
 
   gameUI = GameUI();
 
@@ -69,10 +80,28 @@ GameScreen::GameScreen(sf::RenderWindow& win, Game& gameRef)
   gameUI.setApples(0);
 
   // Initialize wall manager
-  wallManager = std::make_unique<WallManager>(gameGrid);
+  wallManager = std::make_unique<WallManager>(gameGrid, *difficultySettings);
 
-  // Initialize game item manager
-  gameItemManager = std::make_unique<GameItemManager>(gameGrid);
+  // Initialize game item manager with difficulty settings
+  gameItemManager = std::make_unique<GameItemManager>(gameGrid, *this->difficultySettings);
+
+  // Generate initial walls based on difficulty settings after snake is fully initialized
+  // Keep trying to generate walls until we reach the maximum count or fail multiple times
+  int wallsGenerated = 0;
+  int maxAttempts = difficultySettings->getWallCount() * 3;  // Allow more attempts than needed
+  int attempts = 0;
+
+  while (wallsGenerated < difficultySettings->getWallCount() && attempts < maxAttempts) {
+    if (wallManager->tryGenerateWall(snake)) {
+      wallsGenerated++;
+    }
+    attempts++;
+  }
+}
+
+GameScreen::~GameScreen() {
+  // Stop music when game screen is destroyed
+  pauseMusic();
 }
 
 void GameScreen::processEvents(const sf::Event& event) {
@@ -169,6 +198,13 @@ void GameScreen::update() {
 
   // Only update game logic if countdown is finished and not blinking
   if (countdownTimer.getIsFinished() && !isBlinking) {
+    // Check for automatic speed increase
+    if (speedIncreaseTimer.getElapsedTime().asSeconds() >= difficultySettings->getSpeedIncreaseInterval()) {
+      float currentSpeed = snake.getSpeed();
+      snake.setSpeed(currentSpeed + difficultySettings->getSpeedIncreaseRate());
+      speedIncreaseTimer.restart();
+    }
+
     // Move snake every step
     if (moveTimer.getElapsedTime().asSeconds() >= 1 / snake.getSpeed()) {
       snake.move();
@@ -188,7 +224,9 @@ void GameScreen::update() {
           // Make snake grow when eating any item
           snake.grow();
 
-          game.addScore(collidedItem->getPoints());
+          // Apply score multiplier from difficulty settings
+          int points = static_cast<int>(collidedItem->getPoints() * difficultySettings->getScoreMultiplier());
+          game.addScore(points);
           gameUI.setScore(game.getScore());
           gameUI.setApples(gameUI.getApples() + 1);
 
@@ -380,8 +418,8 @@ void GameScreen::resume() {
 
   countdownTimer.start();
 
-  // Music will resume when countdown finishes
-  musicStarted = false;
+  // Resume music
+  resumeMusic();
 
   // Unpause the game
   unpause();
@@ -391,6 +429,13 @@ void GameScreen::pauseMusic() {
   if (backgroundMusic && musicStarted) {
     backgroundMusic->stop();
     musicStarted = false;
+  }
+}
+
+void GameScreen::resumeMusic() {
+  if (backgroundMusic && musicEnabled && !musicStarted) {
+    backgroundMusic->play();
+    musicStarted = true;
   }
 }
 

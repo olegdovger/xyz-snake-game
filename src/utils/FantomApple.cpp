@@ -3,7 +3,7 @@
 #include "GameGrid.hpp"
 #include "ResourceLoader.hpp"
 
-FantomApple::FantomApple(sf::Vector2i position) : GameItem(position, 12.0f) {
+FantomApple::FantomApple(sf::Vector2i position, float lifetimeMultiplier) : GameItem(position, 12.0f * lifetimeMultiplier) {
 
   // Set up sprite
   sprite.setTexture(ResourceLoader::getTexture(TextureType::FantomApple));

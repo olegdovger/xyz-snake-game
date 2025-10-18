@@ -15,8 +15,9 @@ public:
      * @param boardWidth Board width in cells
      * @param boardHeight Board height in cells
      * @param snakeSpeed Current snake speed
+     * @param lifetimeMultiplier Multiplier for apple lifetime
      */
-  RedApple(sf::Vector2i position, int boardWidth, int boardHeight, float snakeSpeed);
+  RedApple(sf::Vector2i position, int boardWidth, int boardHeight, float snakeSpeed, float lifetimeMultiplier = 1.0f);
 
   void render(sf::RenderWindow& window, const GameGrid& grid) const override;
   int getPoints() const override { return 50; }

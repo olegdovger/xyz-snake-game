@@ -3,6 +3,7 @@
 #include <SFML/System/Clock.hpp>
 #include <vector>
 #include "PausableClock.hpp"
+#include "difficulty/DifficultySettings.hpp"
 
 class GameGrid;
 
@@ -12,7 +13,8 @@ class Wall {
 public:
   enum class WallType { Wall_1, Wall_2, Wall_3, Wall_4 };
 
-  explicit Wall(const std::vector<sf::Vector2i>& positions, WallType type = WallType::Wall_1);
+  explicit Wall(const std::vector<sf::Vector2i>& positions, WallType type = WallType::Wall_1,
+                const DifficultySettings* difficulty = nullptr);
 
   // Lifecycle
   void update(float deltaTime);
@@ -36,10 +38,11 @@ private:
   std::vector<sf::Vector2i> positions;
   WallType type;
   sf::Texture texture;
+  const DifficultySettings* difficultySettings;
 
   // Timing
   PausableClock lifetimeClock;
-  float lifetime;  // Random between 10-20 seconds
+  float lifetime;  // Random between 10-20 seconds, adjusted by difficulty
   bool expired;
 
   // Wall phases

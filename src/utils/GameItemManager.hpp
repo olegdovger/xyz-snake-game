@@ -5,6 +5,7 @@
 #include <vector>
 #include "GameGrid.hpp"
 #include "GameItem.hpp"
+#include "difficulty/DifficultySettings.hpp"
 
 class GameGrid;
 class GameItem;
@@ -22,8 +23,9 @@ public:
   /**
      * @brief Constructor
      * @param grid Game grid reference
+     * @param difficultySettings Difficulty settings for game parameters
      */
-  explicit GameItemManager(const GameGrid& grid);
+  explicit GameItemManager(const GameGrid& grid, const DifficultySettings& difficultySettings);
 
   /**
      * @brief Update all game items
@@ -88,9 +90,8 @@ private:
   mutable std::uniform_int_distribution<int> positionDistributionX;
   mutable std::uniform_int_distribution<int> positionDistributionY;
 
-  // Spawning parameters
-  static constexpr float SPAWN_INTERVAL = 0.3f;  // seconds (reduced for testing)
-  static constexpr int MAX_ITEMS = 15;
+  // Spawning parameters (now loaded from difficulty settings)
+  const DifficultySettings& difficultySettings;
   sf::Clock spawnTimer;
 
   /**

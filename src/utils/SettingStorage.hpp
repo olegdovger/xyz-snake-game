@@ -17,9 +17,9 @@ struct GameSettings {
   int snakeSpeed = 1;
   SnakeSprite::SnakeType snakeType = SnakeSprite::SnakeType::Purple;
   int snakeSize = 3;
-  GameLevel gameLevel = GameLevel::Easy;
-  bool gameMusic = false;
-  bool gameSound = false;
+  GameLevel gameLevel = GameLevel::Hard;
+  bool gameMusic = true;
+  bool gameSound = true;
   bool gameCountdownEnabled = true;
   int gameCountdownInSeconds = 3;
   bool gameCountdownSound = false;

@@ -5,7 +5,8 @@
 #include "../Snake.hpp"
 #include "GameGrid.hpp"
 
-WallManager::WallManager(const GameGrid& grid) : grid(grid) {}
+WallManager::WallManager(const GameGrid& grid, const DifficultySettings& difficulty)
+    : grid(grid), difficultySettings(difficulty) {}
 
 void WallManager::update(float deltaTime, const Snake& snake) {
   // Remove expired walls
@@ -16,8 +17,15 @@ void WallManager::update(float deltaTime, const Snake& snake) {
     wall->update(deltaTime);
   }
 
-  // Generate new wall every 20 seconds
-  if (wallGenerationTimer.getElapsedTime() >= WALL_GENERATION_INTERVAL) {
+  // Calculate wall generation interval based on difficulty
+  // More walls at higher difficulties (shorter interval)
+  float baseInterval = 20.0f;  // Base interval in seconds
+  float difficultyMultiplier =
+      1.0f + (difficultySettings.getWallCount() * 0.5f);  // Each wall level reduces interval by 50%
+  float adjustedInterval = baseInterval / difficultyMultiplier;
+
+  // Generate new wall based on adjusted interval
+  if (wallGenerationTimer.getElapsedTime() >= adjustedInterval) {
     tryGenerateWall(snake);
     wallGenerationTimer.restart();
   }
@@ -30,8 +38,16 @@ void WallManager::render(sf::RenderWindow& window, const GameGrid& grid) const {
 }
 
 bool WallManager::tryGenerateWall(const Snake& snake) {
-  // Check if we can add more walls (max 15% coverage)
-  if (getWallCoveragePercent() >= MAX_COVERAGE_PERCENT) {
+  // Check if we've reached the maximum wall count for this difficulty
+  if (getWallCount() >= difficultySettings.getWallCount()) {
+    return false;
+  }
+
+  // Calculate max coverage based on difficulty (more walls allowed at higher difficulties)
+  float maxCoverage = 5.0f + (difficultySettings.getWallCount() * 1.5f);  // Base 5% + 1.5% per wall level
+
+  // Check if we can add more walls
+  if (getWallCoveragePercent() >= maxCoverage) {
     return false;
   }
 
@@ -48,7 +64,7 @@ bool WallManager::tryGenerateWall(const Snake& snake) {
 
   // Create and add the wall
   auto wallType = getRandomWallType();
-  walls.push_back(std::make_unique<Wall>(positions, wallType));
+  walls.push_back(std::make_unique<Wall>(positions, wallType, &difficultySettings));
 
   return true;
 }
@@ -172,8 +188,11 @@ std::vector<sf::Vector2i> WallManager::generateRandomWallShape(sf::Vector2i star
   std::vector<sf::Vector2i> wallPositions;
   wallPositions.push_back(startPos);
 
-  // Generate wall size (1-7 cells)
-  std::uniform_int_distribution<int> sizeDis(MIN_WALL_SIZE, MAX_WALL_SIZE);
+  // Generate wall size based on difficulty (larger minimum walls at higher difficulties)
+  int minWallSize =
+      std::min(MAX_WALL_SIZE - 1, MIN_WALL_SIZE + static_cast<int>(difficultySettings.getWallCount() / 2));
+  int maxWallSize = std::max(minWallSize + 1, MAX_WALL_SIZE - static_cast<int>(difficultySettings.getWallCount() / 3));
+  std::uniform_int_distribution<int> sizeDis(minWallSize, maxWallSize);
   int wallSize = sizeDis(gen);
 
   // Generate random shape patterns
@@ -267,10 +286,13 @@ std::vector<sf::Vector2i> WallManager::generateRandomWallShape(sf::Vector2i star
 }
 
 bool WallManager::isPositionFarFromWalls(sf::Vector2i position) const {
+  // Calculate minimum distance based on difficulty (less distance required at higher difficulties)
+  int minDistance = std::max(1, 3 - static_cast<int>(difficultySettings.getWallCount() / 2));
+
   for (const auto& wall : walls) {
     for (const auto& wallPos : wall->getPositions()) {
       int distance = std::abs(position.x - wallPos.x) + std::abs(position.y - wallPos.y);
-      if (distance <= MIN_DISTANCE_BETWEEN_WALLS) {
+      if (distance <= minDistance) {
         return false;
       }
     }

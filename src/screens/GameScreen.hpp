@@ -13,6 +13,7 @@
 class GameScreen final : public Screen {
 public:
   explicit GameScreen(sf::RenderWindow& win, Game& gameRef);
+  ~GameScreen();
 
   void processEvents(const sf::Event& event) override;
 
@@ -26,6 +27,7 @@ public:
   void resume();
 
   void pauseMusic();
+  void resumeMusic();
 
   void pause();
 
@@ -46,6 +48,9 @@ private:
 
   // Game Items
   std::unique_ptr<GameItemManager> gameItemManager;
+  
+  // Difficulty settings
+  const DifficultySettings* difficultySettings;
 
   // Countdown timer
   CountdownTimer countdownTimer;
@@ -71,6 +76,7 @@ private:
   // Timing
   sf::Clock moveTimer;
   sf::Clock snakeTypeTimer;
+  sf::Clock speedIncreaseTimer;  // Timer for automatic speed increases
   static constexpr float SNAKE_MOVE_INTERVAL = 1.0f;         // seconds
   static constexpr float SNAKE_TYPE_CHANGE_INTERVAL = 1.0f;  // seconds
 

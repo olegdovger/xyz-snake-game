@@ -1,8 +1,9 @@
 #include "DifficultyScreen.hpp"
-#include <iostream>
+
 #include "../utils/ResourceLoader.hpp"
 #include "../utils/ScalingUtils.hpp"
 #include "../utils/SettingStorage.hpp"
+#include "../utils/difficulty/DifficultyManager.hpp"
 #include "GameScreen.hpp"
 #include "MainMenu.hpp"
 
@@ -38,9 +39,11 @@ DifficultyScreen::DifficultyScreen(sf::RenderWindow& win, Game& gameRef)
 void DifficultyScreen::processEvents(const sf::Event& event) {
   if (event.is<sf::Event::KeyPressed>()) {
     switch (event.getIf<sf::Event::KeyPressed>()->code) {
+      case sf::Keyboard::Key::W:
       case sf::Keyboard::Key::Up:
         selectPreviousDifficulty();
         break;
+      case sf::Keyboard::Key::S:
       case sf::Keyboard::Key::Down:
         selectNextDifficulty();
         break;
@@ -128,15 +131,32 @@ void DifficultyScreen::renderBackButton() {
 }
 
 void DifficultyScreen::initializeDifficultyItems() {
-  std::vector<std::wstring> textItems = {L"Легкий", L"Труднее, чем легкий", L"Средний", L"Труднее, чем средний",
-                                         L"Сложный"};
+  std::vector<GameLevel> levels = {GameLevel::Easy, GameLevel::HarderThanEasy, GameLevel::Middle,
+                                   GameLevel::HarderThanMiddle, GameLevel::Hard};
 
   difficultyItems.clear();
-  difficultyItems.reserve(textItems.size());
+  difficultyItems.reserve(levels.size());
 
-  for (size_t i = 0; i < textItems.size(); ++i) {
+  // Load current difficulty from settings file
+  SettingStorage settingStorage;
+  if (settingStorage.initialize()) {
+    GameLevel currentLevel = settingStorage.getSettings().gameLevel;
+
+    // Find and set the selected difficulty index
+    for (size_t i = 0; i < levels.size(); ++i) {
+      if (levels[i] == currentLevel) {
+        selectedDifficultyIndex = static_cast<int>(i);
+        break;
+      }
+    }
+
+  } else {
+    // Failed to load settings, using default difficulty
+  }
+
+  for (size_t i = 0; i < levels.size(); ++i) {
     sf::Text text(font);
-    text.setString(textItems[i]);
+    text.setString(DifficultyManager::getDifficultyDisplayName(levels[i]));
     text.setCharacterSize(32);
     text.setFillColor(sf::Color::White);
     difficultyItems.push_back(text);
@@ -157,35 +177,16 @@ void DifficultyScreen::confirmSelection() {
 
   if (selectedDifficultyIndex < levels.size()) {
     game.setGameLevel(levels[selectedDifficultyIndex]);
-    std::cout << "Selected difficulty: " << getDifficultyDisplayName(levels[selectedDifficultyIndex]) << std::endl;
 
     // Save settings to file
     SettingStorage settingStorage;
     settingStorage.setGameLevel(levels[selectedDifficultyIndex]);
     if (settingStorage.saveSettings()) {
-      std::cout << "Difficulty saved to settings" << std::endl;
     } else {
-      std::cerr << "Failed to save difficulty to settings" << std::endl;
+      // Failed to save difficulty to settings
     }
 
     // Navigate to game screen
     game.setCurrentScreen(new GameScreen(window, game));
-  }
-}
-
-std::string DifficultyScreen::getDifficultyDisplayName(GameLevel level) {
-  switch (level) {
-    case GameLevel::Easy:
-      return "Easy";
-    case GameLevel::HarderThanEasy:
-      return "Harder Than Easy";
-    case GameLevel::Middle:
-      return "Middle";
-    case GameLevel::HarderThanMiddle:
-      return "Harder Than Middle";
-    case GameLevel::Hard:
-      return "Hard";
-    default:
-      return "Unknown";
   }
 }

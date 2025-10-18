@@ -1,11 +1,8 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include <memory>
-#include <string>
 #include <vector>
 #include "../Screen.hpp"
-#include "../utils/SettingStorage.hpp"
 
 class DifficultyScreen : public Screen {
 public:
@@ -19,6 +16,7 @@ private:
   sf::RectangleShape screenRect;
   sf::Font font;
   sf::Text titleText;
+
   sf::Text backText;
   std::vector<sf::Text> difficultyItems;
   int selectedDifficultyIndex = 0;
@@ -47,10 +45,10 @@ private:
   void renderScreenRect();
   void renderScreenItems();
   void renderTitle();
+
   void renderBackButton();
   void initializeDifficultyItems();
   void selectNextDifficulty();
   void selectPreviousDifficulty();
   void confirmSelection();
-  std::string getDifficultyDisplayName(GameLevel level);
 };

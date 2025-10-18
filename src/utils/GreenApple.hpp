@@ -11,8 +11,9 @@ public:
   /**
      * @brief Constructor
      * @param position Grid position
+     * @param lifetimeMultiplier Multiplier for apple lifetime
      */
-  GreenApple(sf::Vector2i position);
+  GreenApple(sf::Vector2i position, float lifetimeMultiplier = 1.0f);
 
   void render(sf::RenderWindow& window, const GameGrid& grid) const override;
   int getPoints() const override { return 10; }

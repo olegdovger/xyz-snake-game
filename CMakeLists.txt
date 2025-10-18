@@ -53,6 +53,7 @@ add_executable(${PROJECT_NAME}
         "src/screens/HighScores.cpp"
         "src/screens/Settings.cpp"
         "src/screens/Exit.cpp"
+        "src/config/AudioConstants.hpp"
         "src/utils/EventLogger.cpp"
         "src/utils/DebugUI.cpp"
         "src/utils/ResourceLoader.cpp"
@@ -73,6 +74,8 @@ add_executable(${PROJECT_NAME}
         "src/utils/GreenApple.cpp"
         "src/utils/WaterBubble.cpp"
         "src/utils/FantomApple.cpp"
+        "src/utils/difficulty/DifficultySettings.cpp"
+        "src/utils/difficulty/DifficultyManager.cpp"
         "src/SnakeSprite.cpp"
         "src/Snake.cpp"
 )

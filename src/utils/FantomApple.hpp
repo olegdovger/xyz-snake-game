@@ -13,8 +13,9 @@ public:
   /**
      * @brief Constructor
      * @param position Grid position
+     * @param lifetimeMultiplier Multiplier for apple lifetime
      */
-  FantomApple(sf::Vector2i position);
+  FantomApple(sf::Vector2i position, float lifetimeMultiplier = 1.0f);
 
   void render(sf::RenderWindow& window, const GameGrid& grid) const override;
   int getPoints() const override { return 0; }  // Points are per-cell, not per apple
