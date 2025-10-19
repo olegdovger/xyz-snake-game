@@ -8,6 +8,10 @@ on:
   release:
     types: [ published ]
 
+env:
+  LC_ALL: ru_RU.UTF-8
+  LANG: ru_RU.UTF-8
+
 permissions:
   contents: write
 
@@ -28,6 +32,7 @@ jobs:
       run: |
         sudo apt update
         sudo apt install -y libsfml-dev libx11-dev libxrandr-dev libxcursor-dev libxi-dev libudev-dev libfreetype6-dev
+        sudo locale-gen ru_RU.UTF-8
         
     - name: Set up dependencies (macOS)
       if: runner.os == 'macOS'
