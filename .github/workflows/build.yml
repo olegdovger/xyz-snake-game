@@ -41,7 +41,7 @@ jobs:
         
     - name: Configure CMake
       run: |
-        cmake -B build -DCMAKE_BUILD_TYPE=Release -DSFML_DISABLE_JOYSTICK=TRUE
+        cmake -B build -DCMAKE_BUILD_TYPE=Release -DSFML_DISABLE_JOYSTICK=TRUE -DCMAKE_CXX_FLAGS="-finput-charset=UTF-8 -fexec-charset=UTF-8"
         
     - name: Build
       run: |
