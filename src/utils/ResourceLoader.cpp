@@ -4,7 +4,6 @@
 #include <SFML/Graphics/Font.hpp>
 #include <iostream>
 
-
 const std::string FONT_NAMES[] = {
     "debug_font",  // FontType::DebugFont
     "ui_font"      // FontType::UIFont
@@ -90,28 +89,6 @@ bool ResourceLoader::loadFonts() {
                       "resources/fonts/JetBrainsMono"
                       "/fonts/ttf/JetBrainsMono-Regular.ttf");
   success &= loadFont(fontTypeToString(FontType::UIFont), "resources/fonts/Jersey_10/Jersey10-Regular.ttf");
-
-  // Ensure the loaded fonts include Unicode characters for Cyrillic text
-  if (success) {
-    auto& debugFont = getFontManager().getResource(fontTypeToString(FontType::DebugFont));
-    auto& uiFont = getFontManager().getResource(fontTypeToString(FontType::UIFont));
-
-    // Load a basic set of Cyrillic characters to ensure they're included
-    // This is a workaround for SFML not loading all characters by default
-    std::wstring cyrillicChars = L"АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя";
-
-    sf::Text tempText1(debugFont);
-    tempText1.setString(cyrillicChars);
-
-    // Force SFML to generate the glyph textures for Cyrillic characters
-    for (wchar_t ch : cyrillicChars) {
-      (void)debugFont.getGlyph(ch, 24, false);
-      (void)uiFont.getGlyph(ch, 24, false);
-    }
-
-    sf::Text tempText2(uiFont);
-    tempText2.setString(cyrillicChars);
-  }
 
   return success;
 }
