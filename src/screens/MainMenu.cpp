@@ -1,10 +1,9 @@
 #include "MainMenu.hpp"
 #include <iostream>
+#include "../config/AudioConstants.hpp"
 #include "../utils/ResourceLoader.hpp"
 #include "../utils/ScalingUtils.hpp"
 #include "../utils/SettingStorage.hpp"
-#include "../config/AudioConstants.hpp"
-#include "Settings.hpp"
 #include "DifficultyScreen.hpp"
 #include "Exit.hpp"
 #include "GameScreen.hpp"
@@ -40,11 +39,9 @@ MainMenu::MainMenu(sf::RenderWindow& win, Game& gameRef)
   setActiveMenuItemSound.setVolume(AudioConstants::SoundEffects::MENU_NAVIGATION_VOLUME);
   selectMenuItemSound.setVolume(AudioConstants::SoundEffects::MENU_SELECTION_VOLUME);
 
-  // Load sound settings
-  SettingStorage settingStorage;
-  if (settingStorage.initialize()) {
-    soundEnabled = settingStorage.getGameSound();
-  }
+  game.loadSettings();
+
+  soundEnabled = game.getSettingsReader().getGameSound();
 
   initializeMenuItems();
 }

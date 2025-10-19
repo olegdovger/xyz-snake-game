@@ -42,6 +42,9 @@ FetchContent_Declare(SFML
         SYSTEM)
 FetchContent_MakeAvailable(SFML)
 
+# Add include directory for nlohmann
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+
 add_executable(${PROJECT_NAME}
         "src/main.cpp"
         "src/Game.cpp"

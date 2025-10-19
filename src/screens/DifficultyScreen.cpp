@@ -1,5 +1,6 @@
 #include "DifficultyScreen.hpp"
 
+#include "../config/AudioConstants.hpp"
 #include "../utils/ResourceLoader.hpp"
 #include "../utils/ScalingUtils.hpp"
 #include "../utils/SettingStorage.hpp"
@@ -10,14 +11,17 @@
 using namespace shape;
 
 DifficultyScreen::DifficultyScreen(sf::RenderWindow& win, Game& gameRef)
-    : Screen(win, gameRef), titleText(font), backText(font) {
-  // Initialize screen rectangle
+    : Screen(win, gameRef),
+      titleText(font),
+      backText(font),
+      setActiveMenuItemSound(ResourceLoader::getSound(SoundType::SetActiveMenuItem)),
+      selectMenuItemSound(ResourceLoader::getSound(SoundType::SelectMenuItem)) {
+
   screenRect.setSize(originSize);
   screenRect.setFillColor(menuBackgroundColor);
   screenRect.setOutlineColor(borderColor);
   screenRect.setOutlineThickness(10.0f);
 
-  // Initialize title
   font = ResourceLoader::getFont(FontType::DebugFont);
 
   titleText.setFont(font);
@@ -32,8 +36,12 @@ DifficultyScreen::DifficultyScreen(sf::RenderWindow& win, Game& gameRef)
   backText.setFillColor(sf::Color::White);
   backText.setStyle(sf::Text::Bold);
 
-  // Initialize difficulty items
   initializeDifficultyItems();
+
+  setActiveMenuItemSound.setVolume(AudioConstants::SoundEffects::MENU_NAVIGATION_VOLUME);
+  selectMenuItemSound.setVolume(AudioConstants::SoundEffects::MENU_SELECTION_VOLUME);
+
+  game.loadSettings();
 }
 
 void DifficultyScreen::processEvents(const sf::Event& event) {
@@ -42,14 +50,29 @@ void DifficultyScreen::processEvents(const sf::Event& event) {
       case sf::Keyboard::Key::W:
       case sf::Keyboard::Key::Up:
         selectPreviousDifficulty();
+
+        if (game.getSettingsReader().getGameSound()) {
+          setActiveMenuItemSound.play();
+        }
+
         break;
       case sf::Keyboard::Key::S:
       case sf::Keyboard::Key::Down:
         selectNextDifficulty();
+
+        if (game.getSettingsReader().getGameSound()) {
+          setActiveMenuItemSound.play();
+        }
+
         break;
       case sf::Keyboard::Key::Enter:
       case sf::Keyboard::Key::Space:
+        if (game.getSettingsReader().getGameSound()) {
+          selectMenuItemSound.play();
+        }
+
         confirmSelection();
+        game.setCurrentScreen(new MainMenu(window, game));
         break;
       case sf::Keyboard::Key::Escape:
         game.setCurrentScreen(new MainMenu(window, game));
@@ -131,20 +154,23 @@ void DifficultyScreen::renderBackButton() {
 }
 
 void DifficultyScreen::initializeDifficultyItems() {
-  std::vector<GameLevel> levels = {GameLevel::Easy, GameLevel::HarderThanEasy, GameLevel::Middle,
-                                   GameLevel::HarderThanMiddle, GameLevel::Hard};
+  std::vector<GameDifficultyLevel> difficultyLevels = {
+      GameDifficultyLevel::Easy, GameDifficultyLevel::HarderThanEasy, GameDifficultyLevel::Middle,
+      GameDifficultyLevel::HarderThanMiddle, GameDifficultyLevel::Hard};
 
   difficultyItems.clear();
-  difficultyItems.reserve(levels.size());
+  difficultyItems.reserve(difficultyLevels.size());
 
   // Load current difficulty from settings file
   SettingStorage settingStorage;
-  if (settingStorage.initialize()) {
-    GameLevel currentLevel = settingStorage.getSettings().gameLevel;
+  bool settingsLoaded = settingStorage.loadSettings();
+
+  if (settingsLoaded) {
+    GameDifficultyLevel currentDifficultyLevel = settingStorage.getGameDifficultyLevel();
 
     // Find and set the selected difficulty index
-    for (size_t i = 0; i < levels.size(); ++i) {
-      if (levels[i] == currentLevel) {
+    for (size_t i = 0; i < difficultyLevels.size(); ++i) {
+      if (difficultyLevels[i] == currentDifficultyLevel) {
         selectedDifficultyIndex = static_cast<int>(i);
         break;
       }
@@ -154,9 +180,9 @@ void DifficultyScreen::initializeDifficultyItems() {
     // Failed to load settings, using default difficulty
   }
 
-  for (size_t i = 0; i < levels.size(); ++i) {
+  for (size_t i = 0; i < difficultyLevels.size(); ++i) {
     sf::Text text(font);
-    text.setString(DifficultyManager::getDifficultyDisplayName(levels[i]));
+    text.setString(DifficultyManager::getDifficultyDisplayName(difficultyLevels[i]));
     text.setCharacterSize(32);
     text.setFillColor(sf::Color::White);
     difficultyItems.push_back(text);
@@ -172,21 +198,15 @@ void DifficultyScreen::selectPreviousDifficulty() {
 }
 
 void DifficultyScreen::confirmSelection() {
-  std::vector<GameLevel> levels = {GameLevel::Easy, GameLevel::HarderThanEasy, GameLevel::Middle,
-                                   GameLevel::HarderThanMiddle, GameLevel::Hard};
+  std::vector<GameDifficultyLevel> difficultyLevels = {
+      GameDifficultyLevel::Easy, GameDifficultyLevel::HarderThanEasy, GameDifficultyLevel::Middle,
+      GameDifficultyLevel::HarderThanMiddle, GameDifficultyLevel::Hard};
 
-  if (selectedDifficultyIndex < levels.size()) {
-    game.setGameLevel(levels[selectedDifficultyIndex]);
+  if (selectedDifficultyIndex < difficultyLevels.size()) {
 
-    // Save settings to file
     SettingStorage settingStorage;
-    settingStorage.setGameLevel(levels[selectedDifficultyIndex]);
-    if (settingStorage.saveSettings()) {
-    } else {
-      // Failed to save difficulty to settings
-    }
+    settingStorage.setGameDifficultyLevel(difficultyLevels[selectedDifficultyIndex]);
 
-    // Navigate to game screen
-    game.setCurrentScreen(new GameScreen(window, game));
+    settingStorage.saveSettings();
   }
 }

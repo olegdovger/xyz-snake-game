@@ -25,6 +25,8 @@ HighScores::HighScores(sf::RenderWindow& win, Game& gameRef) : Screen(win, gameR
   backText.setCharacterSize(24);
   backText.setFillColor(sf::Color::White);
   backText.setStyle(sf::Text::Bold);
+
+  game.loadSettings();
 }
 
 void HighScores::processEvents(const sf::Event& event) {
@@ -96,9 +98,22 @@ void HighScores::renderScores() {
         screenRect.getPosition().y + 100.0f * screenRect.getScale().y + i * 50.0f * screenRect.getScale().y));
 
     item.setScale(screenRect.getScale());
-    window.draw(item);
 
+    // Check if this is the last occurrence of currentScore
+    bool isLastOccurrence = false;
     if (currentScore == recordTable[i]) {
+      isLastOccurrence = true;
+      // Check if there are any later occurrences
+      for (size_t j = i + 1; j < recordTable.size(); ++j) {
+        if (currentScore == recordTable[j]) {
+          isLastOccurrence = false;
+          break;
+        }
+      }
+    }
+
+    // Set color based on whether this is the last occurrence
+    if (isLastOccurrence) {
       item.setFillColor(sf::Color::Green);
     } else {
       item.setFillColor(sf::Color::White);

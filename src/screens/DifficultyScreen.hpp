@@ -1,5 +1,6 @@
 #pragma once
 
+#include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include "../Screen.hpp"
@@ -51,4 +52,8 @@ private:
   void selectNextDifficulty();
   void selectPreviousDifficulty();
   void confirmSelection();
+
+  // Menu sounds
+  sf::Sound setActiveMenuItemSound;
+  sf::Sound selectMenuItemSound;
 };

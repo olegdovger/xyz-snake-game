@@ -1,13 +1,13 @@
 #include "GameScreen.hpp"
+#include "../config/AudioConstants.hpp"
 #include "../utils/GameItem.hpp"
+#include "../utils/GameItemManager.hpp"
 #include "../utils/GameUI.hpp"
 #include "../utils/ResourceLoader.hpp"
 #include "../utils/ScalingUtils.hpp"
 #include "../utils/SettingStorage.hpp"
-#include "../utils/GameItemManager.hpp"
 #include "../utils/WallManager.hpp"
 #include "../utils/difficulty/DifficultyManager.hpp"
-#include "../config/AudioConstants.hpp"
 #include "HighScores.hpp"
 #include "PauseScreen.hpp"
 
@@ -17,78 +17,55 @@ GameScreen::GameScreen(sf::RenderWindow& win, Game& gameRef)
     : Screen(win, gameRef),
       gameGrid(32, 32, 824.0f, sf::Vector2f(0, 0), 1.0f, 912.0f),
       snake(sf::Vector2i(16, 16), 5),
-      countdownTimer(1, false),  // Will be set based on settings
-      currentSnakeTypeIndex(0),
+      countdownTimer(1, false),
       gameOverSound(ResourceLoader::getSound(SoundType::GameOver)),
       eatAppleSound(ResourceLoader::getSound(SoundType::EatApple)),
       startGameSound(ResourceLoader::getSound(SoundType::StartGame)) {
   initializeGrid();
 
-  // Initialize background music
   backgroundMusic = &ResourceLoader::getMusic(MusicType::BackgroundMusic);
   backgroundMusic->setLooping(true);
   backgroundMusic->setVolume(AudioConstants::Music::BACKGROUND_MUSIC_VOLUME);
 
-  // Set game over sound volume
   gameOverSound.setVolume(AudioConstants::SoundEffects::GAME_OVER_VOLUME);
   gameOverSoundPlayed = false;
 
-  // Set eat apple sound volume
   eatAppleSound.setVolume(AudioConstants::SoundEffects::EAT_APPLE_VOLUME);
-
-  // Set start game sound volume
   startGameSound.setVolume(AudioConstants::SoundEffects::START_GAME_VOLUME);
 
-  SettingStorage settingStorage;
+  game.loadSettings();
 
-  if (settingStorage.initialize()) {
-    snake.setSnakeType(settingStorage.getSnakeType());
-    game.setGameLevel(settingStorage.getGameLevel());
+  soundEnabled = game.getSettingsReader().getGameSound();
+  musicEnabled = game.getSettingsReader().getGameMusic();
 
-    // Get difficulty settings for current level
-    this->difficultySettings = &DifficultyManager::getDifficultySettings(game.getGameLevel());
+  snake.setSnakeType(game.getSettingsReader().getSnakeType());
 
-    // Apply difficulty settings
-    snake.setSpeed(this->difficultySettings->getBaseSnakeSpeed());
+  this->difficultySettings =
+      &DifficultyManager::getDifficultySettings(game.getSettingsReader().getGameDifficultyLevel());
 
-    // Load sound settings
-    soundEnabled = settingStorage.getGameSound();
-    musicEnabled = settingStorage.getGameMusic();
+  snake.setSpeed(this->difficultySettings->getBaseSnakeSpeed());
 
-    // Set countdown timer sound setting
-    countdownTimer.setSoundEnabled(soundEnabled);
+  countdownTimer.setSoundEnabled(soundEnabled);
 
-    // Configure countdown timer based on settings
-    if (settingStorage.getGameCountdownEnabled()) {
-      countdownTimer.setDuration(settingStorage.getGameCountdownInSeconds());
-      countdownTimer.start();
-    }
-  } else {
-    // Fallback to default settings if setting storage fails
-    const auto& difficultySettings = DifficultyManager::getDifficultySettings(GameLevel::Easy);
-    snake.setSpeed(difficultySettings.getBaseSnakeSpeed());
+  if (game.getSettingsReader().getGameCountdownEnabled()) {
+    countdownTimer.setDuration(game.getSettingsReader().getGameCountdownInSeconds());
+    countdownTimer.start();
   }
 
-  // Initialize snake type timer for testing
   snakeTypeTimer.restart();
 
   gameUI = GameUI();
 
-  // Reset game score and GameUI score
   game.resetScore();
   gameUI.setScore(0);
   gameUI.setApples(0);
 
-  // Initialize wall manager
   wallManager = std::make_unique<WallManager>(gameGrid, *difficultySettings);
 
-  // Initialize game item manager with difficulty settings
   gameItemManager = std::make_unique<GameItemManager>(gameGrid, *this->difficultySettings);
 
-  // Generate initial walls based on difficulty settings after snake is fully initialized
-  // Keep trying to generate walls until we reach the maximum count or fail multiple times
   int wallsGenerated = 0;
-  int maxAttempts = difficultySettings->getWallCount() * 3;  // Allow more attempts than needed
+  int maxAttempts = difficultySettings->getWallCount() * 3;
   int attempts = 0;
 
   while (wallsGenerated < difficultySettings->getWallCount() && attempts < maxAttempts) {
@@ -100,7 +77,6 @@ GameScreen::GameScreen(sf::RenderWindow& win, Game& gameRef)
 }
 
 GameScreen::~GameScreen() {
-  // Stop music when game screen is destroyed
   pauseMusic();
 }
 
@@ -109,7 +85,6 @@ void GameScreen::processEvents(const sf::Event& event) {
   if (event.is<sf::Event::KeyPressed>()) {
     switch (event.getIf<sf::Event::KeyPressed>()->code) {
       case sf::Keyboard::Key::Escape:
-        // Pause game
         pause();
         pauseMusic();
         game.setCurrentScreenWithPrevious(new PauseScreen(window, game), this);
@@ -156,22 +131,18 @@ void GameScreen::processEvents(const sf::Event& event) {
 }
 
 void GameScreen::update() {
-  // Skip all game calculations when paused
   if (isPaused) {
     return;
   }
 
-  // Update walls
   if (wallManager) {
-    wallManager->update(1.0f / 60.0f, snake);  // Assuming 60 FPS
+    wallManager->update(1.0f / 60.0f, snake);
   }
 
-  // Update game items only after countdown finishes
   if (gameItemManager && countdownTimer.getIsFinished()) {
-    gameItemManager->update(1.0f / 60.0f, snake);  // Assuming 60 FPS
+    gameItemManager->update(1.0f / 60.0f, snake);
   }
 
-  // Handle blinking effect
   if (isBlinking) {
     if (blinkTimer.getElapsedTime().asSeconds() >= BLINK_DURATION) {
       blinkCount++;
@@ -185,69 +156,55 @@ void GameScreen::update() {
     }
   }
 
-  // Start music when countdown finishes
   if (countdownTimer.getIsFinished() && !musicStarted && !isBlinking) {
     if (musicEnabled) {
       backgroundMusic->play();
     }
     musicStarted = true;
     if (soundEnabled) {
-      startGameSound.play();  // Play start game sound when countdown finishes
+      startGameSound.play();
     }
   }
 
-  // Only update game logic if countdown is finished and not blinking
   if (countdownTimer.getIsFinished() && !isBlinking) {
-    // Check for automatic speed increase
     if (speedIncreaseTimer.getElapsedTime().asSeconds() >= difficultySettings->getSpeedIncreaseInterval()) {
       float currentSpeed = snake.getSpeed();
       snake.setSpeed(currentSpeed + difficultySettings->getSpeedIncreaseRate());
       speedIncreaseTimer.restart();
     }
 
-    // Move snake every step
     if (moveTimer.getElapsedTime().asSeconds() >= 1 / snake.getSpeed()) {
       snake.move();
 
-      // Check game item collisions
       if (gameItemManager) {
         auto* collidedItem = gameItemManager->checkCollision(snake.getHead());
         if (collidedItem) {
-          // Play eating apple sound
           if (soundEnabled) {
             eatAppleSound.play();
           }
 
-          // Apply item effects
           collidedItem->applySpecialEffects(snake);
 
-          // Make snake grow when eating any item
           snake.grow();
 
-          // Apply score multiplier from difficulty settings
           int points = static_cast<int>(collidedItem->getPoints() * difficultySettings->getScoreMultiplier());
           game.addScore(points);
           gameUI.setScore(game.getScore());
           gameUI.setApples(gameUI.getApples() + 1);
 
-          // Remove the item immediately
           gameItemManager->removeItem(collidedItem);
         }
       }
 
-      // Check collisions with walls, grid boundaries, and self
       bool wallCollision = false;
       if (wallManager && !snake.isInvincible()) {
         wallCollision = wallManager->checkWallCollision(snake.getHead());
       }
 
-      // Always check grid boundary collisions and self collisions
-      // Internal wall collisions are only checked when not invincible
       if (wallCollision || snake.checkWallCollision(gameGrid.getCols(), gameGrid.getRows()) ||
           snake.checkSelfCollision()) {
         pauseMusic();
 
-        // Play game over sound only once
         if (!gameOverSoundPlayed) {
           if (soundEnabled) {
             gameOverSound.play();
@@ -263,7 +220,6 @@ void GameScreen::update() {
     }
   }
 
-  // Update countdown timer
   countdownTimer.update();
 }
 
@@ -278,8 +234,6 @@ sf::Sprite GameScreen::renderBoardBorder() const {
   const auto position = getPosition(sf::Vector2f(sprite.getTexture().getSize()), window.getSize(), scale);
 
   sprite.setPosition(position);
-
-  // sprite.setColor(sf::Color(255, 255, 255, 48));
 
   window.draw(sprite);
 
@@ -298,13 +252,10 @@ void GameScreen::renderBoardGrid() const {
 
   sprite.setPosition(position);
 
-  // sprite.setColor(sf::Color(255, 255, 255, 128));
-
   window.draw(sprite);
 }
 
 void GameScreen::renderDebugGrid() const {
-  // Draw border using GameGrid data
   sf::RectangleShape border(sf::Vector2f(gameGrid.getGridBounds().size.x, gameGrid.getGridBounds().size.y));
   border.setFillColor(sf::Color::Transparent);
   border.setOutlineColor(sf::Color(255, 255, 255, 128));
@@ -314,14 +265,12 @@ void GameScreen::renderDebugGrid() const {
 
   window.draw(border);
 
-  // Draw cells using GameGrid data
   sf::RectangleShape cell(sf::Vector2f(gameGrid.getCellSize(), gameGrid.getCellSize()));
   cell.setScale(sf::Vector2f(gameGrid.getScale(), gameGrid.getScale()));
   cell.setFillColor(sf::Color::Transparent);
   cell.setOutlineColor(sf::Color(0, 255, 0, 128));
   cell.setOutlineThickness(1.0f * gameGrid.getScale());
 
-  // Render all cells using GameGrid
   for (int row = 0; row < gameGrid.getRows(); ++row) {
     for (int col = 0; col < gameGrid.getCols(); ++col) {
       cell.setPosition(gameGrid.getCellPosition(row, col));
@@ -351,9 +300,7 @@ void GameScreen::render() {
 
   snake.render(window, gameGrid);
 
-  // Render countdown timer last to be on top of everything
   if (countdownTimer.getIsActive()) {
-    // Center the countdown text on screen
     sf::Vector2u windowSize = window.getSize();
     countdownTimer.setPosition(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f));
     countdownTimer.render(window);
@@ -361,7 +308,6 @@ void GameScreen::render() {
 }
 
 void GameScreen::renderGameUI(const sf::Sprite& boardBorder) const {
-  // scale it
   const auto boardBorderSize = boardBorder.getLocalBounds().size;
   const auto position =
       getPosition(sf::Vector2f(boardBorder.getTexture().getSize()), window.getSize(), boardBorder.getScale().x);
@@ -378,20 +324,16 @@ void GameScreen::restartCountdown() {
 }
 
 void GameScreen::handleGameOver() {
-  if (!gameOver) {
-    gameOver = true;
+  if (gameOver)
+    return;
 
-    // Score is already tracked properly through item collection
-    int finalScore = game.getScore();
+  gameOver = true;
 
-    // Save score to record table if it qualifies
-    if (game.isNewHighScore()) {
-      game.saveScoreToRecordTable();
-    }
-
-    // Switch to HighScores screen to show the updated record table
-    game.setCurrentScreen(new HighScores(window, game));
+  if (game.isNewHighScore()) {
+    game.saveScoreToRecordTable();
   }
+
+  game.setCurrentScreen(new HighScores(window, game));
 }
 
 void GameScreen::initializeGrid() {
@@ -400,7 +342,6 @@ void GameScreen::initializeGrid() {
 
   const auto position = getPosition(sf::Vector2f(gridSize, gridSize), window.getSize(), scale);
 
-  // Update the game grid with new position and scale
   gameGrid.updateGrid(position, scale);
 }
 
@@ -409,7 +350,6 @@ void GameScreen::updateGrid() {
   const float scale = getScale(sf::Vector2f(gridSize, gridSize), window.getSize()) * scaleRelativeFactor;
   const auto position = getPosition(sf::Vector2f(gridSize, gridSize), window.getSize(), scale);
 
-  // Update the game grid with new position and scale
   gameGrid.updateGrid(position, scale);
 }
 
@@ -418,10 +358,8 @@ void GameScreen::resume() {
 
   countdownTimer.start();
 
-  // Resume music
   resumeMusic();
 
-  // Unpause the game
   unpause();
 }
 
@@ -442,14 +380,12 @@ void GameScreen::resumeMusic() {
 void GameScreen::pause() {
   isPaused = true;
 
-  // Pause all timers globally
   TimerManager::getInstance().pauseAll();
 }
 
 void GameScreen::unpause() {
   isPaused = false;
 
-  // Unpause all timers globally
   TimerManager::getInstance().unpauseAll();
 }
 

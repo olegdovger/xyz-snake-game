@@ -1,12 +1,12 @@
 #include "PauseScreen.hpp"
 #include <iostream>
+#include "../config/AudioConstants.hpp"
 #include "../utils/ResourceLoader.hpp"
 #include "../utils/ScalingUtils.hpp"
 #include "../utils/SettingStorage.hpp"
-#include "../config/AudioConstants.hpp"
 
-#include "MainMenu.hpp"
 #include "Exit.hpp"
+#include "MainMenu.hpp"
 
 using namespace shape;
 
@@ -44,11 +44,8 @@ PauseScreen::PauseScreen(sf::RenderWindow& win, Game& gameRef)
   setActiveMenuItemSound.setVolume(AudioConstants::SoundEffects::MENU_NAVIGATION_VOLUME);
   selectMenuItemSound.setVolume(AudioConstants::SoundEffects::MENU_SELECTION_VOLUME);
 
-  // Load sound settings
-  SettingStorage settingStorage;
-  if (settingStorage.initialize()) {
-    soundEnabled = settingStorage.getGameSound();
-  }
+  game.loadSettings();
+  soundEnabled = game.getSettingsReader().getGameSound();
 
   initializeMenuItems();
 }
@@ -77,7 +74,7 @@ void PauseScreen::processEvents(const sf::Event& event) {
         std::cout << "Keypressed up(w)" << std::endl;
         selectedIndex = (selectedIndex - 1 + MENU_ITEMS_COUNT) % MENU_ITEMS_COUNT;
         if (soundEnabled) {
-          setActiveMenuItemSound.play();  // Play sound when switching menu items
+          setActiveMenuItemSound.play();
         }
         break;
       case sf::Keyboard::Key::S:
@@ -85,31 +82,30 @@ void PauseScreen::processEvents(const sf::Event& event) {
         std::cout << "Keypressed down(s)" << std::endl;
         selectedIndex = (selectedIndex + 1) % MENU_ITEMS_COUNT;
         if (soundEnabled) {
-          setActiveMenuItemSound.play();  // Play sound when switching menu items
+          setActiveMenuItemSound.play();
         }
         break;
       case sf::Keyboard::Key::Enter:
         if (soundEnabled) {
-          selectMenuItemSound.play();  // Play sound when selecting menu item
+          selectMenuItemSound.play();
         }
         switch (selectedIndex) {
-          case 0:  // Продолжить игру
-            // Return to previous screen with countdown restart
+          case 0:
             game.returnToGameScreen();
             break;
-          case 1:  // Главное меню
+          case 1:
             game.setCurrentScreen(new MainMenu(window, game));
             break;
-          case 2:  // Выход
+          case 2:
             game.setCurrentScreen(new Exit(window, game));
             break;
         }
         break;
       case sf::Keyboard::Key::Escape:
         if (soundEnabled) {
-          selectMenuItemSound.play();  // Play sound when selecting menu item
+          selectMenuItemSound.play();
         }
-        // Return to previous screen with countdown restart
+
         game.returnToGameScreen();
         break;
       default:
@@ -118,9 +114,7 @@ void PauseScreen::processEvents(const sf::Event& event) {
   }
 }
 
-void PauseScreen::update() {
-  // No update logic needed for pause menu
-}
+void PauseScreen::update() {}
 
 void PauseScreen::render() {
   renderMenuRect();

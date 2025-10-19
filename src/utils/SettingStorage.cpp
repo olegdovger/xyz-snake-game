@@ -7,61 +7,18 @@
 #include <sstream>
 #include "../SnakeSprite.hpp"
 
-/**
- * @brief Simple JSON parser for basic key-value pairs
- * @param jsonStr JSON string to parse
- * @return map of key-value pairs
- */
-std::map<std::string, std::string> SettingStorage::parseSimpleJson(const std::string& jsonStr) {
-  std::map<std::string, std::string> result;
+#include <nlohmann/json.hpp>
 
-  // Remove whitespace and newlines
-  std::string cleaned = jsonStr;
-  cleaned.erase(std::remove_if(cleaned.begin(), cleaned.end(),
-                               [](char c) { return c == ' ' || c == '\n' || c == '\r' || c == '\t'; }),
-                cleaned.end());
+using json = nlohmann::json;
 
-  // Find the content between the first { and last }
-  size_t start = cleaned.find('{');
-  size_t end = cleaned.rfind('}');
-
-  if (start == std::string::npos || end == std::string::npos || start >= end) {
-    return result;
-  }
-
-  std::string content = cleaned.substr(start + 1, end - start - 1);
-
-  // Split by commas and parse key-value pairs
-  std::stringstream ss(content);
-  std::string pair;
-
-  while (std::getline(ss, pair, ',')) {
-    size_t colonPos = pair.find(':');
-    if (colonPos != std::string::npos) {
-      std::string key = pair.substr(0, colonPos);
-      std::string value = pair.substr(colonPos + 1);
-
-      // Remove quotes from key and value
-      if (key.front() == '"' && key.back() == '"') {
-        key = key.substr(1, key.length() - 2);
-      }
-      if (value.front() == '"' && value.back() == '"') {
-        value = value.substr(1, value.length() - 2);
-      }
-
-      result[key] = value;
-    }
-  }
-
-  return result;
-}
-
-bool SettingStorage::initialize() {
+bool SettingStorage::loadSettings() {
   try {
     std::ifstream file(SETTINGS_FILE_PATH);
 
     if (!file.is_open()) {
-      std::cout << "Settings file not found, creating default settings..." << std::endl;
+      std::cout << "Settings file not found at: " << SETTINGS_FILE_PATH << std::endl;
+      std::cout << "Current working directory: " << std::filesystem::current_path() << std::endl;
+      std::cout << "Creating default settings..." << std::endl;
       if (!createDefaultSettingsFile()) {
         std::cerr << "Failed to create default settings file" << std::endl;
         return false;
@@ -73,95 +30,36 @@ bool SettingStorage::initialize() {
       }
     }
 
-    // get file absolute path
     std::string filePath = std::filesystem::absolute(SETTINGS_FILE_PATH).string();
     std::cout << "Settings file path: " << filePath << std::endl;
 
-    // Read file content
     std::stringstream buffer;
     buffer << file.rdbuf();
     file.close();
 
     std::string content = buffer.str();
     std::cout << content << std::endl;
-    std::map<std::string, std::string> jsonData = parseSimpleJson(content);
 
-    // Parse settings from JSON
-    if (jsonData.contains("snakeSpeed")) {
+    try {
+      json jsonData = json::parse(content);
+      std::cout << "JSON parsed successfully" << std::endl;
+
+      for (auto& [key, value] : jsonData.items()) {
+        std::cout << "Key: " << key << ", Type: " << value.type_name() << std::endl;
+      }
+
       try {
-        settings.snakeSpeed = std::stoi(jsonData["snakeSpeed"]);
-      } catch (const std::exception& e) {
-        std::cerr << "Invalid snake speed format: " << e.what() << std::endl;
-        settings.snakeSpeed = 1;
+        settings.fromJson(jsonData);
+        isInitialized = true;
+        return true;
+      } catch (const json::exception& e) {
+        std::cerr << "Error in fromJson: " << e.what() << std::endl;
+        return false;
       }
+    } catch (const json::exception& e) {
+      std::cerr << "Error parsing JSON: " << e.what() << std::endl;
+      return false;
     }
-
-    if (jsonData.contains("snakeType")) {
-      settings.snakeType = parseSnakeType(jsonData["snakeType"]);
-    }
-
-    if (jsonData.contains("snakeSize")) {
-      try {
-        settings.snakeSize = std::stoi(jsonData["snakeSize"]);
-      } catch (const std::exception& e) {
-        std::cerr << "Invalid snake size format: " << e.what() << std::endl;
-        settings.snakeSize = 3;
-      }
-    }
-
-    if (jsonData.contains("gameLevel")) {
-      settings.gameLevel = parseGameLevel(jsonData["gameLevel"]);
-    }
-
-    if (jsonData.contains("gameMusic")) {
-      settings.gameMusic = jsonData["gameMusic"] == "1";
-    }
-
-    if (jsonData.contains("gameSound")) {
-      settings.gameSound = jsonData["gameSound"] == "1";
-    }
-
-    if (jsonData.contains("gameCountdownEnabled")) {
-      settings.gameCountdownEnabled = jsonData["gameCountdownEnabled"] == "1";
-    }
-
-    if (jsonData.contains("gameCountdownInSeconds")) {
-      try {
-        settings.gameCountdownInSeconds = std::stoi(jsonData["gameCountdownInSeconds"]);
-      } catch (const std::exception& e) {
-        std::cerr << "Invalid countdown seconds format: " << e.what() << std::endl;
-        settings.gameCountdownInSeconds = 3;
-      }
-    }
-
-    if (jsonData.contains("gameCountdownSound")) {
-      settings.gameCountdownSound = jsonData["gameCountdownSound"] == "1";
-    }
-
-    // Parse gameRecordTable (simple array parsing)
-    if (jsonData.contains("gameRecordTable")) {
-      std::string recordTableStr = jsonData["gameRecordTable"];
-      // Remove brackets and parse numbers
-      if (recordTableStr.front() == '[' && recordTableStr.back() == ']') {
-        recordTableStr = recordTableStr.substr(1, recordTableStr.length() - 2);
-        std::stringstream ss(recordTableStr);
-        std::string score;
-        settings.gameRecordTable.clear();
-
-        while (std::getline(ss, score, ',')) {
-          try {
-            settings.gameRecordTable.push_back(std::stoi(score));
-          } catch (const std::exception& e) {
-            std::cerr << "Invalid score format: " << e.what() << std::endl;
-          }
-        }
-      }
-    }
-
-    isInitialized = true;
-    std::cout << "Settings loaded successfully" << std::endl;
-    return true;
-
   } catch (const std::exception& e) {
     std::cerr << "Error loading settings: " << e.what() << std::endl;
     return false;
@@ -184,20 +82,20 @@ SnakeSprite::SnakeType SettingStorage::parseSnakeType(const std::string& snakeTy
   return SnakeSprite::SnakeType::Purple;
 }
 
-GameLevel SettingStorage::parseGameLevel(const std::string& gameLevelStr) {
-  if (gameLevelStr == "easy")
-    return GameLevel::Easy;
-  if (gameLevelStr == "harderTheEasy")
-    return GameLevel::HarderThanEasy;
-  if (gameLevelStr == "middle")
-    return GameLevel::Middle;
-  if (gameLevelStr == "harderThenMiddle")
-    return GameLevel::HarderThanMiddle;
-  if (gameLevelStr == "hard")
-    return GameLevel::Hard;
+GameDifficultyLevel SettingStorage::parseGameDifficultyLevel(const std::string& gameDifficultyLevelStr) {
+  if (gameDifficultyLevelStr == "easy")
+    return GameDifficultyLevel::Easy;
+  if (gameDifficultyLevelStr == "harderTheEasy")
+    return GameDifficultyLevel::HarderThanEasy;
+  if (gameDifficultyLevelStr == "middle")
+    return GameDifficultyLevel::Middle;
+  if (gameDifficultyLevelStr == "harderThenMiddle")
+    return GameDifficultyLevel::HarderThanMiddle;
+  if (gameDifficultyLevelStr == "hard")
+    return GameDifficultyLevel::Hard;
 
-  std::cerr << "Unknown game level: " << gameLevelStr << ", defaulting to easy" << std::endl;
-  return GameLevel::Easy;
+  std::cerr << "Unknown game difficulty level: " << gameDifficultyLevelStr << ", defaulting to easy" << std::endl;
+  return GameDifficultyLevel::Easy;
 }
 
 bool SettingStorage::createDefaultSettingsFile() {
@@ -208,17 +106,17 @@ bool SettingStorage::createDefaultSettingsFile() {
       return false;
     }
 
-    file << "{\n";
-    file << "    \"snakeSpeed\": 1,\n";
-    file << "    \"snakeType\": \"purple\",\n";
-    file << "    \"snakeSize\": \"3\",\n";
-    file << "    \"gameLevel\": \"hard\",\n";
-    file << "    \"gameMusic\": 1,\n";
-    file << "    \"gameSound\": 1,\n";
-    file << "    \"gameCountdownEnabled\": 1,\n";
-    file << "    \"gameCountdownInSeconds\": 3,\n";
-    file << "    \"gameCountdownSound\": 0\n";
-    file << "}";
+    file << R"({)";
+    file << R"(    "snakeSpeed": 1,\n)";
+    file << R"(    "snakeType": "purple",\n)";
+    file << R"(    "snakeSize": "3",\n)";
+    file << R"(    "gameDifficultyLevel": "hard",\n)";
+    file << R"(    "gameMusic": 1,\n)";
+    file << R"(    "gameSound": 1,\n)";
+    file << R"(    "gameCountdownEnabled": 1,\n)";
+    file << R"(    "gameCountdownInSeconds": 3,\n)";
+    file << R"(    "gameCountdownSound": 0\n)";
+    file << R"(})";
 
     file.close();
 
@@ -248,17 +146,17 @@ std::string SettingStorage::snakeTypeToString(SnakeSprite::SnakeType snakeType) 
   }
 }
 
-std::string SettingStorage::gameLevelToString(GameLevel gameLevel) {
-  switch (gameLevel) {
-    case GameLevel::Easy:
+std::string SettingStorage::gameDifficultyLevelToString(GameDifficultyLevel gameDifficultyLevel) {
+  switch (gameDifficultyLevel) {
+    case GameDifficultyLevel::Easy:
       return "easy";
-    case GameLevel::HarderThanEasy:
+    case GameDifficultyLevel::HarderThanEasy:
       return "harderTheEasy";
-    case GameLevel::Middle:
+    case GameDifficultyLevel::Middle:
       return "middle";
-    case GameLevel::HarderThanMiddle:
+    case GameDifficultyLevel::HarderThanMiddle:
       return "harderThenMiddle";
-    case GameLevel::Hard:
+    case GameDifficultyLevel::Hard:
       return "hard";
     default:
       return "easy";
@@ -266,25 +164,23 @@ std::string SettingStorage::gameLevelToString(GameLevel gameLevel) {
 }
 
 bool SettingStorage::addScoreToRecordTable(int score) {
-  // Check if score qualifies for the record table
-  if (settings.gameRecordTable.empty() || score > settings.gameRecordTable.back()) {
-    // Add score and sort in descending order
-    settings.gameRecordTable.push_back(score);
-    std::sort(settings.gameRecordTable.begin(), settings.gameRecordTable.end(), std::greater<int>());
+  loadSettings();
 
-    // Keep only top 5 scores
+  if (settings.gameRecordTable.empty() || score > settings.gameRecordTable.back()) {
+    settings.gameRecordTable.push_back(score);
+    std::ranges::sort(settings.gameRecordTable, std::ranges::greater());
+
     if (settings.gameRecordTable.size() > 5) {
       settings.gameRecordTable.resize(5);
     }
 
-    // Save to file
     saveSettings();
     return true;
   }
   return false;
 }
 
-bool SettingStorage::saveSettings() {
+bool SettingStorage::saveSettings() const {
   try {
     std::ofstream file(SETTINGS_FILE_PATH);
     if (!file.is_open()) {
@@ -292,27 +188,8 @@ bool SettingStorage::saveSettings() {
       return false;
     }
 
-    file << "{\n";
-    file << "    \"snakeSpeed\": " << settings.snakeSpeed << ",\n";
-    file << "    \"snakeType\": \"" << snakeTypeToString(settings.snakeType) << "\",\n";
-    file << "    \"snakeSize\": \"" << settings.snakeSize << "\",\n";
-    file << "    \"gameLevel\": \"" << gameLevelToString(settings.gameLevel) << "\",\n";
-    file << "    \"gameMusic\": " << (settings.gameMusic ? 1 : 0) << ",\n";
-    file << "    \"gameSound\": " << (settings.gameSound ? 1 : 0) << ",\n";
-    file << "    \"gameCountdownEnabled\": " << (settings.gameCountdownEnabled ? 1 : 0) << ",\n";
-    file << "    \"gameCountdownInSeconds\": " << settings.gameCountdownInSeconds << ",\n";
-    file << "    \"gameCountdownSound\": " << (settings.gameCountdownSound ? 1 : 0) << ",\n";
-    file << "    \"gameRecordTable\": [";
-
-    for (size_t i = 0; i < settings.gameRecordTable.size(); ++i) {
-      file << settings.gameRecordTable[i];
-      if (i < settings.gameRecordTable.size() - 1) {
-        file << ", ";
-      }
-    }
-    file << "]\n";
-    file << "}";
-
+    json j = settings.toJson();
+    file << j.dump(4);
     file.close();
     std::cout << "Settings saved successfully" << std::endl;
     return true;
@@ -320,5 +197,102 @@ bool SettingStorage::saveSettings() {
   } catch (const std::exception& e) {
     std::cerr << "Error saving settings: " << e.what() << std::endl;
     return false;
+  }
+}
+
+json GameSettings::toJson() const {
+  json j;
+  j["snakeSpeed"] = snakeSpeed;
+  j["snakeType"] = SettingStorage::snakeTypeToString(snakeType);
+  j["snakeSize"] = snakeSize;
+  j["gameDifficultyLevel"] = SettingStorage::gameDifficultyLevelToString(gameDifficultyLevel);
+  j["gameMusic"] = gameMusic;
+  j["gameSound"] = gameSound;
+  j["gameCountdownEnabled"] = gameCountdownEnabled;
+  j["gameCountdownInSeconds"] = gameCountdownInSeconds;
+  j["gameCountdownSound"] = gameCountdownSound;
+  j["gameRecordTable"] = gameRecordTable;
+  return j;
+}
+
+void GameSettings::fromJson(const json& j) {
+  try {
+    if (j.contains("snakeSpeed")) {
+      snakeSpeed = j.value("snakeSpeed", 1);
+    }
+
+    if (j.contains("snakeType")) {
+      std::string snakeTypeStr;
+      if (j["snakeType"].is_string()) {
+        snakeTypeStr = j["snakeType"].get<std::string>();
+      } else {
+        snakeTypeStr = std::to_string(j["snakeType"].get<int>());
+      }
+      snakeType = SettingStorage::parseSnakeType(snakeTypeStr);
+    }
+
+    if (j.contains("snakeSize")) {
+      if (j["snakeSize"].is_string()) {
+        snakeSize = std::stoi(j.value("snakeSize", "3"));
+      } else {
+        snakeSize = j.value("snakeSize", 3);
+      }
+    }
+
+    if (j.contains("gameDifficultyLevel")) {
+      std::string difficultyStr;
+      if (j["gameDifficultyLevel"].is_string()) {
+        difficultyStr = j["gameDifficultyLevel"].get<std::string>();
+      } else {
+        difficultyStr = std::to_string(j["gameDifficultyLevel"].get<int>());
+      }
+      gameDifficultyLevel = SettingStorage::parseGameDifficultyLevel(difficultyStr);
+    }
+
+    if (j.contains("gameMusic")) {
+      if (j["gameMusic"].is_boolean()) {
+        gameMusic = j["gameMusic"].get<bool>();
+      } else {
+        gameMusic = j["gameMusic"].get<int>() != 0;
+      }
+    }
+
+    if (j.contains("gameSound")) {
+      if (j["gameSound"].is_boolean()) {
+        gameSound = j["gameSound"].get<bool>();
+      } else {
+        gameSound = j["gameSound"].get<int>() != 0;
+      }
+    }
+
+    if (j.contains("gameCountdownEnabled")) {
+      if (j["gameCountdownEnabled"].is_boolean()) {
+        gameCountdownEnabled = j["gameCountdownEnabled"].get<bool>();
+      } else {
+        gameCountdownEnabled = j["gameCountdownEnabled"].get<int>() != 0;
+      }
+    }
+
+    if (j.contains("gameCountdownInSeconds")) {
+      gameCountdownInSeconds = j.value("gameCountdownInSeconds", 3);
+    }
+
+    if (j.contains("gameCountdownSound")) {
+      if (j["gameCountdownSound"].is_boolean()) {
+        gameCountdownSound = j["gameCountdownSound"].get<bool>();
+      } else {
+        gameCountdownSound = j["gameCountdownSound"].get<int>() != 0;
+      }
+    }
+
+    if (j.contains("gameRecordTable")) {
+      gameRecordTable = j.value("gameRecordTable", std::vector<int>{0});
+    }
+  } catch (const json::exception& e) {
+    std::cerr << "JSON exception in fromJson: " << e.what() << std::endl;
+    throw;
+  } catch (const std::exception& e) {
+    std::cerr << "Standard exception in fromJson: " << e.what() << std::endl;
+    throw;
   }
 }
