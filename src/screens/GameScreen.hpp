@@ -21,7 +21,6 @@ public:
 
   void render() override;
 
-  // Method to restart countdown (called when returning from pause)
   void restartCountdown();
 
   void resume();
@@ -36,53 +35,35 @@ public:
 private:
   float gridSize = 824.0f;
   float scaleRelativeFactor = 912.0f / 992.0f;
-  // Grid data
   GameGrid gameGrid;
 
-  // Snake
   Snake snake;
   mutable GameUI gameUI;
 
-  // Walls
   std::unique_ptr<WallManager> wallManager;
 
-  // Game Items
   std::unique_ptr<GameItemManager> gameItemManager;
-  
-  // Difficulty settings
+
   const DifficultySettings* difficultySettings;
 
-  // Countdown timer
   CountdownTimer countdownTimer;
 
-  // Background music
   sf::Music* backgroundMusic;
   bool musicStarted = false;
 
-  // Game over sound
   sf::Sound gameOverSound;
   bool gameOverSoundPlayed = false;
 
-  // Eating apple sound
   sf::Sound eatAppleSound;
 
-  // Start game sound
   sf::Sound startGameSound;
 
-  // Sound settings
   bool soundEnabled = true;
   bool musicEnabled = true;
 
-  // Timing
   sf::Clock moveTimer;
   sf::Clock snakeTypeTimer;
-  sf::Clock speedIncreaseTimer;  // Timer for automatic speed increases
-  static constexpr float SNAKE_MOVE_INTERVAL = 1.0f;         // seconds
-  static constexpr float SNAKE_TYPE_CHANGE_INTERVAL = 1.0f;  // seconds
-
-  // Snake type cycling for testing
-  int currentSnakeTypeIndex = 0;
-  static constexpr int TOTAL_SNAKE_TYPES = 5;  // Purple, Green, Blue, Red, Black
+  sf::Clock speedIncreaseTimer;
 
   // Game state
   bool gameOver = false;
@@ -94,7 +75,7 @@ private:
   int blinkCount = 0;
   static constexpr int MAX_BLINKS = 3;
   sf::Clock blinkTimer;
-  static constexpr float BLINK_DURATION = 0.5f;  // Duration of each blink state
+  static constexpr float BLINK_DURATION = 0.5f;
 
   sf::Sprite renderBoardBorder() const;
 

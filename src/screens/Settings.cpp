@@ -1,19 +1,19 @@
 #include "Settings.hpp"
 #include <iostream>
+#include "../config/AudioConstants.hpp"
 #include "../utils/ResourceLoader.hpp"
 #include "../utils/ScalingUtils.hpp"
 #include "../utils/SettingStorage.hpp"
-#include "../config/AudioConstants.hpp"
 #include "MainMenu.hpp"
 
 using namespace shape;
 
 Settings::Settings(sf::RenderWindow& win, Game& gameRef)
-    : Screen(win, gameRef),
-      titleText(font),
-      backText(font),
-      setActiveMenuItemSound(ResourceLoader::getSound(SoundType::SetActiveMenuItem)),
-      selectMenuItemSound(ResourceLoader::getSound(SoundType::SelectMenuItem)) {
+  : Screen(win, gameRef),
+    titleText(font),
+    backText(font),
+    setActiveMenuItemSound(ResourceLoader::getSound(SoundType::SetActiveMenuItem)),
+    selectMenuItemSound(ResourceLoader::getSound(SoundType::SelectMenuItem)) {
   font = ResourceLoader::getFont(FontType::DebugFont);
 
   titleText.setString(L"Настройки");
@@ -49,7 +49,7 @@ void Settings::processEvents(const sf::Event& event) {
         std::cout << "Keypressed up(w)" << std::endl;
         selectedIndex = (selectedIndex - 1 + MENU_ITEMS_COUNT) % MENU_ITEMS_COUNT;
         if (soundEnabled) {
-          setActiveMenuItemSound.play();  // Play sound when switching menu items
+          setActiveMenuItemSound.play(); // Play sound when switching menu items
         }
         break;
       case sf::Keyboard::Key::S:
@@ -57,12 +57,12 @@ void Settings::processEvents(const sf::Event& event) {
         std::cout << "Keypressed down(s)" << std::endl;
         selectedIndex = (selectedIndex + 1) % MENU_ITEMS_COUNT;
         if (soundEnabled) {
-          setActiveMenuItemSound.play();  // Play sound when switching menu items
+          setActiveMenuItemSound.play(); // Play sound when switching menu items
         }
         break;
       case sf::Keyboard::Key::Enter:
         if (soundEnabled) {
-          selectMenuItemSound.play();  // Play sound when selecting menu item
+          selectMenuItemSound.play(); // Play sound when selecting menu item
         }
         toggleSoundSetting();
         break;
@@ -138,7 +138,7 @@ void Settings::renderMenuItems() {
         getPosition(sf::Vector2f(item.getLocalBounds().size), window.getSize(), screenRect.getScale().x);
 
     item.setPosition(sf::Vector2f(position.x, screenRect.getPosition().y + 100.0f * screenRect.getScale().y +
-                                                  i * 50.0f * screenRect.getScale().y));
+                                              i * 50.0f * screenRect.getScale().y));
 
     item.setScale(screenRect.getScale());
 
@@ -156,21 +156,21 @@ void Settings::renderMenuItems() {
 
 void Settings::toggleSoundSetting() {
   SettingStorage settingStorage;
-  settingStorage.initialize();
+  settingStorage.loadSettings();
 
   switch (selectedIndex) {
-    case 0:  // Звук
+    case 0:
       soundEnabled = !soundEnabled;
       settingStorage.setGameSound(soundEnabled);
       break;
-    case 1:  // Музыка
+    case 1:
       musicEnabled = !musicEnabled;
       settingStorage.setGameMusic(musicEnabled);
       break;
   }
 
   settingStorage.saveSettings();
-  initializeMenuItems();  // Refresh menu items to show new states
+  initializeMenuItems();
 }
 
 void Settings::renderBackButton() {
@@ -186,8 +186,14 @@ void Settings::renderBackButton() {
 
 void Settings::loadSettings() {
   SettingStorage settingStorage;
-  if (settingStorage.initialize()) {
+
+  bool settingsLoaded = settingStorage.loadSettings();
+
+  if (settingsLoaded) {
     soundEnabled = settingStorage.getGameSound();
     musicEnabled = settingStorage.getGameMusic();
+  } else {
+    soundEnabled = true;
+    musicEnabled = true;
   }
 }
