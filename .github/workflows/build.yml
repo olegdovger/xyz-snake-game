@@ -1,0 +1,69 @@
+name: Build and Package
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  release:
+    types: [ published ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up dependencies (Ubuntu)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt update
+        sudo apt install -y libsfml-dev
+        
+    - name: Set up dependencies (macOS)
+      if: runner.os == 'macOS'
+      run: |
+        brew install sfml
+        
+    - name: Configure CMake
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=Release
+        
+    - name: Build
+      run: |
+        cmake --build build --config Release
+        
+    - name: Create ZIP (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        cd build/bin
+        7z a -tzip ../../snake-game-${{ runner.os }}.zip *
+        
+    - name: Create ZIP (Linux/macOS)
+      if: runner.os != 'Windows'
+      run: |
+        cd build/bin
+        zip -r ../../snake-game-${{ runner.os }}.zip .
+        
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: snake-game-${{ runner.os }}
+        path: snake-game-${{ runner.os }}.zip
+        
+    - name: Upload release asset
+      if: github.event_name == 'release'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./snake-game-${{ runner.os }}.zip
+        asset_name: snake-game-${{ runner.os }}.zip
+        asset_content_type: application/zip
