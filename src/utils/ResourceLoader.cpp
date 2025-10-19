@@ -1,5 +1,9 @@
 #include "ResourceLoader.hpp"
+#include <SFML/Audio/Music.hpp>
+#include <SFML/Audio/SoundBuffer.hpp>
+#include <SFML/Graphics/Font.hpp>
 #include <iostream>
+
 
 const std::string FONT_NAMES[] = {
     "debug_font",  // FontType::DebugFont
@@ -98,6 +102,12 @@ bool ResourceLoader::loadFonts() {
 
     sf::Text tempText1(debugFont);
     tempText1.setString(cyrillicChars);
+
+    // Force SFML to generate the glyph textures for Cyrillic characters
+    for (wchar_t ch : cyrillicChars) {
+      (void)debugFont.getGlyph(ch, 24, false);
+      (void)uiFont.getGlyph(ch, 24, false);
+    }
 
     sf::Text tempText2(uiFont);
     tempText2.setString(cyrillicChars);

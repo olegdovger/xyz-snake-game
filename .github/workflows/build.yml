@@ -54,6 +54,13 @@ jobs:
         cd build/bin
         zip -r ../../snake-game-${{ runner.os }}.zip .
         
+    - name: Test Cyrillic Support
+      run: |
+        cd build/bin
+        echo "Testing Cyrillic support..."
+        echo "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя" > test_cyrillic.txt
+        cat test_cyrillic.txt
+        
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
