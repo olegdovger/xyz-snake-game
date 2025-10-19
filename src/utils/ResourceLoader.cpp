@@ -87,6 +87,22 @@ bool ResourceLoader::loadFonts() {
                       "/fonts/ttf/JetBrainsMono-Regular.ttf");
   success &= loadFont(fontTypeToString(FontType::UIFont), "resources/fonts/Jersey_10/Jersey10-Regular.ttf");
 
+  // Ensure the loaded fonts include Unicode characters for Cyrillic text
+  if (success) {
+    auto& debugFont = getFontManager().getResource(fontTypeToString(FontType::DebugFont));
+    auto& uiFont = getFontManager().getResource(fontTypeToString(FontType::UIFont));
+
+    // Load a basic set of Cyrillic characters to ensure they're included
+    // This is a workaround for SFML not loading all characters by default
+    std::wstring cyrillicChars = L"АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя";
+
+    sf::Text tempText1(debugFont);
+    tempText1.setString(cyrillicChars);
+
+    sf::Text tempText2(uiFont);
+    tempText2.setString(cyrillicChars);
+  }
+
   return success;
 }
 
