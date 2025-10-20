@@ -2,6 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <vector>
+#include "../Game.hpp"
 #include "../Screen.hpp"
 
 class HighScores : public Screen {
@@ -17,9 +18,9 @@ private:
 
   // Colors
   sf::Color backgroundColor = sf::Color(164, 144, 164);
-  sf::Color menuBackgroundColor = sf::Color(130, 73, 113);
-  sf::Color textColor = sf::Color(251, 242, 54);
-  sf::Color borderColor = sf::Color(171, 99, 148);
+  sf::Color menuBackgroundColor = MenuColors::BACKGROUND_COLOR;
+  sf::Color textColor = MenuColors::TEXT_COLOR;
+  sf::Color borderColor = MenuColors::BORDER_COLOR;
 
   void initializeScreenRect();
 

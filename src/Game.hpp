@@ -4,6 +4,25 @@
 #include "Screen.hpp"
 #include "utils/SettingStorage.hpp"
 
+// Menu color constants
+namespace MenuColors {
+constexpr uint8_t BACKGROUND_R = 130;
+constexpr uint8_t BACKGROUND_G = 73;
+constexpr uint8_t BACKGROUND_B = 113;
+
+constexpr uint8_t TEXT_R = 251;
+constexpr uint8_t TEXT_G = 242;
+constexpr uint8_t TEXT_B = 54;
+
+constexpr uint8_t BORDER_R = 171;
+constexpr uint8_t BORDER_G = 99;
+constexpr uint8_t BORDER_B = 148;
+
+const sf::Color BACKGROUND_COLOR = sf::Color(BACKGROUND_R, BACKGROUND_G, BACKGROUND_B);
+const sf::Color TEXT_COLOR = sf::Color(TEXT_R, TEXT_G, TEXT_B);
+const sf::Color BORDER_COLOR = sf::Color(BORDER_R, BORDER_G, BORDER_B);
+}  // namespace MenuColors
+
 class Game {
 private:
   sf::RenderWindow& window;
