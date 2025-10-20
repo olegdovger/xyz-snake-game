@@ -1,11 +1,11 @@
 #include "DifficultyScreen.hpp"
 
 #include "../config/AudioConstants.hpp"
+#include "../utils/FontInitializer.hpp"
 #include "../utils/ResourceLoader.hpp"
 #include "../utils/ScalingUtils.hpp"
 #include "../utils/SettingStorage.hpp"
 #include "../utils/difficulty/DifficultyManager.hpp"
-#include "GameScreen.hpp"
 #include "MainMenu.hpp"
 
 using namespace shape;
@@ -22,19 +22,9 @@ DifficultyScreen::DifficultyScreen(sf::RenderWindow& win, Game& gameRef)
   screenRect.setOutlineColor(borderColor);
   screenRect.setOutlineThickness(10.0f);
 
-  font = ResourceLoader::getFont(FontType::DebugFont);
-
-  titleText.setFont(font);
-  titleText.setString(L"Уровень сложности");
-  titleText.setCharacterSize(40);
-  titleText.setFillColor(sf::Color::White);
-  titleText.setStyle(sf::Text::Bold);
-
-  backText.setFont(font);
-  backText.setString(L"Назад (Escape)");
-  backText.setCharacterSize(24);
-  backText.setFillColor(sf::Color::White);
-  backText.setStyle(sf::Text::Bold);
+  font = FontInitializer::getDebugFont();
+  FontInitializer::initializeTitleText(titleText, font, L"Уровень сложности");
+  FontInitializer::initializeBackText(backText, font, 24);
 
   initializeDifficultyItems();
 

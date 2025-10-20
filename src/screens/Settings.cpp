@@ -1,6 +1,7 @@
 #include "Settings.hpp"
 #include <iostream>
 #include "../config/AudioConstants.hpp"
+#include "../utils/FontInitializer.hpp"
 #include "../utils/ResourceLoader.hpp"
 #include "../utils/ScalingUtils.hpp"
 #include "../utils/SettingStorage.hpp"
@@ -9,24 +10,14 @@
 using namespace shape;
 
 Settings::Settings(sf::RenderWindow& win, Game& gameRef)
-  : Screen(win, gameRef),
-    titleText(font),
-    backText(font),
-    setActiveMenuItemSound(ResourceLoader::getSound(SoundType::SetActiveMenuItem)),
-    selectMenuItemSound(ResourceLoader::getSound(SoundType::SelectMenuItem)) {
-  font = ResourceLoader::getFont(FontType::DebugFont);
-
-  titleText.setString(L"Настройки");
-  titleText.setFont(font);
-  titleText.setCharacterSize(40);
-  titleText.setFillColor(sf::Color::White);
-  titleText.setStyle(sf::Text::Bold);
-
-  backText.setString(L"Назад (Escape)");
-  backText.setFont(font);
-  backText.setCharacterSize(14);
-  backText.setFillColor(sf::Color::White);
-  backText.setStyle(sf::Text::Bold);
+    : Screen(win, gameRef),
+      titleText(font),
+      backText(font),
+      setActiveMenuItemSound(ResourceLoader::getSound(SoundType::SetActiveMenuItem)),
+      selectMenuItemSound(ResourceLoader::getSound(SoundType::SelectMenuItem)) {
+  font = FontInitializer::getDebugFont();
+  FontInitializer::initializeTitleText(titleText, font, L"Настройки");
+  FontInitializer::initializeBackText(backText, font, 14);
 
   screenRect.setSize(originSize);
   screenRect.setFillColor(menuBackgroundColor);
@@ -49,7 +40,7 @@ void Settings::processEvents(const sf::Event& event) {
         std::cout << "Keypressed up(w)" << std::endl;
         selectedIndex = (selectedIndex - 1 + MENU_ITEMS_COUNT) % MENU_ITEMS_COUNT;
         if (soundEnabled) {
-          setActiveMenuItemSound.play(); // Play sound when switching menu items
+          setActiveMenuItemSound.play();
         }
         break;
       case sf::Keyboard::Key::S:
@@ -57,12 +48,12 @@ void Settings::processEvents(const sf::Event& event) {
         std::cout << "Keypressed down(s)" << std::endl;
         selectedIndex = (selectedIndex + 1) % MENU_ITEMS_COUNT;
         if (soundEnabled) {
-          setActiveMenuItemSound.play(); // Play sound when switching menu items
+          setActiveMenuItemSound.play();
         }
         break;
       case sf::Keyboard::Key::Enter:
         if (soundEnabled) {
-          selectMenuItemSound.play(); // Play sound when selecting menu item
+          selectMenuItemSound.play();
         }
         toggleSoundSetting();
         break;
@@ -98,10 +89,7 @@ void Settings::initializeMenuItems() {
 
   for (size_t i = 0; i < menuLabels.size(); ++i) {
     sf::Text item(font);
-    item.setString(menuLabels[i]);
-    item.setCharacterSize(24);
-    item.setFillColor(sf::Color::White);
-
+    FontInitializer::initializeMenuItemText(item, font, menuLabels[i], 24);
     menuItems.push_back(item);
   }
 }
@@ -138,7 +126,7 @@ void Settings::renderMenuItems() {
         getPosition(sf::Vector2f(item.getLocalBounds().size), window.getSize(), screenRect.getScale().x);
 
     item.setPosition(sf::Vector2f(position.x, screenRect.getPosition().y + 100.0f * screenRect.getScale().y +
-                                              i * 50.0f * screenRect.getScale().y));
+                                                  i * 50.0f * screenRect.getScale().y));
 
     item.setScale(screenRect.getScale());
 

@@ -1,6 +1,7 @@
 #include "PauseScreen.hpp"
 #include <iostream>
 #include "../config/AudioConstants.hpp"
+#include "../utils/FontInitializer.hpp"
 #include "../utils/ResourceLoader.hpp"
 #include "../utils/ScalingUtils.hpp"
 #include "../utils/SettingStorage.hpp"
@@ -16,19 +17,9 @@ PauseScreen::PauseScreen(sf::RenderWindow& win, Game& gameRef)
       backText(font),
       setActiveMenuItemSound(ResourceLoader::getSound(SoundType::SetActiveMenuItem)),
       selectMenuItemSound(ResourceLoader::getSound(SoundType::SelectMenuItem)) {
-  font = ResourceLoader::getFont(FontType::DebugFont);
-
-  titleText.setString(L"Пауза");
-  titleText.setFont(font);
-  titleText.setCharacterSize(40);
-  titleText.setFillColor(sf::Color::White);
-  titleText.setStyle(sf::Text::Bold);
-
-  backText.setString(L"Назад (Escape)");
-  backText.setFont(font);
-  backText.setCharacterSize(14);
-  backText.setFillColor(sf::Color::White);
-  backText.setStyle(sf::Text::Bold);
+  font = FontInitializer::getDebugFont();
+  FontInitializer::initializeTitleText(titleText, font, L"Пауза");
+  FontInitializer::initializeBackText(backText, font, 14);
 
   screenRect.setSize(originSize);
   screenRect.setFillColor(menuBackgroundColor);
@@ -58,10 +49,7 @@ void PauseScreen::initializeMenuItems() {
 
   for (size_t i = 0; i < textItems.size(); ++i) {
     sf::Text item(font);
-    item.setString(textItems[i]);
-    item.setCharacterSize(24);
-    item.setFillColor(sf::Color::White);
-
+    FontInitializer::initializeMenuItemText(item, font, textItems[i], 24);
     menuItems.push_back(item);
   }
 }

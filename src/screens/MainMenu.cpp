@@ -1,6 +1,7 @@
 #include "MainMenu.hpp"
 #include <iostream>
 #include "../config/AudioConstants.hpp"
+#include "../utils/FontInitializer.hpp"
 #include "../utils/ResourceLoader.hpp"
 #include "../utils/ScalingUtils.hpp"
 #include "../utils/SettingStorage.hpp"
@@ -17,13 +18,8 @@ MainMenu::MainMenu(sf::RenderWindow& win, Game& gameRef)
       titleText(font),
       setActiveMenuItemSound(ResourceLoader::getSound(SoundType::SetActiveMenuItem)),
       selectMenuItemSound(ResourceLoader::getSound(SoundType::SelectMenuItem)) {
-  font = ResourceLoader::getFont(FontType::DebugFont);
-
-  titleText.setString(L"Главное меню");
-  titleText.setFont(font);
-  titleText.setCharacterSize(40);
-  titleText.setFillColor(sf::Color::White);
-  titleText.setStyle(sf::Text::Bold);
+  font = FontInitializer::getDebugFont();
+  FontInitializer::initializeTitleText(titleText, font, L"Главное меню");
 
   screenRect.setSize(originSize);
   screenRect.setFillColor(menuBackgroundColor);
@@ -119,10 +115,7 @@ void MainMenu::initializeMenuItems() {
 
   for (size_t i = 0; i < menuLabels.size(); ++i) {
     sf::Text item(font);
-    item.setString(menuLabels[i]);
-    item.setCharacterSize(24);
-    item.setFillColor(sf::Color::White);
-
+    FontInitializer::initializeMenuItemText(item, font, menuLabels[i], 24);
     menuItems.push_back(item);
   }
 }
