@@ -16,7 +16,6 @@ struct GameSettings {
   GameDifficultyLevel gameDifficultyLevel = GameDifficultyLevel::Hard;
   bool gameMusic = true;
   bool gameSound = true;
-  bool gameCountdownEnabled = true;
   int gameCountdownInSeconds = 3;
   std::vector<int> gameRecordTable = {0};
 
@@ -58,8 +57,6 @@ public:
 
   [[nodiscard]] bool getGameSound() const { return settings.gameSound; }
 
-  [[nodiscard]] bool getGameCountdownEnabled() const { return settings.gameCountdownEnabled; }
-
   [[nodiscard]] int getGameCountdownInSeconds() const { return settings.gameCountdownInSeconds; }
 
   [[nodiscard]] const std::vector<int>& getGameRecordTable() const { return settings.gameRecordTable; }
@@ -81,7 +78,6 @@ public:
   void setSnakeSize(int snakeSize) { settings.snakeSize = snakeSize; }
   void setGameMusic(bool gameMusic) { settings.gameMusic = gameMusic; }
   void setGameSound(bool gameSound) { settings.gameSound = gameSound; }
-  void setGameCountdownEnabled(bool gameCountdownEnabled) { settings.gameCountdownEnabled = gameCountdownEnabled; }
 
   void setGameCountdownInSeconds(int gameCountdownInSeconds) {
     settings.gameCountdownInSeconds = gameCountdownInSeconds;

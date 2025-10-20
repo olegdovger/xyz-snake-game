@@ -113,7 +113,6 @@ bool SettingStorage::createDefaultSettingsFile() {
     file << R"(    "gameDifficultyLevel": "easy",\n)";
     file << R"(    "gameMusic": true,\n)";
     file << R"(    "gameSound": true,\n)";
-    file << R"(    "gameCountdownEnabled": true,\n)";
     file << R"(    "gameCountdownInSeconds": 3,\n)";
     file << R"(    "gameRecordTable": [0]\n)";
     file << R"(})";
@@ -208,7 +207,6 @@ json GameSettings::toJson() const {
   j["gameDifficultyLevel"] = SettingStorage::gameDifficultyLevelToString(gameDifficultyLevel);
   j["gameMusic"] = gameMusic;
   j["gameSound"] = gameSound;
-  j["gameCountdownEnabled"] = gameCountdownEnabled;
   j["gameCountdownInSeconds"] = gameCountdownInSeconds;
   j["gameRecordTable"] = gameRecordTable;
   return j;
@@ -261,14 +259,6 @@ void GameSettings::fromJson(const json& j) {
         gameSound = j["gameSound"].get<bool>();
       } else {
         gameSound = j["gameSound"].get<int>() != 0;
-      }
-    }
-
-    if (j.contains("gameCountdownEnabled")) {
-      if (j["gameCountdownEnabled"].is_boolean()) {
-        gameCountdownEnabled = j["gameCountdownEnabled"].get<bool>();
-      } else {
-        gameCountdownEnabled = j["gameCountdownEnabled"].get<int>() != 0;
       }
     }
 
