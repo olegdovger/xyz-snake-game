@@ -18,7 +18,6 @@ struct GameSettings {
   bool gameSound = true;
   bool gameCountdownEnabled = true;
   int gameCountdownInSeconds = 3;
-  bool gameCountdownSound = false;
   std::vector<int> gameRecordTable = {0};
 
   // Serialization methods
@@ -63,8 +62,6 @@ public:
 
   [[nodiscard]] int getGameCountdownInSeconds() const { return settings.gameCountdownInSeconds; }
 
-  [[nodiscard]] bool getGameCountdownSound() const { return settings.gameCountdownSound; }
-
   [[nodiscard]] const std::vector<int>& getGameRecordTable() const { return settings.gameRecordTable; }
 
   bool addScoreToRecordTable(int score);
@@ -90,6 +87,5 @@ public:
     settings.gameCountdownInSeconds = gameCountdownInSeconds;
   }
 
-  void setGameCountdownSound(bool gameCountdownSound) { settings.gameCountdownSound = gameCountdownSound; }
   void setGameRecordTable(const std::vector<int>& gameRecordTable) { settings.gameRecordTable = gameRecordTable; }
 };

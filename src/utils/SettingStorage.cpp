@@ -109,13 +109,13 @@ bool SettingStorage::createDefaultSettingsFile() {
     file << R"({)";
     file << R"(    "snakeSpeed": 1,\n)";
     file << R"(    "snakeType": "purple",\n)";
-    file << R"(    "snakeSize": "3",\n)";
-    file << R"(    "gameDifficultyLevel": "hard",\n)";
-    file << R"(    "gameMusic": 1,\n)";
-    file << R"(    "gameSound": 1,\n)";
-    file << R"(    "gameCountdownEnabled": 1,\n)";
+    file << R"(    "snakeSize": 3,\n)";
+    file << R"(    "gameDifficultyLevel": "easy",\n)";
+    file << R"(    "gameMusic": true,\n)";
+    file << R"(    "gameSound": true,\n)";
+    file << R"(    "gameCountdownEnabled": true,\n)";
     file << R"(    "gameCountdownInSeconds": 3,\n)";
-    file << R"(    "gameCountdownSound": 0\n)";
+    file << R"(    "gameRecordTable": [0]\n)";
     file << R"(})";
 
     file.close();
@@ -210,7 +210,6 @@ json GameSettings::toJson() const {
   j["gameSound"] = gameSound;
   j["gameCountdownEnabled"] = gameCountdownEnabled;
   j["gameCountdownInSeconds"] = gameCountdownInSeconds;
-  j["gameCountdownSound"] = gameCountdownSound;
   j["gameRecordTable"] = gameRecordTable;
   return j;
 }
@@ -275,14 +274,6 @@ void GameSettings::fromJson(const json& j) {
 
     if (j.contains("gameCountdownInSeconds")) {
       gameCountdownInSeconds = j.value("gameCountdownInSeconds", 3);
-    }
-
-    if (j.contains("gameCountdownSound")) {
-      if (j["gameCountdownSound"].is_boolean()) {
-        gameCountdownSound = j["gameCountdownSound"].get<bool>();
-      } else {
-        gameCountdownSound = j["gameCountdownSound"].get<int>() != 0;
-      }
     }
 
     if (j.contains("gameRecordTable")) {

@@ -193,10 +193,9 @@ void DifficultyScreen::confirmSelection() {
       GameDifficultyLevel::HarderThanMiddle, GameDifficultyLevel::Hard};
 
   if (selectedDifficultyIndex < difficultyLevels.size()) {
-
-    SettingStorage settingStorage;
+    // Use the existing SettingStorage from Game instead of creating a new one
+    SettingStorage& settingStorage = const_cast<SettingStorage&>(game.getSettingsReader());
     settingStorage.setGameDifficultyLevel(difficultyLevels[selectedDifficultyIndex]);
-
     settingStorage.saveSettings();
   }
 }
