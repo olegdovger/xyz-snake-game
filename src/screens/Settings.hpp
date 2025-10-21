@@ -10,6 +10,7 @@
 #include <vector>
 #include "../Game.hpp"
 #include "../Screen.hpp"
+#include "../utils/MenuSoundManager.hpp"
 
 class Settings : public Screen {
 private:
@@ -34,9 +35,8 @@ private:
 
   sf::Vector2f menuRectSize = originSize * scaleRelativeFactor;
 
-  // Menu sounds
-  sf::Sound setActiveMenuItemSound;
-  sf::Sound selectMenuItemSound;
+  // Menu sound manager
+  MenuSoundManager soundManager;
 
   // Sound states
   bool soundEnabled = true;

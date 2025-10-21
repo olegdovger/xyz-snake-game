@@ -1,20 +1,13 @@
 #include "Settings.hpp"
 #include <iostream>
-#include "../config/AudioConstants.hpp"
 #include "../utils/FontInitializer.hpp"
-#include "../utils/ResourceLoader.hpp"
 #include "../utils/ScalingUtils.hpp"
 #include "../utils/SettingStorage.hpp"
 #include "MainMenu.hpp"
 
 using namespace shape;
 
-Settings::Settings(sf::RenderWindow& win, Game& gameRef)
-    : Screen(win, gameRef),
-      titleText(font),
-      backText(font),
-      setActiveMenuItemSound(ResourceLoader::getSound(SoundType::SetActiveMenuItem)),
-      selectMenuItemSound(ResourceLoader::getSound(SoundType::SelectMenuItem)) {
+Settings::Settings(sf::RenderWindow& win, Game& gameRef) : Screen(win, gameRef), titleText(font), backText(font) {
   font = FontInitializer::getDebugFont();
   FontInitializer::initializeTitleText(titleText, font, L"Настройки");
   FontInitializer::initializeBackText(backText, font, 14);
@@ -24,11 +17,8 @@ Settings::Settings(sf::RenderWindow& win, Game& gameRef)
   screenRect.setOutlineColor(borderColor);
   screenRect.setOutlineThickness(10.0f);
 
-  // Set menu sound volumes
-  setActiveMenuItemSound.setVolume(AudioConstants::SoundEffects::MENU_NAVIGATION_VOLUME);
-  selectMenuItemSound.setVolume(AudioConstants::SoundEffects::MENU_SELECTION_VOLUME);
-
   loadSettings();
+  soundManager.setSoundEnabled(soundEnabled);
   initializeMenuItems();
 }
 
@@ -39,22 +29,16 @@ void Settings::processEvents(const sf::Event& event) {
       case sf::Keyboard::Key::Up:
         std::cout << "Keypressed up(w)" << std::endl;
         selectedIndex = (selectedIndex - 1 + MENU_ITEMS_COUNT) % MENU_ITEMS_COUNT;
-        if (soundEnabled) {
-          setActiveMenuItemSound.play();
-        }
+        soundManager.playNavigationSound();
         break;
       case sf::Keyboard::Key::S:
       case sf::Keyboard::Key::Down:
         std::cout << "Keypressed down(s)" << std::endl;
         selectedIndex = (selectedIndex + 1) % MENU_ITEMS_COUNT;
-        if (soundEnabled) {
-          setActiveMenuItemSound.play();
-        }
+        soundManager.playNavigationSound();
         break;
       case sf::Keyboard::Key::Enter:
-        if (soundEnabled) {
-          selectMenuItemSound.play();
-        }
+        soundManager.playSelectionSound();
         toggleSoundSetting();
         break;
       case sf::Keyboard::Key::Escape:

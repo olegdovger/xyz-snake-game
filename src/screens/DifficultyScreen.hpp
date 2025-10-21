@@ -5,6 +5,7 @@
 #include <vector>
 #include "../Game.hpp"
 #include "../Screen.hpp"
+#include "../utils/MenuSoundManager.hpp"
 
 class DifficultyScreen : public Screen {
 public:
@@ -40,7 +41,6 @@ private:
   void selectPreviousDifficulty();
   void confirmSelection();
 
-  // Menu sounds
-  sf::Sound setActiveMenuItemSound;
-  sf::Sound selectMenuItemSound;
+  // Menu sound manager
+  MenuSoundManager soundManager;
 };

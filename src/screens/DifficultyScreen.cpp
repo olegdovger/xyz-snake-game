@@ -1,8 +1,6 @@
 #include "DifficultyScreen.hpp"
 
-#include "../config/AudioConstants.hpp"
 #include "../utils/FontInitializer.hpp"
-#include "../utils/ResourceLoader.hpp"
 #include "../utils/ScalingUtils.hpp"
 #include "../utils/SettingStorage.hpp"
 #include "../utils/difficulty/DifficultyManager.hpp"
@@ -11,11 +9,7 @@
 using namespace shape;
 
 DifficultyScreen::DifficultyScreen(sf::RenderWindow& win, Game& gameRef)
-    : Screen(win, gameRef),
-      titleText(font),
-      backText(font),
-      setActiveMenuItemSound(ResourceLoader::getSound(SoundType::SetActiveMenuItem)),
-      selectMenuItemSound(ResourceLoader::getSound(SoundType::SelectMenuItem)) {
+    : Screen(win, gameRef), titleText(font), backText(font) {
 
   screenRect.setSize(originSize);
   screenRect.setFillColor(menuBackgroundColor);
@@ -28,10 +22,8 @@ DifficultyScreen::DifficultyScreen(sf::RenderWindow& win, Game& gameRef)
 
   initializeDifficultyItems();
 
-  setActiveMenuItemSound.setVolume(AudioConstants::SoundEffects::MENU_NAVIGATION_VOLUME);
-  selectMenuItemSound.setVolume(AudioConstants::SoundEffects::MENU_SELECTION_VOLUME);
-
   game.loadSettings();
+  soundManager.setSoundEnabled(game.getSettingsReader().getGameSound());
 }
 
 void DifficultyScreen::processEvents(const sf::Event& event) {
@@ -41,25 +33,19 @@ void DifficultyScreen::processEvents(const sf::Event& event) {
       case sf::Keyboard::Key::Up:
         selectPreviousDifficulty();
 
-        if (game.getSettingsReader().getGameSound()) {
-          setActiveMenuItemSound.play();
-        }
+        soundManager.playNavigationSound();
 
         break;
       case sf::Keyboard::Key::S:
       case sf::Keyboard::Key::Down:
         selectNextDifficulty();
 
-        if (game.getSettingsReader().getGameSound()) {
-          setActiveMenuItemSound.play();
-        }
+        soundManager.playNavigationSound();
 
         break;
       case sf::Keyboard::Key::Enter:
       case sf::Keyboard::Key::Space:
-        if (game.getSettingsReader().getGameSound()) {
-          selectMenuItemSound.play();
-        }
+        soundManager.playSelectionSound();
 
         confirmSelection();
         game.setCurrentScreen(new MainMenu(window, game));
