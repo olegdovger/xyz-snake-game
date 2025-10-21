@@ -12,17 +12,14 @@ Wall::Wall(const std::vector<sf::Vector2i>& positions, WallType type, const Diff
       blinking(false),
       blinkCount(0) {
 
-  // Generate random lifetime based on difficulty
   static std::random_device rd;
   static std::mt19937 gen(rd());
 
-  // Base lifetime between 10-20 seconds
   float baseLifetime = 5.0f;
   float maxLifetime = 10.0f;
 
-  // Adjust lifetime based on difficulty (longer at higher difficulties)
   if (difficultySettings) {
-    float difficultyMultiplier = 1.0f + (difficultySettings->getWallCount() * 0.5f);  // 50% longer per wall level
+    float difficultyMultiplier = 1.0f + (difficultySettings->getWallCount() * 0.5f);
     baseLifetime *= difficultyMultiplier;
     maxLifetime *= difficultyMultiplier;
   }
@@ -40,7 +37,6 @@ void Wall::update(float deltaTime) {
 
   float elapsedTime = lifetimeClock.getElapsedTime();
 
-  // Update wall phase
   if (currentPhase == WallPhase::Appearing && elapsedTime >= APPEARANCE_DURATION) {
     currentPhase = WallPhase::Active;
   } else if (currentPhase == WallPhase::Active && elapsedTime >= lifetime - DISAPPEARANCE_DURATION) {
@@ -48,7 +44,6 @@ void Wall::update(float deltaTime) {
     startBlinking();
   }
 
-  // Handle blinking during disappearance phase
   if (blinking && currentPhase == WallPhase::Disappearing) {
     if (blinkTimer.getElapsedTime().asSeconds() >= BLINK_DURATION) {
       blinkCount++;
@@ -60,7 +55,6 @@ void Wall::update(float deltaTime) {
     }
   }
 
-  // Check if wall has expired
   if (elapsedTime >= lifetime) {
     expired = true;
   }
@@ -73,28 +67,22 @@ void Wall::render(sf::RenderWindow& window, const GameGrid& grid) const {
   for (const auto& position : positions) {
     sf::Sprite wallSprite(texture);
 
-    // Position the sprite (position is row=y, col=x to match snake coordinate system)
     sf::Vector2f cellPosition = grid.getCellPosition(position.y, position.x);
     sf::Vector2f centerOffset(grid.getScaledCellSize() / 2.0f, grid.getScaledCellSize() / 2.0f);
     wallSprite.setPosition(cellPosition);
 
-    // Scale the sprite to fit the cell
     sf::Vector2u textureSize = texture.getSize();
     float scale = grid.getScaledCellSize() / (float)textureSize.x;
 
     wallSprite.setScale(sf::Vector2f(scale, scale));
 
-    // Apply phase-based effects
     if (currentPhase == WallPhase::Appearing) {
-      // Fade in during appearance phase
       float elapsedTime = lifetimeClock.getElapsedTime();
       float alpha = (elapsedTime / APPEARANCE_DURATION) * 255.0f;
       wallSprite.setColor(sf::Color(255, 255, 255, static_cast<unsigned char>(alpha)));
     } else if (blinking && currentPhase == WallPhase::Disappearing) {
-      // Blinking effect during disappearance
       wallSprite.setColor(getBlinkColor());
     } else {
-      // Normal appearance during active phase
       wallSprite.setColor(sf::Color::White);
     }
 
@@ -107,7 +95,6 @@ bool Wall::checkCollisionWithPosition(sf::Vector2i position) const {
 }
 
 bool Wall::canCollide() const {
-  // Wall can only collide during active phase
   return currentPhase == WallPhase::Active;
 }
 
@@ -139,8 +126,7 @@ void Wall::startBlinking() {
 }
 
 sf::Color Wall::getBlinkColor() const {
-  // Calculate animated alpha based on time
   float time = blinkTimer.getElapsedTime().asSeconds();
-  float alpha = 128 + 127 * std::sin(time * 3.14159f * 4.0f);  // Oscillates between 128 and 255
+  float alpha = 128 + 127 * std::sin(time * 3.14159f * 4.0f);
   return sf::Color(255, 255, 255, static_cast<unsigned char>(alpha));
 }

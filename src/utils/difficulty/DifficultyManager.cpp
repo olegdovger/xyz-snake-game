@@ -1,7 +1,6 @@
 #include "DifficultyManager.hpp"
 #include <stdexcept>
 
-// Static member definitions
 DifficultySettings DifficultyManager::easySettings;
 DifficultySettings DifficultyManager::harderThanEasySettings;
 DifficultySettings DifficultyManager::middleSettings;
@@ -48,42 +47,36 @@ std::wstring DifficultyManager::getDifficultyDisplayName(GameDifficultyLevel dif
 }
 
 void DifficultyManager::initializeDifficultyPresets() {
-  // Easy difficulty - beginner friendly
-  easySettings.setSnakeParameters(4.0f, 0.3f, 8.0f);       // Slow speed, slow increase
-  easySettings.setItemParameters(4.0f, 3, 1.5f, 0.2f);     // Few items, long lifetime, few specials
-  easySettings.setAppleChances(0.7f, 0.15f, 0.1f, 0.05f);  // Mostly red apples
-  easySettings.setWallParameters(2, 0.05f);                // Few walls for testing
-  easySettings.setMultipliers(1.0f, 1.2f);                 // Normal score, longer effects
+  easySettings.setSnakeParameters(4.0f, 0.3f, 8.0f);
+  easySettings.setItemParameters(4.0f, 3, 1.5f, 0.2f);
+  easySettings.setAppleChances(0.7f, 0.15f, 0.1f, 0.05f);
+  easySettings.setWallParameters(2, 0.05f);
+  easySettings.setMultipliers(1.0f, 1.2f);
 
-  // Harder than Easy - slight challenge
   harderThanEasySettings.setSnakeParameters(5.0f, 0.4f, 7.0f);
   harderThanEasySettings.setItemParameters(3.5f, 4, 1.3f, 0.25f);
   harderThanEasySettings.setAppleChances(0.6f, 0.2f, 0.15f, 0.05f);
-  harderThanEasySettings.setWallParameters(2, 0.05f);  // Few walls
+  harderThanEasySettings.setWallParameters(2, 0.05f);
   harderThanEasySettings.setMultipliers(1.1f, 1.1f);
 
-  // Middle difficulty - balanced gameplay
-  middleSettings.setSnakeParameters(6.0f, 0.5f, 6.0f);     // Moderate speed and increase
-  middleSettings.setItemParameters(3.0f, 5, 1.0f, 0.3f);   // Standard spawning
-  middleSettings.setAppleChances(0.5f, 0.2f, 0.2f, 0.1f);  // Balanced apple types
-  middleSettings.setWallParameters(4, 0.1f);               // Moderate walls
-  middleSettings.setMultipliers(1.2f, 1.0f);               // Slightly better score, normal effects
+  middleSettings.setSnakeParameters(6.0f, 0.5f, 6.0f);
+  middleSettings.setItemParameters(3.0f, 5, 1.0f, 0.3f);
+  middleSettings.setAppleChances(0.5f, 0.2f, 0.2f, 0.1f);
+  middleSettings.setWallParameters(4, 0.1f);
+  middleSettings.setMultipliers(1.2f, 1.0f);
 
-  // Harder than Middle - challenging
   harderThanMiddleSettings.setSnakeParameters(7.5f, 0.6f, 5.0f);
-  harderThanMiddleSettings.setItemParameters(2.5f, 6, 0.8f, 0.4f);     // More items, shorter lifetime
-  harderThanMiddleSettings.setAppleChances(0.4f, 0.25f, 0.25f, 0.1f);  // More special apples
-  harderThanMiddleSettings.setWallParameters(6, 0.15f);                // More walls
-  harderThanMiddleSettings.setMultipliers(1.5f, 0.9f);                 // Better score, shorter effects
+  harderThanMiddleSettings.setItemParameters(2.5f, 6, 0.8f, 0.4f);
+  harderThanMiddleSettings.setAppleChances(0.4f, 0.25f, 0.25f, 0.1f);
+  harderThanMiddleSettings.setWallParameters(6, 0.15f);
+  harderThanMiddleSettings.setMultipliers(1.5f, 0.9f);
 
-  // Hard difficulty - expert level
-  hardSettings.setSnakeParameters(9.0f, 0.8f, 4.0f);       // Fast speed, rapid increase
-  hardSettings.setItemParameters(2.0f, 8, 0.6f, 0.5f);     // Frequent spawning, short lifetime
-  hardSettings.setAppleChances(0.3f, 0.3f, 0.25f, 0.15f);  // Many special apples
-  hardSettings.setWallParameters(8, 0.2f);                 // Many walls
-  hardSettings.setMultipliers(2.0f, 0.8f);                 // Double score, shorter effects
+  hardSettings.setSnakeParameters(9.0f, 0.8f, 4.0f);
+  hardSettings.setItemParameters(2.0f, 8, 0.6f, 0.5f);
+  hardSettings.setAppleChances(0.3f, 0.3f, 0.25f, 0.15f);
+  hardSettings.setWallParameters(8, 0.2f);
+  hardSettings.setMultipliers(2.0f, 0.8f);
 
-  // Validate all settings
   if (!easySettings.validate() || !harderThanEasySettings.validate() || !middleSettings.validate() ||
       !harderThanMiddleSettings.validate() || !hardSettings.validate()) {
     throw std::runtime_error("Invalid difficulty settings detected");

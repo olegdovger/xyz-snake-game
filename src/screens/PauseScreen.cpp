@@ -4,7 +4,6 @@
 #include "../utils/ScalingUtils.hpp"
 #include "../utils/SettingStorage.hpp"
 
-#include "Exit.hpp"
 #include "MainMenu.hpp"
 
 using namespace shape;
@@ -68,7 +67,7 @@ void PauseScreen::processEvents(const sf::Event& event) {
             game.setCurrentScreen(new MainMenu(window, game));
             break;
           case 2:
-            game.setCurrentScreen(new Exit(window, game));
+            window.close();
             break;
         }
         break;

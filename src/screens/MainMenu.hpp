@@ -34,7 +34,6 @@ private:
 
   sf::Vector2f menuRectSize = originSize * scaleRelativeFactor;
 
-  // Menu sound manager
   MenuSoundManager soundManager;
 
   void drawMenuBackground(sf::RenderWindow& window, const sf::Text& text) const;

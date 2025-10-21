@@ -14,7 +14,7 @@ HighScores::HighScores(sf::RenderWindow& win, Game& gameRef) : Screen(win, gameR
   screenRect.setOutlineThickness(10.0f);
 
   FontInitializer::initializeTitleText(titleText, font, L"Таблица рекордов");
-  titleText.setLineSpacing(0.0f);  // Дополнительная настройка для HighScores
+  titleText.setLineSpacing(0.0f);
   FontInitializer::initializeBackText(backText, font, 24);
 
   game.loadSettings();
@@ -32,9 +32,7 @@ void HighScores::processEvents(const sf::Event& event) {
   }
 }
 
-void HighScores::update() {
-  // No update logic needed
-}
+void HighScores::update() {}
 
 void HighScores::render() {
   window.clear(backgroundColor);
@@ -90,11 +88,9 @@ void HighScores::renderScores() {
 
     item.setScale(screenRect.getScale());
 
-    // Check if this is the last occurrence of currentScore
     bool isLastOccurrence = false;
     if (currentScore == recordTable[i]) {
       isLastOccurrence = true;
-      // Check if there are any later occurrences
       for (size_t j = i + 1; j < recordTable.size(); ++j) {
         if (currentScore == recordTable[j]) {
           isLastOccurrence = false;
@@ -103,7 +99,6 @@ void HighScores::renderScores() {
       }
     }
 
-    // Set color based on whether this is the last occurrence
     if (isLastOccurrence) {
       item.setFillColor(sf::Color::Green);
     } else {
@@ -115,7 +110,6 @@ void HighScores::renderScores() {
     window.draw(item);
   }
 
-  // If no scores, show message
   if (recordTable.empty()) {
     sf::Text noScoresText(font);
     noScoresText.setString(L"Пока нет рекордов!");

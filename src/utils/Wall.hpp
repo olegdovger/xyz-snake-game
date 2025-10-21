@@ -16,21 +16,17 @@ public:
   explicit Wall(const std::vector<sf::Vector2i>& positions, WallType type = WallType::Wall_1,
                 const DifficultySettings* difficulty = nullptr);
 
-  // Lifecycle
   void update(float deltaTime);
   bool isExpired() const { return expired; }
   bool isBlinking() const { return blinking; }
 
-  // Rendering
   void render(sf::RenderWindow& window, const GameGrid& grid) const;
 
-  // Properties
   const std::vector<sf::Vector2i>& getPositions() const { return positions; }
   WallType getType() const { return type; }
 
-  // Collision detection
   bool checkCollisionWithPosition(sf::Vector2i position) const;
-  bool canCollide() const;  // Returns true only during active phase
+  bool canCollide() const;
   WallPhase getCurrentPhase() const { return currentPhase; }
 
 private:
@@ -39,17 +35,14 @@ private:
   sf::Texture texture;
   const DifficultySettings* difficultySettings;
 
-  // Timing
   PausableClock lifetimeClock;
-  float lifetime;  // Random between 10-20 seconds, adjusted by difficulty
+  float lifetime;
   bool expired;
 
-  // Wall phases
   WallPhase currentPhase;
-  static constexpr float APPEARANCE_DURATION = 3.0f;     // 3 seconds to appear
-  static constexpr float DISAPPEARANCE_DURATION = 3.0f;  // 3 seconds to disappear
+  static constexpr float APPEARANCE_DURATION = 3.0f;
+  static constexpr float DISAPPEARANCE_DURATION = 3.0f;
 
-  // Blinking effect
   bool blinking;
   int blinkCount;
   static constexpr int MAX_BLINKS = 3;

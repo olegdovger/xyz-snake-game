@@ -20,10 +20,8 @@ void DebugUI::render(sf::RenderWindow& window) {
   if (!isInitialized || debugLines.empty())
     return;
 
-  // Get font using type-safe access
   const sf::Font& font = ResourceLoader::getFont(FontType::DebugFont);
 
-  // Keep font size constant regardless of window resize
   const float fontSize = 32.0f;
 
   sf::Text text(font);

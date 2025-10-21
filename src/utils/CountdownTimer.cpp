@@ -29,7 +29,6 @@ void CountdownTimer::start() {
   clock.restart();
   updateText();
 
-  // Play initial countdown sound
   if (soundEnabled && currentSeconds > 0) {
     countdownSound.play();
   }
@@ -47,7 +46,6 @@ void CountdownTimer::update() {
     currentSeconds = newCurrentSeconds;
     updateText();
 
-    // Play countdown sound when seconds change
     if (soundEnabled && currentSeconds > 0) {
       countdownSound.play();
     }
@@ -95,7 +93,6 @@ void CountdownTimer::updateText() {
     countdownText.setString("GO!");
   }
 
-  // Center the text
   sf::FloatRect textRect = countdownText.getLocalBounds();
   countdownText.setOrigin(
       sf::Vector2f(textRect.position.x + textRect.size.x / 2.0f, textRect.position.y + textRect.size.y / 2.0f));

@@ -69,7 +69,7 @@ void DifficultyScreen::render() {
 }
 
 void DifficultyScreen::renderScreenRect() {
-  // Center the rectangle
+
   sf::Vector2u windowSize = window.getSize();
   screenRect.setPosition(sf::Vector2f((static_cast<float>(windowSize.x) - screenRect.getSize().x) / 2.0f,
                                       (static_cast<float>(windowSize.y) - screenRect.getSize().y) / 2.0f));
@@ -137,23 +137,18 @@ void DifficultyScreen::initializeDifficultyItems() {
   difficultyItems.clear();
   difficultyItems.reserve(difficultyLevels.size());
 
-  // Load current difficulty from settings file
   SettingStorage settingStorage;
   bool settingsLoaded = settingStorage.loadSettings();
 
   if (settingsLoaded) {
     GameDifficultyLevel currentDifficultyLevel = settingStorage.getGameDifficultyLevel();
 
-    // Find and set the selected difficulty index
     for (size_t i = 0; i < difficultyLevels.size(); ++i) {
       if (difficultyLevels[i] == currentDifficultyLevel) {
         selectedDifficultyIndex = static_cast<int>(i);
         break;
       }
     }
-
-  } else {
-    // Failed to load settings, using default difficulty
   }
 
   for (size_t i = 0; i < difficultyLevels.size(); ++i) {
@@ -179,7 +174,6 @@ void DifficultyScreen::confirmSelection() {
       GameDifficultyLevel::HarderThanMiddle, GameDifficultyLevel::Hard};
 
   if (selectedDifficultyIndex < difficultyLevels.size()) {
-    // Use the existing SettingStorage from Game instead of creating a new one
     SettingStorage& settingStorage = const_cast<SettingStorage&>(game.getSettingsReader());
     settingStorage.setGameDifficultyLevel(difficultyLevels[selectedDifficultyIndex]);
     settingStorage.saveSettings();

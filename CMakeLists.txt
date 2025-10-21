@@ -55,7 +55,6 @@ add_executable(${PROJECT_NAME}
         "src/screens/DifficultyScreen.cpp"
         "src/screens/HighScores.cpp"
         "src/screens/Settings.cpp"
-        "src/screens/Exit.cpp"
         "src/config/AudioConstants.hpp"
         "src/utils/EventLogger.cpp"
         "src/utils/DebugUI.cpp"

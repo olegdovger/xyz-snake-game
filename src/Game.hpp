@@ -4,7 +4,6 @@
 #include "Screen.hpp"
 #include "utils/SettingStorage.hpp"
 
-// Menu color constants
 namespace MenuColors {
 constexpr uint8_t BACKGROUND_R = 130;
 constexpr uint8_t BACKGROUND_G = 73;
@@ -41,7 +40,7 @@ private:
 
 public:
   explicit Game(sf::RenderWindow& window);
-  ~Game() = default;
+  ~Game();
 
   void start() const;
 

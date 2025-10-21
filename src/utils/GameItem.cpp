@@ -36,11 +36,9 @@ unsigned char GameItem::getAlpha() const {
   float lifetimePercent = remainingTime / lifetime;
 
   if (lifetimePercent > 0.05f) {
-    // 95% жизни: от 255 до 100
     float alphaPercent = (lifetimePercent - 0.05f) / 0.95f;
     return static_cast<unsigned char>(100 + (255 - 100) * alphaPercent);
   } else {
-    // Последние 5% жизни: от 100 до 0
     float alphaPercent = lifetimePercent / 0.05f;
     return static_cast<unsigned char>(100 * alphaPercent);
   }

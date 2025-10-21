@@ -43,7 +43,6 @@ void Settings::processEvents(const sf::Event& event) {
         break;
       case sf::Keyboard::Key::Escape:
       case sf::Keyboard::Key::B:
-        // Return to main menu
         game.setCurrentScreen(new MainMenu(window, game));
         break;
       default:
@@ -52,9 +51,7 @@ void Settings::processEvents(const sf::Event& event) {
   }
 }
 
-void Settings::update() {
-  // No update logic needed for menu
-}
+void Settings::update() {}
 
 void Settings::render() {
   renderMenuRect();
@@ -64,7 +61,6 @@ void Settings::render() {
 }
 
 void Settings::initializeMenuItems() {
-  // Update menu labels with current states
   menuLabels = {std::wstring(L"Звук: ") + (soundEnabled ? L"Включен" : L"Выключен"),
                 std::wstring(L"Музыка: ") + (musicEnabled ? L"Включена" : L"Выключена")};
 
