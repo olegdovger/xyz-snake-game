@@ -1,30 +1,21 @@
 #include "HighScores.hpp"
-#include "../utils/ResourceLoader.hpp"
+#include "../utils/FontInitializer.hpp"
 #include "../utils/ScalingUtils.hpp"
 #include "MainMenu.hpp"
 
 using namespace shape;
 
 HighScores::HighScores(sf::RenderWindow& win, Game& gameRef) : Screen(win, gameRef), titleText(font), backText(font) {
-  font = ResourceLoader::getFont(FontType::DebugFont);
+  font = FontInitializer::getDebugFont();
 
   screenRect.setSize(originSize);
   screenRect.setFillColor(menuBackgroundColor);
   screenRect.setOutlineColor(borderColor);
   screenRect.setOutlineThickness(10.0f);
 
-  titleText.setFont(font);
-  titleText.setString(L"Таблица рекордов");
-  titleText.setCharacterSize(40);
-  titleText.setLineSpacing(0.0f);
-  titleText.setFillColor(sf::Color::White);
-  titleText.setStyle(sf::Text::Bold);
-
-  backText.setFont(font);
-  backText.setString(L"Назад (Escape)");
-  backText.setCharacterSize(24);
-  backText.setFillColor(sf::Color::White);
-  backText.setStyle(sf::Text::Bold);
+  FontInitializer::initializeTitleText(titleText, font, L"Таблица рекордов");
+  titleText.setLineSpacing(0.0f);  // Дополнительная настройка для HighScores
+  FontInitializer::initializeBackText(backText, font, 24);
 
   game.loadSettings();
 }

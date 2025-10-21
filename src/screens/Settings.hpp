@@ -10,6 +10,7 @@
 #include <vector>
 #include "../Game.hpp"
 #include "../Screen.hpp"
+#include "../utils/MenuSoundManager.hpp"
 
 class Settings : public Screen {
 private:
@@ -26,32 +27,16 @@ private:
 
   sf::Color backgroundColor = sf::Color(164, 144, 164);
 
-  // Colors
-  static constexpr uint8_t BACKGROUND_R = 130;
-  static constexpr uint8_t BACKGROUND_G = 73;
-  static constexpr uint8_t BACKGROUND_B = 113;
-
-  sf::Color menuBackgroundColor = sf::Color(BACKGROUND_R, BACKGROUND_G, BACKGROUND_B);
-
-  static constexpr uint8_t TEXT_R = 251;  // 251, 242, 54
-  static constexpr uint8_t TEXT_G = 242;  // 251, 242, 54
-  static constexpr uint8_t TEXT_B = 54;   // 251, 242, 54
-
-  sf::Color textColor = sf::Color(TEXT_R, TEXT_G, TEXT_B);
-
-  static constexpr uint8_t BORDER_R = 171;
-  static constexpr uint8_t BORDER_G = 99;
-  static constexpr uint8_t BORDER_B = 148;
-
-  sf::Color borderColor = sf::Color(BORDER_R, BORDER_G, BORDER_B);
+  sf::Color menuBackgroundColor = MenuColors::BACKGROUND_COLOR;
+  sf::Color textColor = MenuColors::TEXT_COLOR;
+  sf::Color borderColor = MenuColors::BORDER_COLOR;
 
   float scaleRelativeFactor = 0.8f;
 
   sf::Vector2f menuRectSize = originSize * scaleRelativeFactor;
 
-  // Menu sounds
-  sf::Sound setActiveMenuItemSound;
-  sf::Sound selectMenuItemSound;
+  // Menu sound manager
+  MenuSoundManager soundManager;
 
   // Sound states
   bool soundEnabled = true;

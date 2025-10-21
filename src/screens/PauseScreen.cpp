@@ -1,7 +1,6 @@
 #include "PauseScreen.hpp"
 #include <iostream>
-#include "../config/AudioConstants.hpp"
-#include "../utils/ResourceLoader.hpp"
+#include "../utils/FontInitializer.hpp"
 #include "../utils/ScalingUtils.hpp"
 #include "../utils/SettingStorage.hpp"
 
@@ -10,25 +9,10 @@
 
 using namespace shape;
 
-PauseScreen::PauseScreen(sf::RenderWindow& win, Game& gameRef)
-    : Screen(win, gameRef),
-      titleText(font),
-      backText(font),
-      setActiveMenuItemSound(ResourceLoader::getSound(SoundType::SetActiveMenuItem)),
-      selectMenuItemSound(ResourceLoader::getSound(SoundType::SelectMenuItem)) {
-  font = ResourceLoader::getFont(FontType::DebugFont);
-
-  titleText.setString(L"Пауза");
-  titleText.setFont(font);
-  titleText.setCharacterSize(40);
-  titleText.setFillColor(sf::Color::White);
-  titleText.setStyle(sf::Text::Bold);
-
-  backText.setString(L"Назад (Escape)");
-  backText.setFont(font);
-  backText.setCharacterSize(14);
-  backText.setFillColor(sf::Color::White);
-  backText.setStyle(sf::Text::Bold);
+PauseScreen::PauseScreen(sf::RenderWindow& win, Game& gameRef) : Screen(win, gameRef), titleText(font), backText(font) {
+  font = FontInitializer::getDebugFont();
+  FontInitializer::initializeTitleText(titleText, font, L"Пауза");
+  FontInitializer::initializeBackText(backText, font, 14);
 
   screenRect.setSize(originSize);
   screenRect.setFillColor(menuBackgroundColor);
@@ -39,13 +23,9 @@ PauseScreen::PauseScreen(sf::RenderWindow& win, Game& gameRef)
   screenRect.setFillColor(menuBackgroundColor);
   screenRect.setOutlineColor(borderColor);
   screenRect.setOutlineThickness(10.0f);
-
-  // Set menu sound volumes
-  setActiveMenuItemSound.setVolume(AudioConstants::SoundEffects::MENU_NAVIGATION_VOLUME);
-  selectMenuItemSound.setVolume(AudioConstants::SoundEffects::MENU_SELECTION_VOLUME);
 
   game.loadSettings();
-  soundEnabled = game.getSettingsReader().getGameSound();
+  soundManager.setSoundEnabled(game.getSettingsReader().getGameSound());
 
   initializeMenuItems();
 }
@@ -58,10 +38,7 @@ void PauseScreen::initializeMenuItems() {
 
   for (size_t i = 0; i < textItems.size(); ++i) {
     sf::Text item(font);
-    item.setString(textItems[i]);
-    item.setCharacterSize(24);
-    item.setFillColor(sf::Color::White);
-
+    FontInitializer::initializeMenuItemText(item, font, textItems[i], 24);
     menuItems.push_back(item);
   }
 }
@@ -73,22 +50,16 @@ void PauseScreen::processEvents(const sf::Event& event) {
       case sf::Keyboard::Key::Up:
         std::cout << "Keypressed up(w)" << std::endl;
         selectedIndex = (selectedIndex - 1 + MENU_ITEMS_COUNT) % MENU_ITEMS_COUNT;
-        if (soundEnabled) {
-          setActiveMenuItemSound.play();
-        }
+        soundManager.playNavigationSound();
         break;
       case sf::Keyboard::Key::S:
       case sf::Keyboard::Key::Down:
         std::cout << "Keypressed down(s)" << std::endl;
         selectedIndex = (selectedIndex + 1) % MENU_ITEMS_COUNT;
-        if (soundEnabled) {
-          setActiveMenuItemSound.play();
-        }
+        soundManager.playNavigationSound();
         break;
       case sf::Keyboard::Key::Enter:
-        if (soundEnabled) {
-          selectMenuItemSound.play();
-        }
+        soundManager.playSelectionSound();
         switch (selectedIndex) {
           case 0:
             game.returnToGameScreen();
@@ -102,9 +73,7 @@ void PauseScreen::processEvents(const sf::Event& event) {
         }
         break;
       case sf::Keyboard::Key::Escape:
-        if (soundEnabled) {
-          selectMenuItemSound.play();
-        }
+        soundManager.playSelectionSound();
 
         game.returnToGameScreen();
         break;

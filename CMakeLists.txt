@@ -61,6 +61,8 @@ add_executable(${PROJECT_NAME}
         "src/utils/DebugUI.cpp"
         "src/utils/ResourceLoader.cpp"
         "src/utils/ResourceManager.cpp"
+        "src/utils/FontInitializer.cpp"
+        "src/utils/MenuSoundManager.cpp"
         "src/utils/GameGrid.cpp"
         "src/utils/ScalingUtils.cpp"
         "src/utils/SettingStorage.cpp"

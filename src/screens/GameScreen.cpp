@@ -47,10 +47,8 @@ GameScreen::GameScreen(sf::RenderWindow& win, Game& gameRef)
 
   countdownTimer.setSoundEnabled(soundEnabled);
 
-  if (game.getSettingsReader().getGameCountdownEnabled()) {
-    countdownTimer.setDuration(game.getSettingsReader().getGameCountdownInSeconds());
-    countdownTimer.start();
-  }
+  countdownTimer.setDuration(game.getSettingsReader().getGameCountdownInSeconds());
+  countdownTimer.start();
 
   snakeTypeTimer.restart();
 

@@ -1,47 +1,29 @@
 #include "DifficultyScreen.hpp"
 
-#include "../config/AudioConstants.hpp"
-#include "../utils/ResourceLoader.hpp"
+#include "../utils/FontInitializer.hpp"
 #include "../utils/ScalingUtils.hpp"
 #include "../utils/SettingStorage.hpp"
 #include "../utils/difficulty/DifficultyManager.hpp"
-#include "GameScreen.hpp"
 #include "MainMenu.hpp"
 
 using namespace shape;
 
 DifficultyScreen::DifficultyScreen(sf::RenderWindow& win, Game& gameRef)
-    : Screen(win, gameRef),
-      titleText(font),
-      backText(font),
-      setActiveMenuItemSound(ResourceLoader::getSound(SoundType::SetActiveMenuItem)),
-      selectMenuItemSound(ResourceLoader::getSound(SoundType::SelectMenuItem)) {
+    : Screen(win, gameRef), titleText(font), backText(font) {
 
   screenRect.setSize(originSize);
   screenRect.setFillColor(menuBackgroundColor);
   screenRect.setOutlineColor(borderColor);
   screenRect.setOutlineThickness(10.0f);
 
-  font = ResourceLoader::getFont(FontType::DebugFont);
-
-  titleText.setFont(font);
-  titleText.setString(L"Уровень сложности");
-  titleText.setCharacterSize(40);
-  titleText.setFillColor(sf::Color::White);
-  titleText.setStyle(sf::Text::Bold);
-
-  backText.setFont(font);
-  backText.setString(L"Назад (Escape)");
-  backText.setCharacterSize(24);
-  backText.setFillColor(sf::Color::White);
-  backText.setStyle(sf::Text::Bold);
+  font = FontInitializer::getDebugFont();
+  FontInitializer::initializeTitleText(titleText, font, L"Уровень сложности");
+  FontInitializer::initializeBackText(backText, font, 24);
 
   initializeDifficultyItems();
 
-  setActiveMenuItemSound.setVolume(AudioConstants::SoundEffects::MENU_NAVIGATION_VOLUME);
-  selectMenuItemSound.setVolume(AudioConstants::SoundEffects::MENU_SELECTION_VOLUME);
-
   game.loadSettings();
+  soundManager.setSoundEnabled(game.getSettingsReader().getGameSound());
 }
 
 void DifficultyScreen::processEvents(const sf::Event& event) {
@@ -51,25 +33,19 @@ void DifficultyScreen::processEvents(const sf::Event& event) {
       case sf::Keyboard::Key::Up:
         selectPreviousDifficulty();
 
-        if (game.getSettingsReader().getGameSound()) {
-          setActiveMenuItemSound.play();
-        }
+        soundManager.playNavigationSound();
 
         break;
       case sf::Keyboard::Key::S:
       case sf::Keyboard::Key::Down:
         selectNextDifficulty();
 
-        if (game.getSettingsReader().getGameSound()) {
-          setActiveMenuItemSound.play();
-        }
+        soundManager.playNavigationSound();
 
         break;
       case sf::Keyboard::Key::Enter:
       case sf::Keyboard::Key::Space:
-        if (game.getSettingsReader().getGameSound()) {
-          selectMenuItemSound.play();
-        }
+        soundManager.playSelectionSound();
 
         confirmSelection();
         game.setCurrentScreen(new MainMenu(window, game));
@@ -203,10 +179,9 @@ void DifficultyScreen::confirmSelection() {
       GameDifficultyLevel::HarderThanMiddle, GameDifficultyLevel::Hard};
 
   if (selectedDifficultyIndex < difficultyLevels.size()) {
-
-    SettingStorage settingStorage;
+    // Use the existing SettingStorage from Game instead of creating a new one
+    SettingStorage& settingStorage = const_cast<SettingStorage&>(game.getSettingsReader());
     settingStorage.setGameDifficultyLevel(difficultyLevels[selectedDifficultyIndex]);
-
     settingStorage.saveSettings();
   }
 }

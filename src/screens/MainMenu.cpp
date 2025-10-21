@@ -1,7 +1,6 @@
 #include "MainMenu.hpp"
 #include <iostream>
-#include "../config/AudioConstants.hpp"
-#include "../utils/ResourceLoader.hpp"
+#include "../utils/FontInitializer.hpp"
 #include "../utils/ScalingUtils.hpp"
 #include "../utils/SettingStorage.hpp"
 #include "DifficultyScreen.hpp"
@@ -12,18 +11,9 @@
 
 using namespace shape;
 
-MainMenu::MainMenu(sf::RenderWindow& win, Game& gameRef)
-    : Screen(win, gameRef),
-      titleText(font),
-      setActiveMenuItemSound(ResourceLoader::getSound(SoundType::SetActiveMenuItem)),
-      selectMenuItemSound(ResourceLoader::getSound(SoundType::SelectMenuItem)) {
-  font = ResourceLoader::getFont(FontType::DebugFont);
-
-  titleText.setString(L"Главное меню");
-  titleText.setFont(font);
-  titleText.setCharacterSize(40);
-  titleText.setFillColor(sf::Color::White);
-  titleText.setStyle(sf::Text::Bold);
+MainMenu::MainMenu(sf::RenderWindow& win, Game& gameRef) : Screen(win, gameRef), titleText(font) {
+  font = FontInitializer::getDebugFont();
+  FontInitializer::initializeTitleText(titleText, font, L"Главное меню");
 
   screenRect.setSize(originSize);
   screenRect.setFillColor(menuBackgroundColor);
@@ -34,14 +24,9 @@ MainMenu::MainMenu(sf::RenderWindow& win, Game& gameRef)
   screenRect.setFillColor(menuBackgroundColor);
   screenRect.setOutlineColor(borderColor);
   screenRect.setOutlineThickness(10.0f);
-
-  // Set menu sound volumes
-  setActiveMenuItemSound.setVolume(AudioConstants::SoundEffects::MENU_NAVIGATION_VOLUME);
-  selectMenuItemSound.setVolume(AudioConstants::SoundEffects::MENU_SELECTION_VOLUME);
 
   game.loadSettings();
-
-  soundEnabled = game.getSettingsReader().getGameSound();
+  soundManager.setSoundEnabled(game.getSettingsReader().getGameSound());
 
   initializeMenuItems();
 }
@@ -50,7 +35,7 @@ void MainMenu::drawMenuBackground(sf::RenderWindow& window, const sf::Text& text
   sf::RectangleShape background;
   background.setSize(sf::Vector2f(text.getLocalBounds().size.x + 20, text.getLocalBounds().size.y + 10));
   background.setPosition(sf::Vector2f(text.getPosition().x - 10, text.getPosition().y - 5));
-  background.setFillColor(sf::Color(BORDER_R, BORDER_G, BORDER_B));
+  background.setFillColor(sf::Color(MenuColors::BORDER_R, MenuColors::BORDER_G, MenuColors::BORDER_B));
   window.draw(background);
 }
 
@@ -61,22 +46,16 @@ void MainMenu::processEvents(const sf::Event& event) {
       case sf::Keyboard::Key::Up:
         std::cout << "Keypressed up(w)" << std::endl;
         selectedIndex = (selectedIndex - 1 + MENU_ITEMS_COUNT) % MENU_ITEMS_COUNT;
-        if (soundEnabled) {
-          setActiveMenuItemSound.play();  // Play sound when switching menu items
-        }
+        soundManager.playNavigationSound();  // Play sound when switching menu items
         break;
       case sf::Keyboard::Key::S:
       case sf::Keyboard::Key::Down:
         std::cout << "Keypressed down(s)" << std::endl;
         selectedIndex = (selectedIndex + 1) % MENU_ITEMS_COUNT;
-        if (soundEnabled) {
-          setActiveMenuItemSound.play();  // Play sound when switching menu items
-        }
+        soundManager.playNavigationSound();  // Play sound when switching menu items
         break;
       case sf::Keyboard::Key::Enter:
-        if (soundEnabled) {
-          selectMenuItemSound.play();  // Play sound when selecting menu item
-        }
+        soundManager.playSelectionSound();  // Play sound when selecting menu item
         switch (selectedIndex) {
           case 0:  // Начать игру
             game.setCurrentScreen(new GameScreen(window, game));
@@ -119,10 +98,7 @@ void MainMenu::initializeMenuItems() {
 
   for (size_t i = 0; i < menuLabels.size(); ++i) {
     sf::Text item(font);
-    item.setString(menuLabels[i]);
-    item.setCharacterSize(24);
-    item.setFillColor(sf::Color::White);
-
+    FontInitializer::initializeMenuItemText(item, font, menuLabels[i], 24);
     menuItems.push_back(item);
   }
 }
