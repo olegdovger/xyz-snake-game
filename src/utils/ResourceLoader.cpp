@@ -3,41 +3,31 @@
 #include <SFML/Audio/SoundBuffer.hpp>
 #include <SFML/Graphics/Font.hpp>
 #include <iostream>
+#include <map>
 
-const std::string FONT_NAMES[] = {
-    "debug_font",  // FontType::DebugFont
-    "ui_font"      // FontType::UIFont
-};
-const std::string TEXTURE_NAMES[] = {
-    "snake",         // TextureType::Snake
-    "green_apple",   // TextureType::GreenApple
-    "red_apple",     // TextureType::RedApple
-    "fantom_apple",  // TextureType::FantomApple
-    "board_border",  // TextureType::BoardBorder
-    "board_grid",    // TextureType::BoardGrid
-    "portal",        // TextureType::Portal
-    "water_bubble",  // TextureType::WaterBubble
-    "wall_1",        // TextureType::Wall_1
-    "wall_2",        // TextureType::Wall_2
-    "wall_3",        // TextureType::Wall_3
-    "wall_4",        // TextureType::Wall_4
-    "game_ui",       // TextureType::GameUI
-    "digits",        // TextureType::Digits
-    "game_icon"      // TextureType::GameIcon
-};
-
-const std::string MUSIC_NAMES[] = {
-    "background_music"  // MusicType::BackgroundMusic
-};
-
-const std::string SOUND_NAMES[] = {
-    "eat_apple",             // SoundType::EatApple
-    "game_over",             // SoundType::GameOver
-    "countdown",             // SoundType::Countdown
-    "select_menu_item",      // SoundType::SelectMenuItem
-    "set_active_menu_item",  // SoundType::SetActiveMenuItem
-    "start_game"             // SoundType::StartGame
-};
+const std::map<FontType, std::string> FONT_NAMES = {{FontType::DebugFont, "debug_font"}, {FontType::UIFont, "ui_font"}};
+const std::map<TextureType, std::string> TEXTURE_NAMES = {{TextureType::Snake, "snake"},
+                                                          {TextureType::GreenApple, "green_apple"},
+                                                          {TextureType::RedApple, "red_apple"},
+                                                          {TextureType::FantomApple, "fantom_apple"},
+                                                          {TextureType::BoardBorder, "board_border"},
+                                                          {TextureType::BoardGrid, "board_grid"},
+                                                          {TextureType::Portal, "portal"},
+                                                          {TextureType::WaterBubble, "water_bubble"},
+                                                          {TextureType::Wall_1, "wall_1"},
+                                                          {TextureType::Wall_2, "wall_2"},
+                                                          {TextureType::Wall_3, "wall_3"},
+                                                          {TextureType::Wall_4, "wall_4"},
+                                                          {TextureType::GameUI, "game_ui"},
+                                                          {TextureType::Digits, "digits"},
+                                                          {TextureType::GameIcon, "game_icon"}};
+const std::map<MusicType, std::string> MUSIC_NAMES = {{MusicType::BackgroundMusic, "background_music"}};
+const std::map<SoundType, std::string> SOUND_NAMES = {{SoundType::EatApple, "eat_apple"},
+                                                      {SoundType::GameOver, "game_over"},
+                                                      {SoundType::Countdown, "countdown"},
+                                                      {SoundType::SelectMenuItem, "select_menu_item"},
+                                                      {SoundType::SetActiveMenuItem, "set_active_menu_item"},
+                                                      {SoundType::StartGame, "start_game"}};
 
 bool ResourceLoader::initializeAllResources() {
   std::cout << "Loading all game resources..." << std::endl;
@@ -149,19 +139,19 @@ MusicManager& ResourceLoader::getMusicManager() {
 }
 
 std::string ResourceLoader::fontTypeToString(const FontType fontType) {
-  return FONT_NAMES[static_cast<int>(fontType)];
+  return FONT_NAMES.at(fontType);
 }
 
 std::string ResourceLoader::textureTypeToString(const TextureType textureType) {
-  return TEXTURE_NAMES[static_cast<int>(textureType)];
+  return TEXTURE_NAMES.at(textureType);
 }
 
 std::string ResourceLoader::musicTypeToString(const MusicType musicType) {
-  return MUSIC_NAMES[static_cast<int>(musicType)];
+  return MUSIC_NAMES.at(musicType);
 }
 
 std::string ResourceLoader::soundTypeToString(const SoundType soundType) {
-  return SOUND_NAMES[static_cast<int>(soundType)];
+  return SOUND_NAMES.at(soundType);
 }
 
 const sf::Font& ResourceLoader::getFont(const FontType fontType) {

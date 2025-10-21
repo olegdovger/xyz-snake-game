@@ -18,6 +18,11 @@ Game::Game(sf::RenderWindow& win) : window(win), isRunning(true), previousScreen
   EventLogger::setDebugMode(DEBUG_UI_TEXT);
 }
 
+Game::~Game() {
+  delete currentScreen;
+  delete previousScreen;
+}
+
 void Game::start() const {
   while (window.isOpen()) {
     sf::sleep(sf::milliseconds(16));
@@ -58,16 +63,19 @@ void Game::processEvents(const sf::Event& event) const {
 }
 
 void Game::setCurrentScreen(Screen* screen) {
+  delete currentScreen;
   currentScreen = screen;
 }
 
 void Game::setCurrentScreenWithPrevious(Screen* screen, Screen* previous) {
+  delete previousScreen;
   previousScreen = previous;
   currentScreen = screen;
 }
 
 void Game::returnToPreviousScreen() {
   if (previousScreen != nullptr) {
+    delete currentScreen;
     currentScreen = previousScreen;
     previousScreen = nullptr;
   }
@@ -78,15 +86,17 @@ void Game::returnToGameScreen() {
     if (auto* gameScreen = dynamic_cast<GameScreen*>(previousScreen)) {
       gameScreen->resume();
     }
+    delete currentScreen;
     currentScreen = previousScreen;
     previousScreen = nullptr;
   } else {
+    delete currentScreen;
     currentScreen = new GameScreen(window, *this);
   }
 }
 
 void Game::saveScoreToRecordTable() {
-  // Reload settings to ensure we have the latest values
+
   settingStorage.loadSettings();
   settingStorage.addScoreToRecordTable(score);
 }

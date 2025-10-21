@@ -10,16 +10,13 @@ ResourceManager<T>& ResourceManager<T>::getInstance() {
 
 template <typename T>
 bool ResourceManager<T>::loadResource(const std::string& name, const std::string& filePath) {
-  // Check if resource already exists
   if (hasResource(name)) {
     std::cout << "Resource '" << name << "' already loaded" << std::endl;
     return true;
   }
 
-  // Create new resource
   auto resource = std::make_unique<T>();
 
-  // Try to load the resource
   if constexpr (std::is_same_v<T, sf::Font>) {
     if (!resource->openFromFile(filePath)) {
       std::cerr << "Failed to load resource '" << name << "' from '" << filePath << "'" << std::endl;
@@ -42,7 +39,6 @@ bool ResourceManager<T>::loadResource(const std::string& name, const std::string
     }
   }
 
-  // Store the resource
   resources[name] = std::move(resource);
   std::cout << "Successfully loaded resource '" << name << "' from '" << filePath << "'" << std::endl;
   return true;
@@ -93,7 +89,6 @@ size_t ResourceManager<T>::getResourceCount() const {
   return resources.size();
 }
 
-// Explicit template instantiations for common types
 template class ResourceManager<sf::Texture>;
 template class ResourceManager<sf::Font>;
 template class ResourceManager<sf::SoundBuffer>;

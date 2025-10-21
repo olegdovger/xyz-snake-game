@@ -41,6 +41,5 @@ private:
   void selectPreviousDifficulty();
   void confirmSelection();
 
-  // Menu sound manager
   MenuSoundManager soundManager;
 };

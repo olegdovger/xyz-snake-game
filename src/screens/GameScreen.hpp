@@ -65,12 +65,10 @@ private:
   sf::Clock snakeTypeTimer;
   sf::Clock speedIncreaseTimer;
 
-  // Game state
   bool gameOver = false;
   bool scoreSaved = false;
   bool isPaused = false;
 
-  // Blinking effect for collision
   bool isBlinking = false;
   int blinkCount = 0;
   static constexpr int MAX_BLINKS = 3;

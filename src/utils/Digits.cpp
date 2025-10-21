@@ -70,7 +70,6 @@ float Digits::getNumberWidth(int digitCount) const {
 }
 
 sf::IntRect Digits::getDigitRect(int digit) const {
-  // Map digits to sprite positions: 0->9, 1->0, 2->1, ..., 9->8
   int spriteIndex = (digit == 0) ? 9 : digit - 1;
   int x = spriteIndex * TOTAL_DIGIT_WIDTH;
   return sf::IntRect(sf::Vector2i(x, 0), sf::Vector2i(DIGIT_WIDTH, DIGIT_HEIGHT));

@@ -28,10 +28,8 @@ enum class SoundType { EatApple, GameOver, Countdown, SelectMenuItem, SetActiveM
 
 class ResourceLoader {
 public:
-  // Initialize all game resources
   static bool initializeAllResources();
 
-  // Load specific resource types
   static bool loadTextures();
 
   static bool loadFonts();
@@ -40,7 +38,6 @@ public:
 
   static bool loadMusic();
 
-  // Get resource managers
   static TextureManager& getTextureManager();
 
   static FontManager& getFontManager();
@@ -49,7 +46,6 @@ public:
 
   static MusicManager& getMusicManager();
 
-  // Get font by type (type-safe)
   static const sf::Font& getFont(const FontType fontType);
 
   static const sf::Texture& getTexture(const TextureType textureType);
@@ -67,7 +63,6 @@ private:
 
   static bool loadMusicFile(const std::string& name, const std::string& path);
 
-  // Convert enum to string
   static std::string fontTypeToString(const FontType fontType);
 
   static std::string textureTypeToString(const TextureType textureType);

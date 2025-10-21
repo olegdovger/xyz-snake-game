@@ -1,18 +1,8 @@
 #pragma once
 #include "GameItem.hpp"
 
-/**
- * @brief Green apple implementation
- * 
- * Gives +5 speed bonus for 5 seconds and 10 points.
- */
 class GreenApple : public GameItem {
 public:
-  /**
-     * @brief Constructor
-     * @param position Grid position
-     * @param lifetimeMultiplier Multiplier for apple lifetime
-     */
   GreenApple(sf::Vector2i position, float lifetimeMultiplier = 1.0f);
 
   void render(sf::RenderWindow& window, const GameGrid& grid) const override;

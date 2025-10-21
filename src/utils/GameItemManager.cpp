@@ -12,21 +12,18 @@ GameItemManager::GameItemManager(const GameGrid& grid, const DifficultySettings&
     : grid(grid),
       difficultySettings(difficultySettings),
       randomGenerator(std::random_device{}()),
-      itemTypeDistribution(0, 3),  // 0=RedApple, 1=GreenApple, 2=WaterBubble, 3=FantomApple
+      itemTypeDistribution(0, 3),
       positionDistributionX(0, grid.getCols() - 1),
       positionDistributionY(0, grid.getRows() - 1) {}
 
 void GameItemManager::update(float deltaTime, const Snake& snake) {
-  // Remove expired items
   removeExpiredItems();
 
-  // Update all items
   for (auto& item : items) {
     item->update(deltaTime);
   }
 
-  // Try to spawn new item
-  if (spawnTimer.getElapsedTime().asSeconds() >= difficultySettings.getItemSpawnInterval() && 
+  if (spawnTimer.getElapsedTime().asSeconds() >= difficultySettings.getItemSpawnInterval() &&
       items.size() < difficultySettings.getMaxItemsOnBoard()) {
     spawnRandomItem(snake);
     spawnTimer.restart();
@@ -49,13 +46,12 @@ GameItem* GameItemManager::checkCollision(sf::Vector2i snakeHead) {
 }
 
 bool GameItemManager::spawnRandomItem(const Snake& snake) {
-  // Use difficulty-based apple probabilities
   std::uniform_real_distribution<float> probabilityDistribution(0.0f, 1.0f);
   float randomValue = probabilityDistribution(randomGenerator);
-  
+
   GameItemType type;
   float cumulativeChance = 0.0f;
-  
+
   cumulativeChance += difficultySettings.getRedAppleChance();
   if (randomValue <= cumulativeChance) {
     type = GameItemType::RedApple;
@@ -72,7 +68,7 @@ bool GameItemManager::spawnRandomItem(const Snake& snake) {
       }
     }
   }
-  
+
   return spawnItem(type, snake);
 }
 
@@ -89,7 +85,8 @@ bool GameItemManager::spawnItem(GameItemManager::GameItemType itemType, const Sn
   std::unique_ptr<GameItem> item;
   switch (itemType) {
     case GameItemType::RedApple:
-      item = std::make_unique<RedApple>(position, grid.getCols(), grid.getRows(), snake.getSpeed(), difficultySettings.getAppleLifetimeMultiplier());
+      item = std::make_unique<RedApple>(position, grid.getCols(), grid.getRows(), snake.getSpeed(),
+                                        difficultySettings.getAppleLifetimeMultiplier());
       break;
     case GameItemType::GreenApple:
       item = std::make_unique<GreenApple>(position, difficultySettings.getAppleLifetimeMultiplier());
@@ -115,17 +112,14 @@ sf::Vector2i GameItemManager::generateRandomPosition(const Snake& snake) const {
 }
 
 bool GameItemManager::isValidPosition(sf::Vector2i position, const Snake& snake) const {
-  // Check if position is within grid bounds
   if (!grid.isValidPosition(position.y, position.x)) {
     return false;
   }
 
-  // Check if position conflicts with snake
   if (snake.checkCollisionWithPosition(position)) {
     return false;
   }
 
-  // Check if position conflicts with existing items
   for (const auto& item : items) {
     if (item->checkCollision(position)) {
       return false;

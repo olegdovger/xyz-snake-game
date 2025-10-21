@@ -292,9 +292,6 @@ void GameScreen::render() {
   }
 
   snake.setBlinking(isBlinking);
-  if (isBlinking) {
-    snake.setBlinkTimer(blinkTimer);
-  }
 
   snake.render(window, gameGrid);
 

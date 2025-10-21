@@ -35,10 +35,8 @@ private:
 
   sf::Vector2f menuRectSize = originSize * scaleRelativeFactor;
 
-  // Menu sound manager
   MenuSoundManager soundManager;
 
-  // Sound states
   bool soundEnabled = true;
   bool musicEnabled = true;
 

@@ -2,12 +2,10 @@
 #include "../config/AudioConstants.hpp"
 #include "ResourceLoader.hpp"
 
-
 MenuSoundManager::MenuSoundManager()
     : setActiveMenuItemSound(ResourceLoader::getSound(SoundType::SetActiveMenuItem)),
       selectMenuItemSound(ResourceLoader::getSound(SoundType::SelectMenuItem)) {
 
-  // Set menu sound volumes
   setActiveMenuItemSound.setVolume(AudioConstants::SoundEffects::MENU_NAVIGATION_VOLUME);
   selectMenuItemSound.setVolume(AudioConstants::SoundEffects::MENU_SELECTION_VOLUME);
 }

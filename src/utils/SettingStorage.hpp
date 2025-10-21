@@ -19,7 +19,6 @@ struct GameSettings {
   int gameCountdownInSeconds = 3;
   std::vector<int> gameRecordTable = {0};
 
-  // Serialization methods
   json toJson() const;
   void fromJson(const json& j);
 };
