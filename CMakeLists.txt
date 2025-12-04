@@ -40,6 +40,7 @@ FetchContent_Declare(SFML
         GIT_SHALLOW ON
         EXCLUDE_FROM_ALL
         SYSTEM)
+set(BUILD_SHARED_LIBS ON CACHE BOOL "Build SFML as shared libraries")
 FetchContent_MakeAvailable(SFML)
 
 # Add include directory for nlohmann
@@ -96,19 +97,52 @@ target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics SFML::Audio)
 # Copy resources folder to build directory
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR}/bin)
 
-# Copy required MinGW DLLs for release
-if(WIN32 AND CMAKE_BUILD_TYPE STREQUAL "Release")
-    find_program(MINGW_GCC gcc PATHS "C:/msys64/ucrt64/bin" "C:/msys64/mingw64/bin")
+# Copy SFML DLLs and MinGW DLLs for Windows
+if(WIN32)
+    # Get SFML build directory
+    FetchContent_GetProperties(SFML)
+    if(SFML_POPULATED)
+        set(SFML_BUILD_DIR ${CMAKE_BINARY_DIR}/_deps/sfml-build)
+        
+        # Copy SFML DLLs - try lib directory first, then bin
+        set(SFML_DLL_NAMES sfml-graphics-3 sfml-audio-3 sfml-window-3 sfml-system-3)
+        foreach(DLL_NAME ${SFML_DLL_NAMES})
+            # Try lib directory
+            set(SFML_DLL_LIB "${SFML_BUILD_DIR}/lib/${DLL_NAME}.dll")
+            add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "${SFML_DLL_LIB}"
+                    ${CMAKE_BINARY_DIR}/bin
+                COMMENT "Copying SFML DLL: ${DLL_NAME}.dll"
+            )
+            # Try bin directory as fallback
+            set(SFML_DLL_BIN "${SFML_BUILD_DIR}/bin/${DLL_NAME}.dll")
+            add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "${SFML_DLL_BIN}"
+                    ${CMAKE_BINARY_DIR}/bin
+                COMMENT "Copying SFML DLL from bin: ${DLL_NAME}.dll"
+            )
+        endforeach()
+    endif()
+    
+    # Copy MinGW DLLs for all build types
+    find_program(MINGW_GCC gcc PATHS "C:/msys64/ucrt64/bin" "C:/msys64/mingw64/bin" "C:/msys64/clang64/bin")
     if(MINGW_GCC)
         get_filename_component(MINGW_BIN_DIR ${MINGW_GCC} DIRECTORY)
-        file(GLOB MINGW_DLLS
+        set(MINGW_DLLS
             "${MINGW_BIN_DIR}/libgcc_s_seh-1.dll"
             "${MINGW_BIN_DIR}/libstdc++-6.dll"
             "${MINGW_BIN_DIR}/libwinpthread-1.dll"
         )
         foreach(DLL ${MINGW_DLLS})
             if(EXISTS ${DLL})
-                file(COPY ${DLL} DESTINATION ${CMAKE_BINARY_DIR}/bin)
+                add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                        ${DLL}
+                        ${CMAKE_BINARY_DIR}/bin
+                    COMMENT "Copying MinGW DLL: ${DLL}"
+                )
             endif()
         endforeach()
     endif()
@@ -127,21 +161,35 @@ set(CPACK_GENERATOR "ZIP")
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/resources DESTINATION bin)
 
-# Install MinGW DLLs for release
-if(WIN32 AND CMAKE_BUILD_TYPE STREQUAL "Release")
-    find_program(MINGW_GCC gcc PATHS "C:/msys64/ucrt64/bin" "C:/msys64/mingw64/bin")
+# Install SFML and MinGW DLLs for Windows
+if(WIN32)
+    # Install SFML DLLs using install(CODE) to handle paths correctly
+    FetchContent_GetProperties(SFML)
+    if(SFML_POPULATED)
+        set(SFML_BUILD_DIR ${CMAKE_BINARY_DIR}/_deps/sfml-build)
+        install(CODE "
+            set(SFML_DLL_DIR \"${SFML_BUILD_DIR}\")
+            set(INSTALL_BIN_DIR \"\${CMAKE_INSTALL_PREFIX}/bin\")
+            file(GLOB SFML_DLLS \"\${SFML_DLL_DIR}/lib/*.dll\" \"\${SFML_DLL_DIR}/bin/*.dll\")
+            foreach(DLL \${SFML_DLLS})
+                if(EXISTS \${DLL})
+                    file(COPY \${DLL} DESTINATION \${INSTALL_BIN_DIR})
+                endif()
+            endforeach()
+        ")
+    endif()
+    
+    # Install MinGW DLLs for all build types
+    find_program(MINGW_GCC gcc PATHS "C:/msys64/ucrt64/bin" "C:/msys64/mingw64/bin" "C:/msys64/clang64/bin")
     if(MINGW_GCC)
         get_filename_component(MINGW_BIN_DIR ${MINGW_GCC} DIRECTORY)
-        file(GLOB MINGW_DLLS
+        install(FILES
             "${MINGW_BIN_DIR}/libgcc_s_seh-1.dll"
             "${MINGW_BIN_DIR}/libstdc++-6.dll"
             "${MINGW_BIN_DIR}/libwinpthread-1.dll"
+            DESTINATION bin
+            OPTIONAL
         )
-        foreach(DLL ${MINGW_DLLS})
-            if(EXISTS ${DLL})
-                install(FILES ${DLL} DESTINATION bin)
-            endif()
-        endforeach()
     endif()
 endif()
 
