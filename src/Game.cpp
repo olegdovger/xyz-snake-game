@@ -14,8 +14,8 @@ Game::Game(sf::RenderWindow& win) : window(win), isRunning(true), previousScreen
 
   setCurrentScreen(new MainMenu(window, *this));
 
-  DebugUI::initialize(window);
-  EventLogger::setDebugMode(DEBUG_UI_TEXT);
+  // DebugUI::initialize(window);
+  // EventLogger::setDebugMode(DEBUG_UI_TEXT);
 }
 
 Game::~Game() {
